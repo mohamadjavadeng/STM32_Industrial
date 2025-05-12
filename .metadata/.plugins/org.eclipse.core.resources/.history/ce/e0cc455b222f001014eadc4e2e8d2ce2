@@ -1,0 +1,64 @@
+/*
+ * modbusMaster.c
+ *
+ *  Created on: May 12, 2025
+ *      Author: Mohamad
+ */
+
+#include "modbusMaster.h"
+#include "modbus_crc.h"
+#include <string.h>
+
+// Enable RS485 TX mode
+static void RS485_TX_EN(ModbusMaster_HandleTypeDef *hmodbus) {
+    HAL_GPIO_WritePin(hmodbus->EN_Port, hmodbus->EN_Pin, GPIO_PIN_SET);
+}
+
+// Enable RS485 RX mode
+static void RS485_RX_EN(ModbusMaster_HandleTypeDef *hmodbus) {
+    HAL_GPIO_WritePin(hmodbus->EN_Port, hmodbus->EN_Pin, GPIO_PIN_RESET);
+}
+
+void ModbusMaster_Init(ModbusMaster_HandleTypeDef *hmodbus, UART_HandleTypeDef *huart, GPIO_TypeDef *EN_Port, uint16_t EN_Pin) {
+    hmodbus->huart = huart;
+    hmodbus->EN_Port = EN_Port;
+    hmodbus->EN_Pin = EN_Pin;
+    RS485_RX_EN(hmodbus);
+}
+
+HAL_StatusTypeDef ModbusMaster_ReadHoldingRegisters(ModbusMaster_HandleTypeDef *hmodbus, uint8_t slave_id, uint16_t start_addr, uint16_t num_regs, uint8_t *response) {
+    uint8_t tx_frame[8];
+    tx_frame[0] = slave_id;
+    tx_frame[1] = 0x03; // Function code: Read Holding Registers
+    tx_frame[2] = (start_addr >> 8) & 0xFF;
+    tx_frame[3] = start_addr & 0xFF;
+    tx_frame[4] = (num_regs >> 8) & 0xFF;
+    tx_frame[5] = num_regs & 0xFF;
+
+    uint16_t crc = crc16(tx_frame, 6);
+    tx_frame[6] = crc & 0xFF;
+    tx_frame[7] = (crc >> 8) & 0xFF;
+
+    RS485_TX_EN(hmodbus);
+    HAL_StatusTypeDef status = HAL_UART_Transmit(hmodbus->huart, tx_frame, 8, 1000);
+    RS485_RX_EN(hmodbus);
+
+    if (status != HAL_OK)
+        return status;
+
+    uint16_t rx_len = 5 + 2 * num_regs; // ID + FUNC + LEN + DATA + CRC
+    status = HAL_UART_Receive(hmodbus->huart, response, rx_len, 1000);
+
+    // Validate response CRC
+    if (status == HAL_OK) {
+        uint16_t received_crc = (response[rx_len - 1] << 8) | response[rx_len - 2];
+        uint16_t calculated_crc = crc16(response, rx_len - 2);
+        if (received_crc != calculated_crc) {
+            return HAL_ERROR;
+        }
+    }
+
+    return status;
+}
+
+

@@ -1,0 +1,26 @@
+/*
+ * modbusMaster.h
+ *
+ *  Created on: May 12, 2025
+ *      Author: Mohamad
+ */
+
+#ifndef INC_MODBUSMASTER_H_
+#define INC_MODBUSMASTER_H_
+
+#include "main.h"
+#include "modbus_crc.h"
+#include <stdint.h>
+
+// Modbus Master handle
+typedef struct {
+    UART_HandleTypeDef *huart;
+    GPIO_TypeDef *EN_Port;
+    uint16_t EN_Pin;
+} ModbusMaster_HandleTypeDef;
+
+// API
+void ModbusMaster_Init(ModbusMaster_HandleTypeDef *hmodbus, UART_HandleTypeDef *huart, GPIO_TypeDef *EN_Port, uint16_t EN_Pin);
+HAL_StatusTypeDef ModbusMaster_ReadHoldingRegisters(ModbusMaster_HandleTypeDef *hmodbus, uint8_t slave_id, uint16_t start_addr, uint16_t num_regs, uint8_t *response);
+
+#endif /* INC_MODBUSMASTER_H_ */

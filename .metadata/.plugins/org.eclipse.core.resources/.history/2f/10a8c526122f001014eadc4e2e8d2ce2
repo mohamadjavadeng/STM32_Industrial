@@ -1,0 +1,15 @@
+/*
+ * modbusMaster.h
+ *
+ *  Created on: May 12, 2025
+ *      Author: Mohamad
+ */
+
+#ifndef INC_MODBUSMASTER_H_
+#define INC_MODBUSMASTER_H_
+
+#include "main.h"
+#include "modbus_crc.h"
+
+
+#endif /* INC_MODBUSMASTER_H_ */

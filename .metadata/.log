@@ -1,0 +1,33 @@
+!SESSION 2025-05-12 11:22:43.237 -----------------------------------------------
+eclipse.buildId=Version 1.17.0
+java.version=21.0.3
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -data C:\Users\Mohamad\Documents\GitHub\STM32_Industrial
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2025-05-12 11:22:47.290
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2025-05-12 11:22:47.291
+!MESSAGE Log4j2 initialized with config file C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2025-05-12 11:22:49.378
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-05-12 11:23:42.352
+!MESSAGE Indexed 'ModbusRTU_AWS' (19 sources, 81 headers) in 2.22 sec: 4,419 declarations; 17,824 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.009%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-05-12 13:40:45.700
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2025-05-12 16:31:55.514
+!MESSAGE Error - No active DSF-Session. tmpSessionId = 11 (contextManager row 121)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2025-05-12 16:31:55.516
+!MESSAGE Existing sessions are:
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2025-05-12 16:31:55.517
+!MESSAGE Error - No active DSF-Session. tmpSessionId = 11 (contextManager row 121)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug 4 0 2025-05-12 16:31:55.517
+!MESSAGE Existing sessions are:

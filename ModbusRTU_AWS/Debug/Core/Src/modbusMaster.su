@@ -1,0 +1,9 @@
+../Core/Src/modbusMaster.c:13:6:Modbus_Init	24	static
+../Core/Src/modbusMaster.c:27:21:Modbus_SendRequest	24	static
+../Core/Src/modbusMaster.c:46:14:Modbus_ReadHoldingRegisters	32	static
+../Core/Src/modbusMaster.c:69:14:Modbus_WriteSingleRegister	32	static
+../Core/Src/modbusMaster.c:84:14:Modbus_WriteSingleCoil	24	static
+../Core/Src/modbusMaster.c:101:14:Modbus_ReadCoils	32	static
+../Core/Src/modbusMaster.c:124:14:Modbus_ReadDiscreteInputs	32	static
+../Core/Src/modbusMaster.c:147:14:Modbus_WriteMultipleCoils	32	static
+../Core/Src/modbusMaster.c:169:14:Modbus_WriteMultipleRegisters	32	static

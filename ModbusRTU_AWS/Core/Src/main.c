@@ -25,6 +25,7 @@
 #include <string.h>
 #include "modbus_crc.h"
 #include "modbusMaster.h"
+#include "esp32msghandler.h"
 
 /* USER CODE END Includes */
 
@@ -56,6 +57,12 @@ DMA_HandleTypeDef hdma_usart3_tx;
 /* USER CODE BEGIN PV */
 ModbusMaster hmodbus;
 uint8_t rx_buffer[256];
+// Mock register arrays
+uint16_t holdingRegisters[100];
+uint16_t inputRegisters[100];
+uint8_t coils[100];
+uint8_t discreteInputs[100];
+uint8_t SlaveID = 2;
 
 /* USER CODE END PV */
 
@@ -112,10 +119,18 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   Modbus_Init(&hmodbus, &huart1, RS485_EN_GPIO_Port, RS485_EN_Pin);
-  uint8_t holdingreg[2];
-  uint16_t holdingRegs[2];
+  ESP32MsgHandler_Init(&huart3);
+
+  // Initialize some test values
+  holdingRegisters[1] = 1234;
+  inputRegisters[1] = 5678;
+  coils[0] = 1;
+  discreteInputs[0] = 0;
+  /*uint8_t holdingreg[2] = {0, 0};
+  uint16_t holdingRegs[2] = {0, 0};
+  uint16_t dataToHoldingRegs[2];
   char TXRespons[30];
-  int i=0;
+  int i=0;*/
 
 
   /* USER CODE END 2 */
@@ -127,37 +142,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	if((holdingreg[0] & 0x01) == 0){
-		holdingreg[0] = holdingreg[0] | 0x01;
-	}
-	else{
-		holdingreg[0] = holdingreg[0] & 0xFE;
-	}
-	if((holdingreg[0] & 0x02) == 0){
-		holdingreg[0] = holdingreg[0] | 0x02;
-	}
-	else{
-		holdingreg[0] = holdingreg[0] & 0xFD;
-	}
-	ModbusStatus status = Modbus_WriteMultipleCoils(&hmodbus, 2, 1281, 2, holdingreg);
-	if(status == MODBUS_OK){
-		HAL_UART_Transmit(&huart3, (uint8_t *)"OK!\n", 4, 100);
-	}
-    status = Modbus_ReadHoldingRegisters(&hmodbus, 2, 4097, 2, holdingRegs);
-    sprintf(TXRespons, "Response= %d\n", holdingRegs[0]);
-    HAL_UART_Transmit(&huart3, (uint8_t *)TXRespons, strlen(TXRespons), 100);
-    if (status == MODBUS_OK) {
-        // Successfully read, now write to register 0x0001
-        status = Modbus_WriteSingleRegister(&hmodbus, 2, 4097, 823 + i);
-        i++;
-        if(i == 50) i = 0;
-        if (status == MODBUS_OK) {
-            // Indicate success (e.g., blink an LED)
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); // assuming onboard LED
-            HAL_Delay(500);
-        }
-    }
-	HAL_Delay(2000);
+	ESP32MsgHandler_Task();  // Call this in main loop
+
 
   }
   /* USER CODE END 3 */

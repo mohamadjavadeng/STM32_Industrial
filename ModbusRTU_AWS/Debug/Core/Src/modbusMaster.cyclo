@@ -7,3 +7,4 @@
 ../Core/Src/modbusMaster.c:124:14:Modbus_ReadDiscreteInputs	4
 ../Core/Src/modbusMaster.c:147:14:Modbus_WriteMultipleCoils	3
 ../Core/Src/modbusMaster.c:169:14:Modbus_WriteMultipleRegisters	2
+../Core/Src/modbusMaster.c:190:14:Modbus_ReadInputRegisters	5

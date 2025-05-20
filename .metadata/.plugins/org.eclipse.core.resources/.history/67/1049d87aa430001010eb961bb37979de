@@ -1,0 +1,180 @@
+/*
+ * esp32msghandler.c
+ *
+ *  Created on: May 13, 2025
+ *      Author: Mohamad
+ */
+
+#include "esp32msghandler.h"
+#include <string.h>
+
+// Internal receive buffer
+static uint8_t rxBuffer[ESP32MSG_BUFFER_SIZE];
+static uint16_t rxIndex = 0;
+static UART_HandleTypeDef *esp32_uart = NULL;
+
+/*
+// CRC16 (Modbus) lookup
+static uint16_t crc16(const uint8_t *data, uint16_t len) {
+    uint16_t crc = 0xFFFF;
+    for (uint16_t pos = 0; pos < len; pos++) {
+        crc ^= data[pos];
+        for (int i = 0; i < 8; i++) {
+            if ((crc & 0x0001) != 0)
+                crc = (crc >> 1) ^ 0xA001;
+            else
+                crc >>= 1;
+        }
+    }
+    return crc;
+}*/
+// Use arrays defined in main.c or wherever you maintain register values
+extern uint16_t holdingRegisters[100];
+extern uint16_t inputRegisters[100];
+extern uint8_t coils[100];
+extern uint8_t discreteInputs[100];
+
+uint16_t ESP32MsgHandler_ReadRegister(uint8_t type, uint16_t addr) {
+    switch (type) {
+        case REG_TYPE_HOLDING:
+            return holdingRegisters[addr];
+        case REG_TYPE_INPUT:
+            return inputRegisters[addr];
+        case REG_TYPE_COIL:
+            return coils[addr] ? 1 : 0;
+        case REG_TYPE_DISCRETE:
+            return discreteInputs[addr] ? 1 : 0;
+        default:
+            return 0;
+    }
+}
+uint8_t ESP32MsgHandler_MultipleReadRegister(uint8_t type, uint16_t addr, uint8_t quantity, uint8_t *buff) {
+    switch (type) {
+        case REG_TYPE_HOLDING:
+        	for(int i = 3; i < quantity; i=i+2){
+        		int j = (i-3) / 2;
+        		buff[i] = (holdingRegisters[j] >> 8);
+        		buff[i+1] = holdingRegisters[j];
+        	}
+            return 0;
+        case REG_TYPE_INPUT:
+        	for(int i = 3; i < quantity; i=i+2){
+				buff[i] = inputRegisters[i-3];
+				buff[i+1] = inputRegisters[i-2];
+			}
+			return 0;
+        case REG_TYPE_COIL:
+        	for(int i = 3; i < quantity; i++){
+				buff[i] = coils[i-3] ? 1 : 0;
+			}
+			return 0;
+        case REG_TYPE_DISCRETE:
+        	for(int i = 3; i < quantity; i++){
+				buff[i] = discreteInputs[i-3] ? 1 : 0;
+			}
+            return 0;
+        default:
+            return 1;
+    }
+}
+
+void ESP32MsgHandler_WriteRegister(uint8_t type, uint16_t addr, uint16_t value) {
+    switch (type) {
+        case REG_TYPE_HOLDING:
+            holdingRegisters[addr] = value;
+            break;
+        case REG_TYPE_COIL:
+            coils[addr] = (value != 0);
+            break;
+        // Input and Discrete Inputs are usually read-only
+    }
+}
+
+void ESP32MsgHandler_Init(UART_HandleTypeDef *huart) {
+    esp32_uart = huart;
+    rxIndex = 0;
+}
+
+void ESP32MsgHandler_Task() {
+    uint8_t byte;
+    while (HAL_UART_Receive(esp32_uart, &byte, 1, 0) == HAL_OK) {
+        if (rxIndex == 0 && byte != ESP32MSG_START_BYTE) {
+            continue; // Wait for start byte
+        }
+        rxBuffer[rxIndex++] = byte;
+
+        if (rxIndex >= 6) {
+            uint16_t packetLen = 6;
+            uint8_t cmd = rxBuffer[1];
+            uint8_t type = rxBuffer[2];
+            uint16_t addr = (rxBuffer[3] << 8) | rxBuffer[4];
+            uint8_t count = rxBuffer[5];
+
+            if (cmd == ESP32MSG_CMD_WRITE)
+                packetLen += count;
+
+            packetLen += 2; // Add CRC
+
+            if (rxIndex >= packetLen) {
+                // Validate CRC
+                uint16_t recv_crc = (rxBuffer[packetLen - 2]) | (rxBuffer[packetLen - 1] << 8);
+                uint16_t calc_crc = crc16(rxBuffer, packetLen - 2);
+                if (recv_crc == calc_crc) {
+                    // Process
+                    if (cmd == ESP32MSG_CMD_READ) {
+                        uint16_t value = ESP32MsgHandler_ReadRegister(type, addr);
+                        uint8_t response[8];
+                        response[0] = ESP32MSG_RESPONSE_START_BYTE;
+                        response[1] = ESP32MSG_STATUS_OK;
+                        response[2] = 2;
+                        response[3] = (value >> 8);
+                        response[4] = (value & 0xFF);
+                        uint16_t crc = crc16(response, 5);
+                        response[5] = (crc & 0xFF);
+                        response[6] = (crc >> 8);
+                        HAL_UART_Transmit(esp32_uart, response, 7, HAL_MAX_DELAY);
+                    } else if (cmd == ESP32MSG_CMD_WRITE) {
+                        if (count >= 2) {
+                            uint16_t value = (rxBuffer[6] << 8) | rxBuffer[7];
+                            ESP32MsgHandler_WriteRegister(type, addr, value);
+                            uint8_t response[5];
+                            response[0] = ESP32MSG_RESPONSE_START_BYTE;
+                            response[1] = ESP32MSG_STATUS_OK;
+                            response[2] = 0; // no data
+                            uint16_t crc = crc16(response, 3);
+                            response[3] = (crc & 0xFF);
+                            response[4] = (crc >> 8);
+                            HAL_UART_Transmit(esp32_uart, response, 5, HAL_MAX_DELAY);
+                        }
+                    }
+                    else if(cmd == ESP32MSG_CMD_MULREAD){
+                    	uint8_t response[256];
+						response[0] = ESP32MSG_RESPONSE_START_BYTE;
+						response[1] = ESP32MSG_STATUS_OK;
+						response[2] = count;
+                    	uint8_t resp = ESP32MsgHandler_MultipleReadRegister(type, addr, count, response);
+                    	if(resp != 0){
+                    		continue;
+                    	}
+						uint16_t crc = crc16(response, count + 3);
+						response[count + 3] = (crc & 0xFF);
+						response[count + 4] = (crc >> 8);
+						HAL_UART_Transmit(esp32_uart, response, count + 5, HAL_MAX_DELAY);
+                    	}
+                } else {
+                    // CRC Error
+                    uint8_t err[5] = {
+                        ESP32MSG_RESPONSE_START_BYTE,
+                        ESP32MSG_STATUS_ERROR,
+                        0
+                    };
+                    uint16_t crc = crc16(err, 3);
+                    err[3] = crc & 0xFF;
+                    err[4] = crc >> 8;
+                    HAL_UART_Transmit(esp32_uart, err, 5, HAL_MAX_DELAY);
+                }
+                rxIndex = 0; // reset for next packet
+            }
+        }
+    }
+}

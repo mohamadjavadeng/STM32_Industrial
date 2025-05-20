@@ -1,10 +1,10 @@
-16:36:22 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+13:59:41 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
 make -j16 all 
 arm-none-eabi-size  ModbusRTU_AWS.elf 
    text	   data	    bss	    dec	    hex	filename
-  18572	     92	   3044	  21708	   54cc	ModbusRTU_AWS.elf
+  17868	     16	   3392	  21276	   531c	ModbusRTU_AWS.elf
 Finished building: default.size.stdout
  
 
-16:36:22 Build Finished. 0 errors, 0 warnings. (took 197ms)
+13:59:41 Build Finished. 0 errors, 0 warnings. (took 187ms)
 

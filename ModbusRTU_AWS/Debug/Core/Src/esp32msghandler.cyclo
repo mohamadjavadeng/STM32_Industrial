@@ -1,0 +1,5 @@
+../Core/Src/esp32msghandler.c:44:10:ESP32MsgHandler_ReadRegister	5
+../Core/Src/esp32msghandler.c:62:9:ESP32MsgHandler_MultipleReadRegister	13
+../Core/Src/esp32msghandler.c:108:9:ESP32MsgHandler_WriteRegister	3
+../Core/Src/esp32msghandler.c:122:6:ESP32MsgHandler_Init	1
+../Core/Src/esp32msghandler.c:127:6:ESP32MsgHandler_Task	13

@@ -703,3 +703,1182 @@ arm-none-eabi-size  ModbusRTU_AWS.elf
   18572	     92	   3044	  21708	   54cc	ModbusRTU_AWS.elf
 Finished building: default.size.stdout
  
+10:08:06 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:147:64: warning: passing argument 5 of 'Modbus_ReadHoldingRegisters' makes pointer from integer without a cast [-Wint-conversion]
+  147 |     status = Modbus_ReadHoldingRegisters(&hmodbus, 2, 4097, 2, holdingRegs);
+      |                                                                ^~~~~~~~~~~
+      |                                                                |
+      |                                                                uint32_t {aka long unsigned int}
+In file included from ../Core/Src/main.c:27:
+../Core/Inc/modbusMaster.h:49:133: note: expected 'uint16_t *' {aka 'short unsigned int *'} but argument is of type 'uint32_t' {aka 'long unsigned int'}
+   49 | ModbusStatus Modbus_ReadHoldingRegisters(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, uint16_t* data);
+      |                                                                                                                           ~~~~~~~~~~^~~~
+../Core/Src/main.c:148:53: error: subscripted value is neither array nor pointer nor vector
+  148 |     sprintf(TXRespons, "Response= %d\n", holdingRegs[0]);
+      |                                                     ^
+../Core/Src/main.c:153:64: warning: passing argument 4 of 'Modbus_WriteSingleRegister' makes integer from pointer without a cast [-Wint-conversion]
+  153 |         status = Modbus_WriteSingleRegister(&hmodbus, 2, 4097, dataToHoldingRegs);
+      |                                                                ^~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                uint16_t * {aka short unsigned int *}
+../Core/Inc/modbusMaster.h:50:107: note: expected 'uint16_t' {aka 'short unsigned int'} but argument is of type 'uint16_t *' {aka 'short unsigned int *'}
+   50 | ModbusStatus Modbus_WriteSingleRegister(ModbusMaster* modbus, uint8_t slaveID, uint16_t address, uint16_t value);
+      |                                                                                                  ~~~~~~~~~^~~~~
+make: *** [Core/Src/subdir.mk:40: Core/Src/main.o] Error 1
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+10:09:03 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:153:64: warning: passing argument 4 of 'Modbus_WriteSingleRegister' makes integer from pointer without a cast [-Wint-conversion]
+  153 |         status = Modbus_WriteSingleRegister(&hmodbus, 2, 4097, dataToHoldingRegs);
+      |                                                                ^~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                uint16_t * {aka short unsigned int *}
+In file included from ../Core/Src/main.c:27:
+../Core/Inc/modbusMaster.h:50:107: note: expected 'uint16_t' {aka 'short unsigned int'} but argument is of type 'uint16_t *' {aka 'short unsigned int *'}
+   50 | ModbusStatus Modbus_WriteSingleRegister(ModbusMaster* modbus, uint8_t slaveID, uint16_t address, uint16_t value);
+      |                                                                                                  ~~~~~~~~~^~~~~
+../Core/Src/main.c:147:14: warning: 'holdingRegs' is used uninitialized [-Wuninitialized]
+  147 |     status = Modbus_ReadHoldingRegisters(&hmodbus, 2, 4097, 2, (uint16_t *)holdingRegs);
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:116:12: note: 'holdingRegs' was declared here
+  116 |   uint32_t holdingRegs;
+      |            ^~~~~~~~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18576	     92	   3044	  21712	   54d0	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:09:27 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18576	     92	   3044	  21712	   54d0	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+10:10:40 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:153:64: warning: passing argument 4 of 'Modbus_WriteSingleRegister' makes integer from pointer without a cast [-Wint-conversion]
+  153 |         status = Modbus_WriteSingleRegister(&hmodbus, 2, 4097, dataToHoldingRegs);
+      |                                                                ^~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                uint16_t * {aka short unsigned int *}
+In file included from ../Core/Src/main.c:27:
+../Core/Inc/modbusMaster.h:50:107: note: expected 'uint16_t' {aka 'short unsigned int'} but argument is of type 'uint16_t *' {aka 'short unsigned int *'}
+   50 | ModbusStatus Modbus_WriteSingleRegister(ModbusMaster* modbus, uint8_t slaveID, uint16_t address, uint16_t value);
+      |                                                                                                  ~~~~~~~~~^~~~~
+../Core/Src/main.c:147:14: warning: 'holdingRegs' is used uninitialized [-Wuninitialized]
+  147 |     status = Modbus_ReadHoldingRegisters(&hmodbus, 2, 4097, 2, (uint16_t *)holdingRegs);
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:116:12: note: 'holdingRegs' was declared here
+  116 |   uint32_t holdingRegs;
+      |            ^~~~~~~~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18576	     92	   3044	  21712	   54d0	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:11:33 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18576	     92	   3044	  21712	   54d0	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:11:36 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18576	     92	   3044	  21712	   54d0	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+10:23:22 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:148:37: warning: format '%lu' expects argument of type 'long unsigned int', but argument 3 has type 'uint32_t *' {aka 'long unsigned int *'} [-Wformat=]
+  148 |     sprintf(TXRespons, "Response= %lu\n", holdingRegs);
+      |                                   ~~^     ~~~~~~~~~~~
+      |                                     |     |
+      |                                     |     uint32_t * {aka long unsigned int *}
+      |                                     long unsigned int
+      |                                   %ln
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:26:33 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:147:64: warning: passing argument 5 of 'Modbus_ReadHoldingRegisters' from incompatible pointer type [-Wincompatible-pointer-types]
+  147 |     status = Modbus_ReadHoldingRegisters(&hmodbus, 2, 4097, 2, holdingRegs);
+      |                                                                ^~~~~~~~~~~
+      |                                                                |
+      |                                                                uint32_t * {aka long unsigned int *}
+In file included from ../Core/Src/main.c:27:
+../Core/Inc/modbusMaster.h:49:133: note: expected 'uint16_t *' {aka 'short unsigned int *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   49 | ModbusStatus Modbus_ReadHoldingRegisters(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, uint16_t* data);
+      |                                                                                                                           ~~~~~~~~~~^~~~
+../Core/Src/main.c:148:36: warning: format '%d' expects argument of type 'int', but argument 3 has type 'uint32_t' {aka 'long unsigned int'} [-Wformat=]
+  148 |     sprintf(TXRespons, "Response= %d\n", holdingRegs[0]);
+      |                                   ~^     ~~~~~~~~~~~~~~
+      |                                    |                |
+      |                                    int              uint32_t {aka long unsigned int}
+      |                                   %ld
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:26:56 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:31:30 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+10:36:29 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:39:59 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:143:89: warning: passing argument 5 of 'Modbus_WriteMultipleCoils' makes pointer from integer without a cast [-Wint-conversion]
+  143 |         ModbusStatus status = Modbus_WriteMultipleCoils(&hmodbus, 2, 1281, 2, holdingreg[0]);
+      |                                                                               ~~~~~~~~~~^~~
+      |                                                                                         |
+      |                                                                                         uint8_t {aka unsigned char}
+In file included from ../Core/Src/main.c:27:
+../Core/Inc/modbusMaster.h:55:136: note: expected 'const uint8_t *' {aka 'const unsigned char *'} but argument is of type 'uint8_t' {aka 'unsigned char'}
+   55 | ModbusStatus Modbus_WriteMultipleCoils(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, const uint8_t* values);
+      |                                                                                                                         ~~~~~~~~~~~~~~~^~~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:41:26 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/modbusMaster.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/modbusMaster.d" -MT"Core/Src/modbusMaster.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/modbusMaster.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:41:34 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+10:43:15 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18508	     92	   3044	  21644	   548c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+10:48:45 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18512	     92	   3044	  21648	   5490	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:48:51 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18512	     92	   3044	  21648	   5490	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+10:51:54 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  18588	     92	   3044	  21724	   54dc	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+10:52:00 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18588	     92	   3044	  21724	   54dc	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+14:51:35 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/modbusMaster.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/modbusMaster.d" -MT"Core/Src/modbusMaster.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/modbusMaster.o"
+arm-none-eabi-gcc "../Core/Src/modbus_crc.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/modbus_crc.d" -MT"Core/Src/modbus_crc.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/modbus_crc.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+arm-none-eabi-gcc "../Core/Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/syscalls.d" -MT"Core/Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/syscalls.o"
+arm-none-eabi-gcc "../Core/Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/sysmem.d" -MT"Core/Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/sysmem.o"
+arm-none-eabi-gcc "../Core/Src/system_stm32f4xx.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/system_stm32f4xx.d" -MT"Core/Src/system_stm32f4xx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/system_stm32f4xx.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:119:7: warning: unused variable 'i' [-Wunused-variable]
+  119 |   int i=0;
+      |       ^
+../Core/Src/main.c:118:8: warning: unused variable 'TXRespons' [-Wunused-variable]
+  118 |   char TXRespons[30];
+      |        ^~~~~~~~~
+../Core/Src/main.c:117:12: warning: unused variable 'dataToHoldingRegs' [-Wunused-variable]
+  117 |   uint16_t dataToHoldingRegs[2];
+      |            ^~~~~~~~~~~~~~~~~
+../Core/Src/main.c:116:12: warning: unused variable 'holdingRegs' [-Wunused-variable]
+  116 |   uint16_t holdingRegs[2] = {0, 0};
+      |            ^~~~~~~~~~~
+../Core/Src/main.c:115:11: warning: unused variable 'holdingreg' [-Wunused-variable]
+  115 |   uint8_t holdingreg[2] = {0, 0};
+      |           ^~~~~~~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  13372	     12	   2708	  16092	   3edc	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+16:18:26 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:120:3: warning: implicit declaration of function 'ESP32MsgHandler_Init' [-Wimplicit-function-declaration]
+  120 |   ESP32MsgHandler_Init(&huart1);
+      |   ^~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:143:9: warning: implicit declaration of function 'ESP32MsgHandler_Task' [-Wimplicit-function-declaration]
+  143 |         ESP32MsgHandler_Task();  // Call this in main loop
+      |         ^~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  15576	     12	   3380	  18968	   4a18	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+16:18:49 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  15576	     12	   3380	  18968	   4a18	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+16:19:10 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  15576	     12	   3380	  18968	   4a18	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+16:20:28 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  15576	     12	   3380	  18968	   4a18	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+16:23:00 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  15580	     12	   3380	  18972	   4a1c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+16:23:02 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  15580	     12	   3380	  18972	   4a1c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+11:06:44 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  15580	     12	   3380	  18972	   4a1c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+12:15:54 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+In file included from C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:24,
+                 from C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:15,
+                 from C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/string.h:11,
+                 from ../Core/Src/esp32msghandler.c:9:
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/include/stddef.h: In function 'ESP32MsgHandler_MultipleReadRegister':
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/include/stddef.h:359:23: error: storage class specified for parameter 'wint_t'
+  359 | typedef __WINT_TYPE__ wint_t;
+      |                       ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:30:14: error: storage class specified for parameter '__blkcnt_t'
+   30 | typedef long __blkcnt_t;
+      |              ^~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:34:14: error: storage class specified for parameter '__blksize_t'
+   34 | typedef long __blksize_t;
+      |              ^~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:38:20: error: storage class specified for parameter '__fsblkcnt_t'
+   38 | typedef __uint64_t __fsblkcnt_t;
+      |                    ^~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:42:20: error: storage class specified for parameter '__fsfilcnt_t'
+   42 | typedef __uint32_t __fsfilcnt_t;
+      |                    ^~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:46:14: error: storage class specified for parameter '_off_t'
+   46 | typedef long _off_t;
+      |              ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:52:13: error: storage class specified for parameter '__pid_t'
+   52 | typedef int __pid_t;
+      |             ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:56:15: error: storage class specified for parameter '__dev_t'
+   56 | typedef short __dev_t;
+      |               ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:60:24: error: storage class specified for parameter '__uid_t'
+   60 | typedef unsigned short __uid_t;
+      |                        ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:63:24: error: storage class specified for parameter '__gid_t'
+   63 | typedef unsigned short __gid_t;
+      |                        ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:67:20: error: storage class specified for parameter '__id_t'
+   67 | typedef __uint32_t __id_t;
+      |                    ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:75:24: error: storage class specified for parameter '__ino_t'
+   75 | typedef unsigned short __ino_t;
+      |                        ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:90:20: error: storage class specified for parameter '__mode_t'
+   90 | typedef __uint32_t __mode_t;
+      |                    ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:96:1: error: expected declaration specifiers before '__extension__'
+   96 | __extension__ typedef long long _off64_t;
+      | ^~~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:102:16: error: expected '=', ',', ';', 'asm' or '__attribute__' before '__off_t'
+  102 | typedef _off_t __off_t;
+      |                ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:105:9: error: unknown type name '_off64_t'
+  105 | typedef _off64_t __loff_t;
+      |         ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:105:18: error: storage class specified for parameter '__loff_t'
+  105 | typedef _off64_t __loff_t;
+      |                  ^~~~~~~~
+../Core/Src/main.c: In function 'ESP32MsgHandler_MultipleReadRegister':
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:108:14: error: storage class specified for parameter '__key_t'
+  108 | typedef long __key_t;
+      |              ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:116:14: error: storage class specified for parameter '_fpos_t'
+  116 | typedef long _fpos_t;           /* XXX must match off_t in <sys/types.h> */
+      |              ^~~~~~~
+../Core/Src/main.c:70:13: error: storage class specified for parameter 'MX_GPIO_Init'
+   70 | static void MX_GPIO_Init(void);
+      |             ^~~~~~~~~~~~
+../Core/Src/main.c:71:13: error: storage class specified for parameter 'MX_DMA_Init'
+   71 | static void MX_DMA_Init(void);
+      |             ^~~~~~~~~~~
+../Core/Src/main.c:72:13: error: storage class specified for parameter 'MX_SPI2_Init'
+   72 | static void MX_SPI2_Init(void);
+      |             ^~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:131:23: error: storage class specified for parameter '__size_t'
+  131 | typedef __SIZE_TYPE__ __size_t;
+      |                       ^~~~~~~~
+../Core/Src/main.c:73:13: error: storage class specified for parameter 'MX_USART1_UART_Init'
+   73 | static void MX_USART1_UART_Init(void);
+      |             ^~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:74:13: error: storage class specified for parameter 'MX_USART3_UART_Init'
+   74 | static void MX_USART3_UART_Init(void);
+      |             ^~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:91:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   91 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:147:23: error: storage class specified for parameter '_ssize_t'
+  147 | typedef __SIZE_TYPE__ _ssize_t;
+      |                       ^~~~~~~~
+../Core/Src/main.c:156:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  156 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:158:18: error: expected '=', ',', ';', 'asm' or '__attribute__' before '__ssize_t'
+  158 | typedef _ssize_t __ssize_t;
+      |                  ^~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:167:5: error: expected specifier-qualifier-list before 'wint_t'
+  167 |     wint_t __wch;
+      |     ^~~~~~
+../Core/Src/main.c:202:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  202 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:170:3: error: storage class specified for parameter '_mbstate_t'
+  170 | } _mbstate_t;
+      |   ^~~~~~~~~~
+../Core/Src/main.c:240:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  240 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:175:15: error: storage class specified for parameter '_iconv_t'
+  175 | typedef void *_iconv_t;
+      |               ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:182:25: error: storage class specified for parameter '__clock_t'
+  182 | typedef _CLOCK_T_       __clock_t;
+      |                         ^~~~~~~~~
+../Core/Src/main.c:273:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  273 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:189:25: error: storage class specified for parameter '__time_t'
+  189 | typedef _TIME_T_        __time_t;
+      |                         ^~~~~~~~
+../Core/Src/main.c:304:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  304 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:195:25: error: storage class specified for parameter '__clockid_t'
+  195 | typedef _CLOCKID_T_     __clockid_t;
+      |                         ^~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:198:25: error: storage class specified for parameter '__daddr_t'
+  198 | typedef long            __daddr_t;
+      |                         ^~~~~~~~~
+../Core/Src/main.c:332:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  332 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:202:25: error: storage class specified for parameter '__timer_t'
+  202 | typedef _TIMER_T_       __timer_t;
+      |                         ^~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:205:25: error: storage class specified for parameter '__sa_family_t'
+  205 | typedef __uint8_t       __sa_family_t;
+      |                         ^~~~~~~~~~~~~
+../Core/Src/main.c:387:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+  387 | {
+      | ^
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:209:25: error: storage class specified for parameter '__socklen_t'
+  209 | typedef __uint32_t      __socklen_t;
+      |                         ^~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:212:25: error: storage class specified for parameter '__nl_item'
+  212 | typedef int             __nl_item;
+      |                         ^~~~~~~~~
+In file included from ../Core/Src/main.c:28:
+../Core/Inc/esp32msghandler.h:42:9: error: old-style parameter declarations in prototyped function definition
+   42 | uint8_t ESP32MsgHandler_MultipleReadRegister(uint8_t type, uint16_t addr, uint8_t quantity)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:414: error: expected '{' at end of input
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:213:25: error: storage class specified for parameter '__nlink_t'
+  213 | typedef unsigned short  __nlink_t;
+      |                         ^~~~~~~~~
+../Core/Src/main.c:414: warning: control reaches end of non-void function [-Wreturn-type]
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:214:25: error: storage class specified for parameter '__suseconds_t'
+  214 | typedef long            __suseconds_t;  /* microseconds (signed) */
+      |                         ^~~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:215:25: error: storage class specified for parameter '__useconds_t'
+  215 | typedef unsigned long   __useconds_t;   /* microseconds (unsigned) */
+      |                         ^~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_types.h:223:33: error: storage class specified for parameter '__va_list'
+  223 | typedef __builtin_va_list       __va_list;
+      |                                 ^~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:22:25: error: storage class specified for parameter '__ULong'
+   22 | typedef unsigned __Long __ULong;
+      |                         ^~~~~~~
+In file included from C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:34:
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:34:25: error: storage class specified for parameter '_LOCK_T'
+   34 | typedef struct __lock * _LOCK_T;
+      |                         ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:41:34: error: expected declaration specifiers or '...' before '_LOCK_T'
+   41 | extern void __retarget_lock_init(_LOCK_T *lock);
+      |                                  ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:43:44: error: expected declaration specifiers or '...' before '_LOCK_T'
+   43 | extern void __retarget_lock_init_recursive(_LOCK_T *lock);
+      |                                            ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:45:35: error: expected declaration specifiers or '...' before '_LOCK_T'
+   45 | extern void __retarget_lock_close(_LOCK_T lock);
+      |                                   ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:47:45: error: expected declaration specifiers or '...' before '_LOCK_T'
+   47 | extern void __retarget_lock_close_recursive(_LOCK_T lock);
+      |                                             ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:49:37: error: expected declaration specifiers or '...' before '_LOCK_T'
+   49 | extern void __retarget_lock_acquire(_LOCK_T lock);
+      |                                     ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:51:47: error: expected declaration specifiers or '...' before '_LOCK_T'
+   51 | extern void __retarget_lock_acquire_recursive(_LOCK_T lock);
+      |                                               ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:53:40: error: expected declaration specifiers or '...' before '_LOCK_T'
+   53 | extern int __retarget_lock_try_acquire(_LOCK_T lock);
+      |                                        ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:55:50: error: expected declaration specifiers or '...' before '_LOCK_T'
+   55 | extern int __retarget_lock_try_acquire_recursive(_LOCK_T lock);
+      |                                                  ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:58:37: error: expected declaration specifiers or '...' before '_LOCK_T'
+   58 | extern void __retarget_lock_release(_LOCK_T lock);
+      |                                     ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/lock.h:60:47: error: expected declaration specifiers or '...' before '_LOCK_T'
+   60 | extern void __retarget_lock_release_recursive(_LOCK_T lock);
+      |                                               ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:35:27: error: expected '=', ',', ';', 'asm' or '__attribute__' before '_flock_t'
+   35 | typedef _LOCK_RECURSIVE_T _flock_t;
+      |                           ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:56:3: error: expected specifier-qualifier-list before '__ULong'
+   56 |   __ULong _x[1];
+      |   ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:83:9: error: expected specifier-qualifier-list before '__ULong'
+   83 |         __ULong _fntypes;                       /* type of exit routine -
+      |         ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:173:3: error: expected specifier-qualifier-list before '_fpos_t'
+  173 |   _fpos_t (*_seek) (struct _reent *, void *, _fpos_t, int);
+      |   ^~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:269:26: error: storage class specified for parameter '__FILE'
+  269 | typedef struct __sFILE   __FILE;
+      |                          ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:273:15: error: expected '=', ',', ';', 'asm' or '__attribute__' before '__sf'
+  273 | extern __FILE __sf[3];
+      |               ^~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:279:3: error: expected specifier-qualifier-list before '__FILE'
+  279 |   __FILE *_iobs;
+      |   ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:282:21: error: storage class specified for parameter '__sglue'
+  282 | extern struct _glue __sglue;
+      |                     ^~~~~~~
+make: *** [Core/Src/subdir.mk:43: Core/Src/main.o] Error 1
+make: *** Waiting for unfinished jobs....
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:361:3: error: expected specifier-qualifier-list before '_mbstate_t'
+  361 |   _mbstate_t _mblen_state;
+      |   ^~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:384:3: error: expected specifier-qualifier-list before '__FILE'
+  384 |   __FILE *_stdin, *_stdout, *_stderr;   /* XXX */
+      |   ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:765:23: error: storage class specified for parameter '_impure_ptr'
+  765 | extern struct _reent *_impure_ptr __ATTRIBUTE_IMPURE_PTR__;
+      |                       ^~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:771:22: error: storage class specified for parameter '_impure_data'
+  771 | extern struct _reent _impure_data __ATTRIBUTE_IMPURE_DATA__;
+      |                      ^~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:883:24: error: storage class specified for parameter '__atexit'
+  883 | extern struct _atexit *__atexit; /* points to head of LIFO stack */
+      |                        ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:884:23: error: storage class specified for parameter '__atexit0'
+  884 | extern struct _atexit __atexit0; /* one guaranteed table, required by ANSI */
+      |                       ^~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:886:15: error: storage class specified for parameter '__stdio_exit_handler'
+  886 | extern void (*__stdio_exit_handler) (void);
+      |               ^~~~~~~~~~~~~~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:890:68: error: expected declaration specifiers or '...' before '__FILE'
+  890 | extern int _fwalk_sglue (struct _reent *, int (*)(struct _reent *, __FILE *),
+      |                                                                    ^~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/reent.h:891:26: error: expected ';', ',' or ')' before 'struct'
+  891 |                          struct _glue *);
+      |                          ^~~~~~
+In file included from C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/string.h:20:
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/sys/_locale.h:10:28: error: storage class specified for parameter 'locale_t'
+   10 | typedef struct __locale_t *locale_t;
+      |                            ^~~~~~~~
+In file included from C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/string.h:24:
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/strings.h:71:52: error: expected declaration specifiers or '...' before 'locale_t'
+   71 | int      strcasecmp_l (const char *, const char *, locale_t);
+      |                                                    ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/strings.h:72:61: error: expected declaration specifiers or '...' before 'locale_t'
+   72 | int      strncasecmp_l (const char *, const char *, size_t, locale_t);
+      |                                                             ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/string.h:55:49: error: expected declaration specifiers or '...' before 'locale_t'
+   55 | int      strcoll_l (const char *, const char *, locale_t);
+      |                                                 ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/string.h:56:27: error: expected declaration specifiers or '...' before 'locale_t'
+   56 | char    *strerror_l (int, locale_t);
+      |                           ^~~~~~~~
+C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/string.h:57:71: error: expected declaration specifiers or '...' before 'locale_t'
+   57 | size_t   strxfrm_l (char *__restrict, const char *__restrict, size_t, locale_t);
+      |                                                                       ^~~~~~~~
+../Core/Src/esp32msghandler.c:12:16: error: storage class specified for parameter 'rxBuffer'
+   12 | static uint8_t rxBuffer[ESP32MSG_BUFFER_SIZE];
+      |                ^~~~~~~~
+../Core/Src/esp32msghandler.c:13:17: error: storage class specified for parameter 'rxIndex'
+   13 | static uint16_t rxIndex = 0;
+      |                 ^~~~~~~
+../Core/Src/esp32msghandler.c:13:1: error: parameter 'rxIndex' is initialized
+   13 | static uint16_t rxIndex = 0;
+      | ^~~~~~
+../Core/Src/esp32msghandler.c:14:28: error: storage class specified for parameter 'esp32_uart'
+   14 | static UART_HandleTypeDef *esp32_uart = NULL;
+      |                            ^~~~~~~~~~
+../Core/Src/esp32msghandler.c:14:1: error: parameter 'esp32_uart' is initialized
+   14 | static UART_HandleTypeDef *esp32_uart = NULL;
+      | ^~~~~~
+../Core/Src/esp32msghandler.c:32:17: error: storage class specified for parameter 'holdingRegisters'
+   32 | extern uint16_t holdingRegisters[100];
+      |                 ^~~~~~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:33:17: error: storage class specified for parameter 'inputRegisters'
+   33 | extern uint16_t inputRegisters[100];
+      |                 ^~~~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:34:16: error: storage class specified for parameter 'coils'
+   34 | extern uint8_t coils[100];
+      |                ^~~~~
+../Core/Src/esp32msghandler.c:35:16: error: storage class specified for parameter 'discreteInputs'
+   35 | extern uint8_t discreteInputs[100];
+      |                ^~~~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:37:68: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   37 | uint16_t ESP32MsgHandler_ReadRegister(uint8_t type, uint16_t addr) {
+      |                                                                    ^
+../Core/Src/esp32msghandler.c:51:108: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   51 | uint8_t ESP32MsgHandler_MultipleReadRegister(uint8_t type, uint16_t addr, uint8_t quantity, uint8_t *buff) {
+      |                                                                                                            ^
+../Core/Src/esp32msghandler.c:80:81: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   80 | void ESP32MsgHandler_WriteRegister(uint8_t type, uint16_t addr, uint16_t value) {
+      |                                                                                 ^
+../Core/Src/esp32msghandler.c:92:54: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   92 | void ESP32MsgHandler_Init(UART_HandleTypeDef *huart) {
+      |                                                      ^
+../Core/Src/esp32msghandler.c:97:29: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+   97 | void ESP32MsgHandler_Task() {
+      |                             ^
+In file included from ../Core/Src/esp32msghandler.c:8:
+../Core/Inc/esp32msghandler.h:42:9: error: old-style parameter declarations in prototyped function definition
+   42 | uint8_t ESP32MsgHandler_MultipleReadRegister(uint8_t type, uint16_t addr, uint8_t quantity)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:178: error: expected '{' at end of input
+../Core/Src/esp32msghandler.c:178: warning: control reaches end of non-void function [-Wreturn-type]
+make: *** [Core/Src/subdir.mk:43: Core/Src/esp32msghandler.o] Error 1
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+12:16:57 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/esp32msghandler.c:51:9: error: conflicting types for 'ESP32MsgHandler_MultipleReadRegister'; have 'uint8_t(uint8_t,  uint16_t,  uint8_t,  uint8_t *)' {aka 'unsigned char(unsigned char,  short unsigned int,  unsigned char,  unsigned char *)'}
+   51 | uint8_t ESP32MsgHandler_MultipleReadRegister(uint8_t type, uint16_t addr, uint8_t quantity, uint8_t *buff) {
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ../Core/Src/esp32msghandler.c:8:
+../Core/Inc/esp32msghandler.h:42:9: note: previous declaration of 'ESP32MsgHandler_MultipleReadRegister' with type 'uint8_t(uint8_t,  uint16_t,  uint8_t)' {aka 'unsigned char(unsigned char,  short unsigned int,  unsigned char)'}
+   42 | uint8_t ESP32MsgHandler_MultipleReadRegister(uint8_t type, uint16_t addr, uint8_t quantity);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_Task':
+../Core/Src/esp32msghandler.c:154:33: warning: unused variable 'value' [-Wunused-variable]
+  154 |                         uint8_t value = ESP32MsgHandler_MultipleReadRegister(type, addr, count, response);
+      |                                 ^~~~~
+make: *** [Core/Src/subdir.mk:43: Core/Src/esp32msghandler.o] Error 1
+make: *** Waiting for unfinished jobs....
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+12:17:45 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_Task':
+../Core/Src/esp32msghandler.c:154:33: warning: unused variable 'value' [-Wunused-variable]
+  154 |                         uint8_t value = ESP32MsgHandler_MultipleReadRegister(type, addr, count, response);
+      |                                 ^~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16176	     12	   3380	  19568	   4c70	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+12:23:51 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16188	     12	   3380	  19580	   4c7c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+12:30:06 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16188	     12	   3380	  19580	   4c7c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+12:31:10 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16188	     12	   3380	  19580	   4c7c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+12:32:06 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16188	     12	   3380	  19580	   4c7c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+12:34:13 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16188	     12	   3380	  19580	   4c7c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+13:13:17 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_MultipleReadRegister':
+../Core/Src/esp32msghandler.c:55:29: warning: unused variable 'j' [-Wunused-variable]
+   55 |                         int j = (i-3) / 2;
+      |                             ^
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16192	     12	   3380	  19584	   4c80	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:13:26 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:13:30 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+13:19:04 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16204	     12	   3380	  19596	   4c8c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:19:23 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16204	     12	   3380	  19596	   4c8c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+13:21:03 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:21:05 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+16:37:22 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17168	     12	   3380	  20560	   5050	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+16:37:37 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  17168	     12	   3380	  20560	   5050	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+16:39:37 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_Task':
+../Core/Src/esp32msghandler.c:147:86: error: expected ';' before ')' token
+  147 |                             HAL_UART_Transmit(esp32_uart, response, 5, HAL_MAX_DELAY));
+      |                                                                                      ^
+      |                                                                                      ;
+../Core/Src/esp32msghandler.c:147:86: error: expected statement before ')' token
+../Core/Src/esp32msghandler.c:162:114: error: expected ';' before ')' token
+  162 |                                                 HAL_UART_Transmit(esp32_uart, response, count + 5, HAL_MAX_DELAY));
+      |                                                                                                                  ^
+      |                                                                                                                  ;
+../Core/Src/esp32msghandler.c:162:114: error: expected statement before ')' token
+../Core/Src/esp32msghandler.c:174:73: error: expected ';' before ')' token
+  174 |                     HAL_UART_Transmit(esp32_uart, err, 5, HAL_MAX_DELAY));
+      |                                                                         ^
+      |                                                                         ;
+../Core/Src/esp32msghandler.c:174:73: error: expected statement before ')' token
+make: *** [Core/Src/subdir.mk:43: Core/Src/esp32msghandler.o] Error 1
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+16:39:50 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+16:39:53 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+11:59:22 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  16200	     12	   3380	  19592	   4c88	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+12:38:47 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/bin/ld.exe: ./Core/Src/esp32msghandler.o: in function `ESP32MsgHandler_MultipleReadRegister':
+C:/Users/Mohamad/Documents/GitHub/STM32_Industrial/ModbusRTU_AWS/Debug/../Core/Src/esp32msghandler.c:68: undefined reference to `Modbus_ReadInputRegisters'
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:64: ModbusRTU_AWS.elf] Error 1
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+12:41:00 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.1.0.202410251130/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/bin/ld.exe: ./Core/Src/esp32msghandler.o: in function `ESP32MsgHandler_MultipleReadRegister':
+C:/Users/Mohamad/Documents/GitHub/STM32_Industrial/ModbusRTU_AWS/Debug/../Core/Src/esp32msghandler.c:68: undefined reference to `Modbus_ReadInputRegisters'
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:64: ModbusRTU_AWS.elf] Error 1
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+12:56:54 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/modbusMaster.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/modbusMaster.d" -MT"Core/Src/modbusMaster.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/modbusMaster.o"
+../Core/Src/modbusMaster.c: In function 'Modbus_ReadInputRegisters':
+../Core/Src/modbusMaster.c:204:26: error: 'buffer' undeclared (first use in this function)
+  204 |     uint16_t crc = crc16(buffer, buffer_length)(modbus->txBuffer, txLen);
+      |                          ^~~~~~
+../Core/Src/modbusMaster.c:204:26: note: each undeclared identifier is reported only once for each function it appears in
+../Core/Src/modbusMaster.c:204:34: error: 'buffer_length' undeclared (first use in this function)
+  204 |     uint16_t crc = crc16(buffer, buffer_length)(modbus->txBuffer, txLen);
+      |                                  ^~~~~~~~~~~~~
+make: *** [Core/Src/subdir.mk:43: Core/Src/modbusMaster.o] Error 1
+"make -j16 all" terminated with exit code 2. Build might be incomplete.
+12:58:10 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/modbusMaster.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/modbusMaster.d" -MT"Core/Src/modbusMaster.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/modbusMaster.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17456	     16	   3384	  20856	   5178	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:20:46 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_ReadRegister':
+../Core/Src/esp32msghandler.c:47:86: warning: passing argument 5 of 'Modbus_ReadInputRegisters' makes pointer from integer without a cast [-Wint-conversion]
+   47 |                 statusModbus = Modbus_ReadInputRegisters(&hmodbus, SlaveID, addr, 1, holdingReg);
+      |                                                                                      ^~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      uint16_t {aka short unsigned int}
+In file included from ../Core/Src/esp32msghandler.c:9:
+../Core/Inc/modbusMaster.h:54:131: note: expected 'uint16_t *' {aka 'short unsigned int *'} but argument is of type 'uint16_t' {aka 'short unsigned int'}
+   54 | ModbusStatus Modbus_ReadInputRegisters(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, uint16_t* data);
+      |                                                                                                                         ~~~~~~~~~~^~~~
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_WriteRegister':
+../Core/Src/esp32msghandler.c:109:24: warning: 'return' with a value, in function returning void [-Wreturn-type]
+  109 |                 return statusModbus;
+      |                        ^~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:105:6: note: declared here
+  105 | void ESP32MsgHandler_WriteRegister(uint8_t type, uint16_t addr, uint16_t value) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:113:24: warning: 'return' with a value, in function returning void [-Wreturn-type]
+  113 |                 return statusModbus;
+      |                        ^~~~~~~~~~~~
+../Core/Src/esp32msghandler.c:105:6: note: declared here
+  105 | void ESP32MsgHandler_WriteRegister(uint8_t type, uint16_t addr, uint16_t value) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17796	     16	   3384	  21196	   52cc	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:21:35 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_ReadRegister':
+../Core/Src/esp32msghandler.c:47:86: warning: passing argument 5 of 'Modbus_ReadInputRegisters' makes pointer from integer without a cast [-Wint-conversion]
+   47 |                 statusModbus = Modbus_ReadInputRegisters(&hmodbus, SlaveID, addr, 1, holdingReg);
+      |                                                                                      ^~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      uint16_t {aka short unsigned int}
+In file included from ../Core/Src/esp32msghandler.c:9:
+../Core/Inc/modbusMaster.h:54:131: note: expected 'uint16_t *' {aka 'short unsigned int *'} but argument is of type 'uint16_t' {aka 'short unsigned int'}
+   54 | ModbusStatus Modbus_ReadInputRegisters(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, uint16_t* data);
+      |                                                                                                                         ~~~~~~~~~~^~~~
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_WriteRegister':
+../Core/Src/esp32msghandler.c:117:1: warning: control reaches end of non-void function [-Wreturn-type]
+  117 | }
+      | ^
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17804	     16	   3384	  21204	   52d4	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:22:22 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_ReadRegister':
+../Core/Src/esp32msghandler.c:47:86: warning: passing argument 5 of 'Modbus_ReadInputRegisters' makes pointer from integer without a cast [-Wint-conversion]
+   47 |                 statusModbus = Modbus_ReadInputRegisters(&hmodbus, SlaveID, addr, 1, holdingReg);
+      |                                                                                      ^~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      uint16_t {aka short unsigned int}
+In file included from ../Core/Src/esp32msghandler.c:9:
+../Core/Inc/modbusMaster.h:54:131: note: expected 'uint16_t *' {aka 'short unsigned int *'} but argument is of type 'uint16_t' {aka 'short unsigned int'}
+   54 | ModbusStatus Modbus_ReadInputRegisters(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, uint16_t* data);
+      |                                                                                                                         ~~~~~~~~~~^~~~
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17808	     16	   3384	  21208	   52d8	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:22:34 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17804	     16	   3384	  21204	   52d4	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:25:14 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+../Core/Src/esp32msghandler.c: In function 'ESP32MsgHandler_WriteRegister':
+../Core/Src/esp32msghandler.c:118:1: warning: control reaches end of non-void function [-Wreturn-type]
+  118 | }
+      | ^
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17864	     16	   3392	  21272	   5318	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:25:46 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-gcc "../Core/Src/esp32msghandler.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/esp32msghandler.d" -MT"Core/Src/esp32msghandler.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/esp32msghandler.o"
+arm-none-eabi-gcc -o "ModbusRTU_AWS.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Mohamad\Documents\GitHub\STM32_Industrial\ModbusRTU_AWS\STM32F407ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ModbusRTU_AWS.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ModbusRTU_AWS.elf
+ 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+arm-none-eabi-objdump -h -S ModbusRTU_AWS.elf  > "ModbusRTU_AWS.list"
+   text	   data	    bss	    dec	    hex	filename
+  17868	     16	   3392	  21276	   531c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+Finished building: ModbusRTU_AWS.list
+ 
+13:59:31 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  17868	     16	   3392	  21276	   531c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 
+13:59:41 **** Incremental Build of configuration Debug for project ModbusRTU_AWS ****
+make -j16 all 
+arm-none-eabi-size  ModbusRTU_AWS.elf 
+   text	   data	    bss	    dec	    hex	filename
+  17868	     16	   3392	  21276	   531c	ModbusRTU_AWS.elf
+Finished building: default.size.stdout
+ 

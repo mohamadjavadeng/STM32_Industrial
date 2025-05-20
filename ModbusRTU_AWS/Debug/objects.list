@@ -1,3 +1,4 @@
+"./Core/Src/esp32msghandler.o"
 "./Core/Src/main.o"
 "./Core/Src/modbusMaster.o"
 "./Core/Src/modbus_crc.o"

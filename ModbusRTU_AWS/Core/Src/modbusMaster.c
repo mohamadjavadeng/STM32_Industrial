@@ -145,7 +145,7 @@ ModbusStatus Modbus_ReadDiscreteInputs(ModbusMaster* modbus, uint8_t slaveID, ui
 }
 
 ModbusStatus Modbus_WriteMultipleCoils(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, const uint8_t* values) {
-    uint8_t byteCount = (quantity+7) / 8;
+    uint8_t byteCount = (quantity + 7) / 8;
 
     modbus->txBuffer[0] = slaveID;
     modbus->txBuffer[1] = MODBUS_FUNCTION_WRITE_MULTIPLE_COILS;
@@ -185,4 +185,35 @@ ModbusStatus Modbus_WriteMultipleRegisters(ModbusMaster* modbus, uint8_t slaveID
     modbus->txBuffer[8 + quantity * 2] = crc >> 8;
 
     return Modbus_SendRequest(modbus, 9 + quantity * 2, 8);
+}
+
+ModbusStatus Modbus_ReadInputRegisters(ModbusMaster* modbus, uint8_t slaveID, uint16_t startAddress, uint16_t quantity, uint16_t* data){
+    if (quantity == 0 || quantity > 125) {
+        return MODBUS_ERROR;  // Invalid quantity
+    }
+
+    // Construct request
+    modbus->txBuffer[0] = slaveID;
+    modbus->txBuffer[1] = MODBUS_FUNCTION_READ_INPUT_REGISTERS;
+    modbus->txBuffer[2] = startAddress >> 8;
+    modbus->txBuffer[3] = startAddress & 0xFF;
+    modbus->txBuffer[4] = quantity >> 8;
+    modbus->txBuffer[5] = quantity & 0xFF;
+
+    uint16_t crc = crc16(modbus->txBuffer, 6);
+    modbus->txBuffer[6] = crc & 0xFF;
+    modbus->txBuffer[7] = crc >> 8;
+
+    // Send command and get the response
+    uint8_t responseLength = 5 + 2 * quantity; // SlaveID + Function + ByteCount + Data + CRC
+    ModbusStatus status = Modbus_SendRequest(modbus, 8, responseLength);
+    if (status != MODBUS_OK) return status;
+
+    for (uint16_t i = 0; i < quantity; i++) {
+        data[i] = (modbus->rxBuffer[3 + i * 2] << 8) | modbus->rxBuffer[4 + i * 2];
+    }
+
+    return MODBUS_OK;
+
+
 }

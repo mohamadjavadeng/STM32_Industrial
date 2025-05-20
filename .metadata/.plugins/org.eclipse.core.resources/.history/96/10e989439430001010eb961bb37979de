@@ -1,0 +1,32 @@
+if((holdingreg[0] & 0x01) == 0){
+		holdingreg[0] = holdingreg[0] | 0x01;
+	}
+	else{
+		holdingreg[0] = holdingreg[0] & 0xFE;
+	}
+	if((holdingreg[0] & 0x02) == 0){
+		holdingreg[0] = holdingreg[0] | 0x02;
+	}
+	else{
+		holdingreg[0] = holdingreg[0] & 0xFD;
+	}
+	ModbusStatus status = Modbus_WriteMultipleCoils(&hmodbus, 2, 1281, 2, holdingreg);
+	if(status == MODBUS_OK){
+		HAL_UART_Transmit(&huart3, (uint8_t *)"OK!\n", 4, 100);
+	}
+    status = Modbus_ReadHoldingRegisters(&hmodbus, 2, 4097, 2, holdingRegs);
+    sprintf(TXRespons, "Response= %d\n", holdingRegs[0]);
+    HAL_UART_Transmit(&huart3, (uint8_t *)TXRespons, strlen(TXRespons), 100);
+    if (status == MODBUS_OK) {
+        // Successfully read, now write to register 0x0001
+    	dataToHoldingRegs[0] = 823 + (i ++);
+        status = Modbus_WriteSingleRegister(&hmodbus, 2, 4097, dataToHoldingRegs[0]);
+//        i++;
+        if(i == 50) i = 0;
+        if (status == MODBUS_OK) {
+            // Indicate success (e.g., blink an LED)
+            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); // assuming onboard LED
+            HAL_Delay(500);
+        }
+    }
+	HAL_Delay(2000);

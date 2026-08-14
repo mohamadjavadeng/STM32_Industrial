@@ -1,0 +1,952 @@
+<title>Point Bus Protocol</title>
+<style>
+  /* ---- tokens: light is the base, both themes defined at token level ---- */
+  :root {
+    --ground: #f5f6f3;
+    --surface: #ffffff;
+    --surface-2: #ecefea;
+    --surface-3: #e3e7e0;
+    --ink: #171b19;
+    --ink-2: #495350;
+    --ink-3: #78837d;
+    --rule: #d6dad3;
+    --rule-strong: #b3b9b1;
+    --accent: #0e5b54;
+    --accent-ink: #0a4a44;
+    --accent-soft: #dcebe8;
+    --signal: #a5511a;
+    --signal-soft: #f5e6d9;
+    --good: #2c6b39;
+    --warn: #86620f;
+    --bad: #973031;
+    --shadow: 0 1px 2px rgba(23, 27, 25, .06), 0 8px 24px -16px rgba(23, 27, 25, .18);
+
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+
+    --measure: 68ch;
+    --gutter: 7.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1211;
+      --surface: #161b19;
+      --surface-2: #1c2321;
+      --surface-3: #232b28;
+      --ink: #e6ebe7;
+      --ink-2: #a8b2ac;
+      --ink-3: #7b8680;
+      --rule: #2a3230;
+      --rule-strong: #3d4743;
+      --accent: #58b9ad;
+      --accent-ink: #7fcdc3;
+      --accent-soft: #133330;
+      --signal: #dc8b50;
+      --signal-soft: #33210f;
+      --good: #6bba7c;
+      --warn: #cca43e;
+      --bad: #d67571;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0e1211;
+    --surface: #161b19;
+    --surface-2: #1c2321;
+    --surface-3: #232b28;
+    --ink: #e6ebe7;
+    --ink-2: #a8b2ac;
+    --ink-3: #7b8680;
+    --rule: #2a3230;
+    --rule-strong: #3d4743;
+    --accent: #58b9ad;
+    --accent-ink: #7fcdc3;
+    --accent-soft: #133330;
+    --signal: #dc8b50;
+    --signal-soft: #33210f;
+    --good: #6bba7c;
+    --warn: #cca43e;
+    --bad: #d67571;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 clamp(1.1rem, 4vw, 3rem); }
+
+  /* ---- masthead ---- */
+  header.mast { border-bottom: 1px solid var(--rule-strong); background: var(--surface); }
+  .mast-inner { display: flex; flex-direction: column; gap: 1.5rem; padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 4vw, 3rem); }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-3); display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; align-items: center;
+  }
+  .eyebrow b { color: var(--accent); font-weight: 600; }
+  h1 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(2.3rem, 6.2vw, 4rem);
+    line-height: 1.02; letter-spacing: -.018em; margin: 0; text-wrap: balance; max-width: 22ch;
+  }
+  .standfirst { font-size: clamp(1.05rem, 2.1vw, 1.22rem); color: var(--ink-2); max-width: 62ch; margin: 0; }
+  .mast-meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; font-family: var(--mono);
+    font-size: .76rem; color: var(--ink-3); padding-top: .6rem; border-top: 1px solid var(--rule);
+  }
+  .mast-meta span { white-space: nowrap; }
+  .mast-meta strong { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- section skeleton: mono gutter + measured body ---- */
+  section { border-bottom: 1px solid var(--rule); padding: clamp(2.6rem, 5vw, 4rem) 0; }
+  section:last-of-type { border-bottom: 0; }
+  .sec-grid { display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr); gap: 0 2.5rem; }
+  .sec-mark {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); padding-top: .55rem;
+  }
+  .sec-mark i { display: block; font-style: normal; color: var(--accent); }
+  .sec-body { display: flex; flex-direction: column; gap: 1.15rem; min-width: 0; }
+  @media (max-width: 900px) {
+    .sec-grid { grid-template-columns: 1fr; gap: .85rem; }
+    .sec-mark { padding-top: 0; }
+    .sec-mark i { display: inline; }
+    .sec-mark i::after { content: " ·"; color: var(--ink-3); }
+  }
+
+  h2 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+    line-height: 1.14; letter-spacing: -.012em; margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 600; font-size: 1.02rem; letter-spacing: -.005em;
+    margin: 1.1rem 0 -.35rem; color: var(--ink);
+  }
+  h4 {
+    font-family: var(--mono); font-weight: 600; font-size: .74rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); margin: .9rem 0 -.5rem;
+  }
+  p { margin: 0; max-width: var(--measure); }
+  ul, ol { margin: 0; padding-left: 1.35rem; max-width: var(--measure); display: flex; flex-direction: column; gap: .5rem; }
+  li::marker { color: var(--ink-3); }
+  strong { font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: .875em; background: var(--surface-2);
+    padding: .1em .34em; border-radius: 3px; border: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  a { color: var(--accent-ink); text-underline-offset: .18em; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---- verdict callout: the thesis, set in serif ---- */
+  .verdict {
+    background: var(--surface); border: 1px solid var(--rule-strong); border-left: 3px solid var(--accent);
+    padding: 1.4rem 1.6rem; display: flex; flex-direction: column; gap: .8rem; box-shadow: var(--shadow);
+  }
+  .verdict p { font-family: var(--serif); font-size: 1.14rem; line-height: 1.5; max-width: 58ch; }
+  .verdict .kicker {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent);
+  }
+
+  /* ---- keep / change / add ledger ---- */
+  .ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .ledger > div { background: var(--surface); padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .6rem; }
+  .ledger h5 {
+    margin: 0; font-family: var(--mono); font-size: .72rem; letter-spacing: .13em; text-transform: uppercase;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .ledger .dot { width: .55rem; height: .55rem; border-radius: 50%; flex: none; }
+  .ledger ul { padding-left: 1.1rem; gap: .38rem; font-size: .92rem; color: var(--ink-2); max-width: none; }
+  .keep h5 { color: var(--good); } .keep .dot { background: var(--good); }
+  .change h5 { color: var(--signal); } .change .dot { background: var(--signal); }
+  .add h5 { color: var(--accent); } .add .dot { background: var(--accent); }
+
+  /* ---- tables ---- */
+  .scroller { overflow-x: auto; border: 1px solid var(--rule-strong); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .875rem; min-width: 34rem; }
+  caption {
+    caption-side: top; text-align: left; font-family: var(--mono); font-size: .72rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+    padding: .75rem 1rem; border-bottom: 1px solid var(--rule); background: var(--surface-2);
+  }
+  th, td { padding: .5rem .85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  thead th {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; background: var(--surface-2); white-space: nowrap;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.m, th.m { font-family: var(--mono); font-size: .8rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  tbody tr:hover { background: var(--surface-2); }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: .68rem; letter-spacing: .06em;
+    text-transform: uppercase; padding: .12rem .45rem; border-radius: 2px; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .pill.g { color: var(--good); } .pill.w { color: var(--warn); }
+  .pill.b { color: var(--bad); } .pill.a { color: var(--accent); } .pill.s { color: var(--signal); }
+
+  /* ---- byte-layout grid ---- */
+  .bytes { display: grid; gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); grid-template-columns: repeat(8, minmax(5.4rem, 1fr)); min-width: 46rem; }
+  .bytes .cell { background: var(--surface); padding: .5rem .55rem .55rem; display: flex; flex-direction: column; gap: .18rem; }
+  .bytes .cell.wide2 { grid-column: span 2; }
+  .bytes .cell.varlen { grid-column: span 4; background: var(--surface-2); }
+  .bytes .cell.crc { grid-column: span 2; background: var(--accent-soft); }
+  .bytes .off { font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; color: var(--ink-3); }
+  .bytes .nm { font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--ink); }
+  .bytes .ds { font-size: .72rem; color: var(--ink-2); line-height: 1.35; }
+
+  /* ---- topology diagram ---- */
+  figure { margin: 0; display: flex; flex-direction: column; gap: .7rem; }
+  figcaption { font-family: var(--mono); font-size: .72rem; color: var(--ink-3); letter-spacing: .04em; max-width: var(--measure); }
+  svg { display: block; width: 100%; height: auto; }
+  .dgm-box { fill: var(--surface); stroke: var(--rule-strong); stroke-width: 1; }
+  .dgm-box-2 { fill: var(--surface-2); stroke: var(--rule-strong); stroke-width: 1; }
+  .dgm-band { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
+  .dgm-t { fill: var(--ink); font-family: var(--sans); font-size: 12.5px; }
+  .dgm-t-sm { fill: var(--ink-2); font-family: var(--mono); font-size: 10px; }
+  .dgm-t-lbl { fill: var(--ink-3); font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; }
+  .dgm-t-acc { fill: var(--accent-ink); font-family: var(--mono); font-size: 10.5px; font-weight: 600; }
+  .dgm-line { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; }
+  .dgm-line-acc { stroke: var(--accent); stroke-width: 1.75; fill: none; }
+  .dgm-line-sig { stroke: var(--signal); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+  .dgm-arrow { fill: var(--rule-strong); }
+  .dgm-arrow-acc { fill: var(--accent); }
+  .dgm-arrow-sig { fill: var(--signal); }
+
+  /* ---- phase list: a real sequence, so numbered ---- */
+  .phases { display: flex; flex-direction: column; gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .phase { background: var(--surface); display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: 0 1.1rem; padding: 1rem 1.2rem; }
+  .phase .n {
+    font-family: var(--mono); font-size: 1.25rem; color: var(--accent); font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .phase .c { display: flex; flex-direction: column; gap: .35rem; }
+  .phase .h { font-weight: 600; font-size: .98rem; }
+  .phase .d { font-size: .9rem; color: var(--ink-2); max-width: 62ch; }
+  .phase .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .15rem; }
+
+  /* ---- questions ---- */
+  details {
+    border: 1px solid var(--rule-strong); background: var(--surface); padding: 0;
+  }
+  details + details { border-top: 0; }
+  summary {
+    cursor: pointer; padding: .85rem 1.15rem; font-weight: 600; font-size: .95rem;
+    display: flex; gap: .7rem; align-items: baseline; list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "+"; font-family: var(--mono); color: var(--accent); font-weight: 400; flex: none; width: 1ch;
+  }
+  details[open] summary::before { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid var(--rule); }
+  details .inner { padding: .9rem 1.15rem 1.1rem 2.85rem; display: flex; flex-direction: column; gap: .6rem; font-size: .92rem; color: var(--ink-2); }
+  details .inner p { max-width: 60ch; }
+  .rec { color: var(--ink); }
+  .rec b { font-family: var(--mono); font-size: .72rem; letter-spacing: .11em; text-transform: uppercase; color: var(--accent); }
+
+  footer { padding: 2.5rem 0 4rem; font-family: var(--mono); font-size: .76rem; color: var(--ink-3); }
+  footer p { max-width: 70ch; }
+
+  .note {
+    border-left: 2px solid var(--signal); background: var(--signal-soft); padding: .8rem 1rem;
+    font-size: .9rem; max-width: var(--measure); display: flex; flex-direction: column; gap: .45rem;
+  }
+  .note .lbl { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--signal); }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<header class="mast">
+  <div class="wrap mast-inner">
+    <div class="eyebrow"><b>Design review</b><span>STM32F407 &nbsp;/&nbsp; ESP32-S3</span><span>Inter-chip data plane</span></div>
+    <h1>Point Bus Protocol</h1>
+    <p class="standfirst">A replacement for the <code>0xAA</code>/<code>0xBB</code> link between the industrial and network halves of the gateway — designed so that adding CAN, Modbus TCP, custom serial or local IO costs a table entry, not a protocol revision.</p>
+    <div class="mast-meta">
+      <span><strong>Verdict</strong> keep the transport, replace the payload layer</span>
+      <span><strong>Status</strong> proposal, for review before implementation</span>
+      <span><strong>Supersedes</strong> esp32msghandler.c v1.2</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= 1. VERDICT ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>01</i> Assessment</div>
+      <div class="sec-body">
+        <h2>What survives contact with the bigger scope</h2>
+        <p>Two of the three decisions in the current design hold up once CAN, Modbus TCP, serial devices and local IO enter the picture. The third does not.</p>
+
+        <div class="verdict">
+          <span class="kicker">The core problem</span>
+          <p>The current wire format encodes Modbus vocabulary directly: a request is <em>register class</em> plus <em>16-bit address</em>. A CAN frame has no register class. An analog input has raw counts and a scale. A Modbus TCP slave needs a unit ID and an endpoint. A serial device returns a blob. None of those fit, so every new bus would force another opcode, another address convention, and another special case on both sides.</p>
+        </div>
+
+        <p>The fix is not a bigger opcode table. It is to stop describing <em>how</em> data is acquired on the link at all, and describe only <em>which point</em> is wanted. The STM32 owns a single flat namespace of numbered points; each point is bound internally to a Modbus register, a CAN signal, an ADC channel or a computed expression. The link never learns which.</p>
+
+        <div class="ledger">
+          <div class="keep">
+            <h5><span class="dot"></span>Keep</h5>
+            <ul>
+              <li>UART as the transport — the bandwidth case for SPI still does not exist</li>
+              <li>ESP32 owns the request/response contract; STM32 answers</li>
+              <li>CRC-16/MODBUS — already verified identical on both sides, zero new code</li>
+              <li>One process image as the single source of truth, on the STM32</li>
+              <li>ESP32 keeps a mirror and publishes by exception</li>
+            </ul>
+          </div>
+          <div class="change">
+            <h5><span class="dot"></span>Change</h5>
+            <ul>
+              <li>Framing → delimiter-based, never trusts a length field</li>
+              <li>Envelope gains a transaction ID and a message type</li>
+              <li>Register class + address → <strong>point index</strong></li>
+              <li>Quality becomes mandatory on the wire, not inferred</li>
+              <li>STM32 may push unsolicited events</li>
+              <li>Point metadata discovered at runtime, not duplicated in <code>tag_map.cpp</code></li>
+              <li>STM32 gains an RTOS and one task per bus</li>
+            </ul>
+          </div>
+          <div class="add">
+            <h5><span class="dot"></span>Add</h5>
+            <ul>
+              <li>Session handshake and reboot detection</li>
+              <li>Wall-clock push from ESP32 → STM32</li>
+              <li>Change-only reads with a sequence watermark</li>
+              <li>Raw passthrough tunnel as an escape hatch</li>
+              <li>Bus diagnostics exposed as ordinary points</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. WHY ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>02</i> Failure analysis</div>
+      <div class="sec-body">
+        <h2>Six ways the present protocol blocks the roadmap</h2>
+        <div class="scroller">
+          <table>
+            <caption>Current design vs. the expanded requirement</caption>
+            <thead>
+              <tr><th>Limitation</th><th>Where</th><th>What breaks when you add a bus</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Address model is Modbus-shaped</td>
+                <td class="m">type + u16 addr</td>
+                <td>No way to name a CAN signal (29-bit ID + bit offset + length), a TCP slave (IP + unit + register), or an ADC channel with a scale.</td>
+              </tr>
+              <tr>
+                <td>No transaction ID</td>
+                <td class="m">header</td>
+                <td>Responses are matched by arrival order alone. A late reply after a timeout is silently accepted as the answer to the next request.</td>
+              </tr>
+              <tr>
+                <td>Poll-only, no event path</td>
+                <td class="m">by design</td>
+                <td>CAN is event-driven and digital inputs have edges. Polling drops transitions between scans; the fastest safe scan is bounded by the slowest bus.</td>
+              </tr>
+              <tr>
+                <td>Length is inferred and trusted</td>
+                <td class="m">packetLen</td>
+                <td>A corrupted <code>count</code> byte overruns the 64-byte receive buffer, and a truncated frame wedges the parser with no timeout.</td>
+              </tr>
+              <tr>
+                <td>Status does not carry data validity</td>
+                <td class="m">STATUS_OK</td>
+                <td><span class="pill b">integrity</span> A failed field read still answers OK with stale bytes. With one bus this is a bug; with five it is unmanageable.</td>
+              </tr>
+              <tr>
+                <td>Field access inside the request path</td>
+                <td class="m">handler</td>
+                <td>Each request triggers a live transaction, so link latency equals the worst field-bus latency. Five buses means five ways to stall the link.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <span class="lbl">Worth fixing first, independently of everything else</span>
+          <p>The validity row is a live data-integrity defect, not a design limitation: <code>statusModbus</code> is computed and then never transmitted, so a timed-out RS-485 read reaches the cloud as a plausible number. That one is worth patching in the current firmware before any of this lands.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. TOPOLOGY ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>03</i> Shape</div>
+      <div class="sec-body">
+        <h2>One namespace, many drivers</h2>
+        <p>Everything below the process image is a driver that fills points on its own schedule. Everything above it speaks only point indices. The link sits at the boundary and knows nothing about either side's internals.</p>
+
+        <figure>
+          <svg viewBox="0 0 980 486" role="img" aria-label="Block diagram: field buses feed driver tasks, which fill a process image on the STM32; the ESP32 reads it over the Point Bus link and publishes to the cloud.">
+            <defs>
+              <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" class="dgm-arrow"/></marker>
+              <marker id="aha" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" class="dgm-arrow-acc"/></marker>
+              <marker id="ahs" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" class="dgm-arrow-sig"/></marker>
+            </defs>
+
+            <!-- field devices column -->
+            <text x="0" y="12" class="dgm-t-lbl">Field</text>
+            <rect x="0" y="24" width="132" height="34" rx="2" class="dgm-box-2"/>
+            <text x="12" y="45" class="dgm-t-sm">RS-485 slaves</text>
+            <rect x="0" y="66" width="132" height="34" rx="2" class="dgm-box-2"/>
+            <text x="12" y="87" class="dgm-t-sm">Modbus TCP slaves</text>
+            <rect x="0" y="108" width="132" height="34" rx="2" class="dgm-box-2"/>
+            <text x="12" y="129" class="dgm-t-sm">CAN nodes</text>
+            <rect x="0" y="150" width="132" height="34" rx="2" class="dgm-box-2"/>
+            <text x="12" y="171" class="dgm-t-sm">Serial devices</text>
+            <rect x="0" y="192" width="132" height="34" rx="2" class="dgm-box-2"/>
+            <text x="12" y="213" class="dgm-t-sm">DI / DO / AI / AO</text>
+
+            <!-- STM32 enclosure -->
+            <rect x="176" y="0" width="344" height="486" rx="3" class="dgm-box"/>
+            <text x="192" y="20" class="dgm-t-lbl">Industrial half &#183; STM32F407</text>
+
+            <!-- driver tasks -->
+            <rect x="192" y="30" width="150" height="30" rx="2" class="dgm-box-2"/>
+            <text x="202" y="49" class="dgm-t-sm">mbrtu task</text>
+            <rect x="192" y="72" width="150" height="30" rx="2" class="dgm-box-2"/>
+            <text x="202" y="91" class="dgm-t-sm">mbtcp task</text>
+            <rect x="192" y="114" width="150" height="30" rx="2" class="dgm-box-2"/>
+            <text x="202" y="133" class="dgm-t-sm">can task</text>
+            <rect x="192" y="156" width="150" height="30" rx="2" class="dgm-box-2"/>
+            <text x="202" y="175" class="dgm-t-sm">serial task</text>
+            <rect x="192" y="198" width="150" height="30" rx="2" class="dgm-box-2"/>
+            <text x="202" y="217" class="dgm-t-sm">io task</text>
+            <rect x="192" y="240" width="150" height="30" rx="2" class="dgm-box-2"/>
+            <text x="202" y="259" class="dgm-t-sm">logic task</text>
+
+            <!-- field -> drivers -->
+            <path d="M132,41 L188,45" class="dgm-line" marker-end="url(#ah)"/>
+            <path d="M132,83 L188,87" class="dgm-line" marker-end="url(#ah)"/>
+            <path d="M132,125 L188,129" class="dgm-line" marker-end="url(#ah)"/>
+            <path d="M132,167 L188,171" class="dgm-line" marker-end="url(#ah)"/>
+            <path d="M132,209 L188,213" class="dgm-line" marker-end="url(#ah)"/>
+
+            <!-- process image -->
+            <rect x="192" y="300" width="312" height="96" rx="2" class="dgm-band"/>
+            <text x="204" y="325" class="dgm-t-acc">PROCESS IMAGE &#183; CCM RAM</text>
+            <text x="204" y="345" class="dgm-t-sm">value &#183; quality &#183; timestamp &#183; changeSeq</text>
+            <text x="204" y="362" class="dgm-t-sm">flat point index 0x0000 &#8211; 0xFFFF</text>
+            <text x="204" y="383" class="dgm-t-sm">one writer per range, no driver blocks a reader</text>
+
+            <!-- drivers -> image -->
+            <path d="M267,276 L267,294" class="dgm-line-acc" marker-end="url(#aha)"/>
+            <path d="M348,150 L420,150 L420,294" class="dgm-line-acc" marker-end="url(#aha)"/>
+
+            <!-- link task -->
+            <rect x="192" y="418" width="312" height="52" rx="2" class="dgm-box-2"/>
+            <text x="204" y="440" class="dgm-t-sm">link task &#183; highest priority</text>
+            <text x="204" y="457" class="dgm-t-sm">DMA + IDLE &#183; COBS &#183; serialize replies</text>
+            <path d="M348,400 L348,412" class="dgm-line-acc" marker-end="url(#aha)"/>
+
+            <!-- ESP32 enclosure -->
+            <rect x="576" y="150" width="260" height="320" rx="3" class="dgm-box"/>
+            <text x="592" y="170" class="dgm-t-lbl">Network half &#183; ESP32-S3</text>
+
+            <rect x="592" y="418" width="228" height="52" rx="2" class="dgm-box-2"/>
+            <text x="602" y="440" class="dgm-t-sm">link task &#183; async reader</text>
+            <text x="602" y="457" class="dgm-t-sm">txnId map &#183; event dispatch</text>
+
+            <rect x="592" y="300" width="228" height="96" rx="2" class="dgm-band"/>
+            <text x="604" y="325" class="dgm-t-acc">MIRROR</text>
+            <text x="604" y="345" class="dgm-t-sm">metadata discovered at boot</text>
+            <text x="604" y="362" class="dgm-t-sm">cached in NVS by table CRC</text>
+            <text x="604" y="383" class="dgm-t-sm">store-and-forward when offline</text>
+
+            <rect x="592" y="228" width="228" height="52" rx="2" class="dgm-box-2"/>
+            <text x="602" y="250" class="dgm-t-sm">MQTT / TLS &#183; report by exception</text>
+            <text x="602" y="267" class="dgm-t-sm">Modbus TCP server (optional)</text>
+
+            <path d="M706,412 L706,400" class="dgm-line-acc" marker-end="url(#aha)"/>
+            <path d="M706,294 L706,286" class="dgm-line-acc" marker-end="url(#aha)"/>
+
+            <!-- the link itself -->
+            <path d="M508,432 L586,432" class="dgm-line-acc" marker-end="url(#aha)"/>
+            <path d="M586,452 L508,452" class="dgm-line-acc" marker-end="url(#aha)"/>
+            <text x="512" y="410" class="dgm-t-acc">POINT BUS &#183; UART</text>
+            <text x="512" y="482" class="dgm-t-lbl">requests down &#183; replies + events up</text>
+
+            <!-- event path highlighted -->
+            <path d="M504,340 L540,340 L540,392 L560,392 L560,446" class="dgm-line-sig" marker-end="url(#ahs)"/>
+
+            <!-- cloud -->
+            <rect x="880" y="228" width="100" height="52" rx="2" class="dgm-box-2"/>
+            <text x="892" y="250" class="dgm-t-sm">AWS IoT</text>
+            <text x="892" y="267" class="dgm-t-sm">Core</text>
+            <path d="M824,254 L874,254" class="dgm-line" marker-end="url(#ah)"/>
+          </svg>
+          <figcaption>Solid teal is the point path. Dashed orange is the unsolicited event path — the one direction the current protocol has no room for.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. LAYERS ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>04</i> Stack</div>
+      <div class="sec-body">
+        <h2>Four layers, each replaceable alone</h2>
+        <p>The layering is the point. If bulk throughput ever demands SPI, only L1 changes and every message above it is untouched.</p>
+        <div class="scroller">
+          <table>
+            <caption>Layer responsibilities</caption>
+            <thead><tr><th class="m">L</th><th>Layer</th><th>Carries</th><th>Decisions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="m">0</td><td>Physical</td><td>Bytes</td>
+                <td>UART 8N1. <strong>115200 during migration</strong> (matches today), then 921600. Optional RTS/CTS. Two side-band GPIOs. STM32 uses DMA + IDLE-line, so framing costs no CPU.</td>
+              </tr>
+              <tr>
+                <td class="m">1</td><td>Framing</td><td>Delimited, checked frames</td>
+                <td><strong>COBS</strong> with a <code>0x00</code> terminator, then CRC-16/MODBUS inside. The delimiter cannot occur in payload, so resync after any corruption is one byte-scan and the parser can never wedge. No length field is ever trusted.</td>
+              </tr>
+              <tr>
+                <td class="m">2</td><td>Envelope</td><td>Type, correlation, result</td>
+                <td>8-byte header: version, message type, opcode, transaction ID, status, flags, payload length. Requests and events are distinguishable, so an event arriving mid-transaction is dispatched, not mistaken for a reply.</td>
+              </tr>
+              <tr>
+                <td class="m">3</td><td>Operations</td><td>Points and sessions</td>
+                <td>Opcodes over the point namespace only. New buses add points, never opcodes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Why COBS rather than a sync word and a length</h3>
+        <p>The wedge-on-truncation and buffer-overrun bugs in the current firmware are both consequences of trusting a length byte with no reliable frame boundary. Consistent Overhead Byte Stuffing removes the class of bug rather than patching instances: one byte of overhead per 254, a guaranteed-unique terminator, and no escape sequence that can expand a frame. Roughly thirty lines each side.</p>
+
+        <h4>Envelope layout</h4>
+        <div class="scroller">
+          <div class="bytes">
+            <div class="cell"><span class="off">byte 0</span><span class="nm">ver:4 type:4</span><span class="ds">ver = 1. type: 0 REQ, 1 RSP, 2 EVT, 3 NAK</span></div>
+            <div class="cell"><span class="off">byte 1</span><span class="nm">opcode</span><span class="ds">see opcode table</span></div>
+            <div class="cell wide2"><span class="off">bytes 2&#8211;3</span><span class="nm">txnId</span><span class="ds">LE. Echoed in RSP. Event sequence number in EVT</span></div>
+            <div class="cell"><span class="off">byte 4</span><span class="nm">status</span><span class="ds">0 in REQ; result code in RSP/NAK</span></div>
+            <div class="cell"><span class="off">byte 5</span><span class="nm">flags</span><span class="ds">bit0 MORE, bit1 URGENT, rest reserved</span></div>
+            <div class="cell wide2"><span class="off">bytes 6&#8211;7</span><span class="nm">payloadLen</span><span class="ds">LE. Validated against the decoded frame length</span></div>
+            <div class="cell varlen"><span class="off">bytes 8&#8230;n</span><span class="nm">payload</span><span class="ds">Opcode-specific. Bounded by the maxFrameLen agreed in HELLO</span></div>
+            <div class="cell crc"><span class="off">last 2</span><span class="nm">crc16</span><span class="ds">CRC-16/MODBUS over header + payload, low byte first</span></div>
+          </div>
+        </div>
+        <p style="font-size:.9rem;color:var(--ink-2)">Total fixed cost per frame: 8 header + 2 CRC + up to 3 COBS + 1 terminator ≈ <strong>14 bytes</strong>, or 0.15 ms at 921600.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. POINT MODEL ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>05</i> Data model</div>
+      <div class="sec-body">
+        <h2>The point namespace</h2>
+        <p>A point is a numbered, typed, quality-stamped value. The index range determines the type, which is what makes bulk transfers fixed-stride and therefore cheap. Signed and unsigned share a range and are distinguished by metadata.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Index space</caption>
+            <thead><tr><th class="m">Range</th><th class="m">Type</th><th class="num">Count</th><th>Typical occupants</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x0000&#8211;0x0FFF</td><td class="m">BOOL</td><td class="num">4096</td><td>Digital in/out, Modbus coils and discretes, CAN bits, computed flags</td></tr>
+              <tr><td class="m">0x1000&#8211;0x1FFF</td><td class="m">U16 / I16</td><td class="num">4096</td><td>Modbus registers, raw ADC counts, 16-bit CAN signals</td></tr>
+              <tr><td class="m">0x2000&#8211;0x27FF</td><td class="m">U32 / I32</td><td class="num">2048</td><td>Counters, totalizers, 32-bit CAN signals, energy</td></tr>
+              <tr><td class="m">0x2800&#8211;0x2FFF</td><td class="m">F32</td><td class="num">2048</td><td>Scaled engineering values, PID setpoints</td></tr>
+              <tr><td class="m">0x3000&#8211;0x30FF</td><td class="m">BLOB &#8804;32B</td><td class="num">256</td><td>Serial device payloads, raw CAN frames, identity strings</td></tr>
+              <tr><td class="m">0xFF00&#8211;0xFFFF</td><td class="m">mixed</td><td class="num">256</td><td><span class="pill a">nice</span> Bus counters, uptime, task load — read exactly like any other point, so diagnostics reach the cloud with no special-casing</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Quality travels with every value</h3>
+        <p>One byte per numeric point in bulk reads; a packed validity bitmap for the BOOL range. This is the structural fix for the stale-data defect — the ESP32 stops inferring freshness from timestamps because the STM32 states it.</p>
+        <div class="scroller">
+          <table>
+            <caption>Quality codes</caption>
+            <thead><tr><th class="m">Code</th><th>Name</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x00</td><td><span class="pill g">GOOD</span></td><td>Refreshed within the point's declared maximum age</td></tr>
+              <tr><td class="m">0x01</td><td><span class="pill w">STALE</span></td><td>Last read succeeded but is older than that age</td></tr>
+              <tr><td class="m">0x02</td><td><span class="pill b">COMM_FAIL</span></td><td>Driver could not reach the source device</td></tr>
+              <tr><td class="m">0x03</td><td><span class="pill w">NOT_CONFIGURED</span></td><td>Index exists in the space but no driver is bound to it</td></tr>
+              <tr><td class="m">0x04</td><td><span class="pill b">BUS_FAULT</span></td><td>The whole bus is down — CAN bus-off, cable out, TCP unreachable</td></tr>
+              <tr><td class="m">0x05</td><td><span class="pill w">OVERRANGE</span></td><td>Outside the declared sensor range</td></tr>
+              <tr><td class="m">0x06</td><td><span class="pill w">SUBSTITUTED</span></td><td>Forced or simulated by an operator, not measured</td></tr>
+              <tr><td class="m">0x07</td><td><span class="pill w">INIT</span></td><td>Never yet read since boot</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Metadata is discovered, not duplicated</h3>
+        <p>Today the tag table exists on both chips and will drift. Instead the STM32 publishes it: <code>HELLO</code> returns a <code>pointTableCrc</code>, and <code>GET_POINT_META</code> streams name, type, unit, scale, access and owning bus. The ESP32 caches the result in NVS keyed by that CRC and re-fetches only when it changes.</p>
+        <p style="font-size:.9rem;color:var(--ink-2)">Cost: about 24 bytes of metadata per point. A thousand points is 24 kB — 260 ms once per firmware version, then never again. The STM32 becomes the single place a point is defined.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6. OPCODES ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>06</i> Operations</div>
+      <div class="sec-body">
+        <h2>Opcodes</h2>
+        <p>Grouped by plane. Note what is absent: nothing here mentions Modbus, CAN or a register. That is the property that makes the roadmap cheap.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Session and discovery &#183; ESP32 &#8594; STM32</caption>
+            <thead><tr><th class="m">Op</th><th>Name</th><th>Request</th><th>Response</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x01</td><td class="m">HELLO</td><td>protoVer</td><td>fwVer, sessionId, pointCount, pointTableCrc, maxFrameLen, capability bits, busCount</td></tr>
+              <tr><td class="m">0x02</td><td class="m">GET_POINT_META</td><td>start, count</td><td>per point: type, flags, unit, scale exponent, busId, name[16]</td></tr>
+              <tr><td class="m">0x03</td><td class="m">TIME_SYNC</td><td>unix ms (u64)</td><td>ok — the ESP32 has NTP, the STM32 has no RTC source</td></tr>
+              <tr><td class="m">0x04</td><td class="m">GET_BUS_STATUS</td><td>busId</td><td>state, error counters, last fault, slave-level detail</td></tr>
+              <tr><td class="m">0x05</td><td class="m">GET_STATS</td><td>&#8212;</td><td>link, scheduler and per-driver counters</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="scroller">
+          <table>
+            <caption>Data plane &#183; ESP32 &#8594; STM32</caption>
+            <thead><tr><th class="m">Op</th><th>Name</th><th>Request</th><th>Response</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x10</td><td class="m">READ_POINTS</td><td>start, count</td><td>packed values, stride implied by the range's type</td></tr>
+              <tr><td class="m">0x11</td><td class="m">READ_POINTS_Q</td><td>start, count</td><td>value + quality byte per point (BOOL: two packed bitmaps)</td></tr>
+              <tr><td class="m">0x12</td><td class="m">READ_CHANGED</td><td>sinceSeq, maxPoints</td><td><span class="pill s">hot path</span> newSeq, more flag, then idx + quality + value per changed point</td></tr>
+              <tr><td class="m">0x13</td><td class="m">WRITE_POINTS</td><td>start, count, values</td><td>one status byte per point</td></tr>
+              <tr><td class="m">0x14</td><td class="m">WRITE_POINT</td><td>idx, value</td><td>status, and the value actually applied</td></tr>
+              <tr><td class="m">0x15</td><td class="m">READ_DETAIL</td><td>idx</td><td>value, quality, age, last-good timestamp, error count</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="scroller">
+          <table>
+            <caption>Control plane &#183; ESP32 &#8594; STM32</caption>
+            <thead><tr><th class="m">Op</th><th>Name</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x21</td><td class="m">PASSTHROUGH</td><td>Raw tunnel to a named bus. The escape hatch for anything the point model cannot express — an odd function code, a device interrogation, a vendor tool.</td></tr>
+              <tr><td class="m">0x22</td><td class="m">BUS_CONTROL</td><td>Enable, disable or reset a bus. Clearing a CAN bus-off condition from the cloud is the motivating case.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="scroller">
+          <table>
+            <caption>Events &#183; STM32 &#8594; ESP32, unsolicited, no response</caption>
+            <thead><tr><th class="m">Op</th><th>Name</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x30</td><td class="m">EVT_BOOT</td><td>New sessionId, firmware version, reset reason, table CRC. Lets the ESP32 notice a silent STM32 restart — impossible today.</td></tr>
+              <tr><td class="m">0x31</td><td class="m">EVT_POINT_CHANGE</td><td>Report-by-exception for points flagged event-on-change, honouring each point's deadband.</td></tr>
+              <tr><td class="m">0x32</td><td class="m">EVT_ALARM</td><td>Code, severity, originating point, absolute timestamp.</td></tr>
+              <tr><td class="m">0x33</td><td class="m">EVT_BUS_FAULT</td><td>Bus went down or recovered.</td></tr>
+              <tr><td class="m">0x34</td><td class="m">EVT_CAN_UNMAPPED</td><td>Rate-limited pass-up of CAN IDs with no point binding — for commissioning and unknown nodes.</td></tr>
+              <tr><td class="m">0x35</td><td class="m">EVT_OVERFLOW</td><td><span class="pill b">must exist</span> The event queue dropped <em>n</em> items. Data loss is reported, never silent; the ESP32 answers with a full resync.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Does allowing STM32-initiated frames break the master decision?</h3>
+        <p>No, because the decision was never about who may transmit — a full-duplex UART has separate wires and no hardware master. It was about who owns the request/response contract, and the ESP32 still does. The STM32 gains only the right to emit responseless <code>EVT</code> frames. What this does require is that the ESP32's receive path becomes a permanently running frame reader that dispatches by message type, rather than the current blocking wait-for-my-reply loop. That is the largest single change on the ESP32 side.</p>
+        <p>Backpressure is explicit: the STM32 keeps a bounded event queue, coalesces to the newest value per point when it fills, and reports the drop count. The attention-line GPIO stays useful as a wake hint for a sleeping ESP32 and as a fallback if events are ever disabled.</p>
+
+        <h4>Change-only reads, and why the watermark matters</h4>
+        <p>The STM32 keeps a monotonic <code>changeSeq</code>, stamped onto each point as it updates. <code>READ_CHANGED(sinceSeq)</code> returns everything newer and the new watermark. Because the request names an absolute sequence rather than "since you last asked", a lost or retried response changes nothing — it is idempotent. If <code>sinceSeq</code> is too old to reconstruct, the answer is <code>RESYNC_REQUIRED</code> and the ESP32 falls back to a full read. A dirty-bit scheme would be simpler and would lose changes on exactly the retry the link is built to perform.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 7. BUDGET ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>07</i> Budget</div>
+      <div class="sec-body">
+        <h2>Does it fit in a UART?</h2>
+        <p>At 921600 baud, 8N1, one byte costs 10.85 µs. The numbers decide the transport argument, so they are worth writing down.</p>
+        <div class="scroller">
+          <table>
+            <caption>Link load, 921600 baud</caption>
+            <thead><tr><th>Traffic</th><th class="num">Bytes</th><th class="num">Time</th><th class="num">At rate</th><th class="num">Load</th></tr></thead>
+            <tbody>
+              <tr><td>Full snapshot, 1000 numeric points + quality (chunked)</td><td class="num">3100</td><td class="num">34 ms</td><td class="num">1 Hz</td><td class="num">3.4%</td></tr>
+              <tr><td>All 4096 BOOLs, packed values + validity</td><td class="num">1038</td><td class="num">11 ms</td><td class="num">1 Hz</td><td class="num">1.1%</td></tr>
+              <tr><td>Change-only read, 20 points moved</td><td class="num">120</td><td class="num">1.3 ms</td><td class="num">10 Hz</td><td class="num">1.3%</td></tr>
+              <tr><td>Single point write with confirmation</td><td class="num">32</td><td class="num">0.4 ms</td><td class="num">on demand</td><td class="num">&#8212;</td></tr>
+              <tr><td>Metadata sync, 1000 points</td><td class="num">24000</td><td class="num">260 ms</td><td class="num">once/version</td><td class="num">&#8212;</td></tr>
+              <tr><td><strong>CAN 250 kbit/s saturated, every frame passed raw</strong></td><td class="num">40000/s</td><td class="num">&#8212;</td><td class="num">2000 f/s</td><td class="num"><span class="pill b">43%</span></td></tr>
+              <tr><td>Same CAN bus, decoded to points on the STM32</td><td class="num">~150</td><td class="num">1.6 ms</td><td class="num">10 Hz</td><td class="num">1.6%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A realistic steady-state mix — change-driven reads at 10 Hz, a full reconciliation snapshot every few seconds, events as they happen — lands under <strong>10% link utilisation</strong>. The transport has an order of magnitude of headroom, which is why UART remains the right answer and SPI remains unnecessary.</p>
+        <div class="note">
+          <span class="lbl">The one case that does not fit</span>
+          <p>Passing raw CAN frames straight through consumes nearly half the link on a single busy 250 kbit/s bus, and a 500 kbit/s bus would exceed it outright. CAN must be decoded into points on the STM32, with raw pass-up reserved for unmapped IDs and rate-limited. If you later want full raw CAN logging to the cloud, that is the one requirement that would genuinely justify adding SPI alongside the UART.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 8. STM32 INTERNALS ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>08</i> STM32 side</div>
+      <div class="sec-body">
+        <h2>Five buses need an RTOS</h2>
+        <p>One cooperative main loop cannot service five independent scanners with different timing without every driver becoming a hand-written state machine. FreeRTOS is already available through CubeMX, and it produces an unexpected saving.</p>
+
+        <div class="verdict">
+          <span class="kicker">Why this is cheaper than it sounds</span>
+          <p>Under an RTOS the existing blocking Modbus master becomes acceptable exactly as written. <code>HAL_UART_Transmit</code> with <code>HAL_MAX_DELAY</code> and a one-second receive timeout only block their own task — which is precisely what a bus driver task should do. The rewrite you would otherwise need, turning that code into a non-blocking state machine, disappears.</p>
+        </div>
+
+        <div class="scroller">
+          <table>
+            <caption>Task layout</caption>
+            <thead><tr><th class="m">Task</th><th>Priority</th><th>Responsibility</th></tr></thead>
+            <tbody>
+              <tr><td class="m">link</td><td><span class="pill a">highest</span></td><td>DMA + IDLE receive, COBS decode, dispatch, serialize replies. Never touches a field bus, so never blocks.</td></tr>
+              <tr><td class="m">can</td><td>high</td><td>bxCAN FIFO ISR into a queue, decode ID and bit-field to points, transmit. Highest field priority because CAN will not wait.</td></tr>
+              <tr><td class="m">mbrtu</td><td>medium</td><td>RS-485 poll list, one blocking transaction at a time, DE control.</td></tr>
+              <tr><td class="m">mbtcp</td><td>medium</td><td>Modbus TCP client and/or server sockets.</td></tr>
+              <tr><td class="m">io</td><td>medium</td><td>Digital input debounce, analog oversample and filter, output application.</td></tr>
+              <tr><td class="m">serial</td><td>low</td><td>Custom device state machines on the spare USARTs.</td></tr>
+              <tr><td class="m">logic</td><td>low</td><td>Virtual points, totalizers, alarm evaluation, deadband and event generation.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Concurrency and placement</h3>
+        <ul>
+          <li>Each driver owns disjoint point ranges, so there is exactly one writer per point. Readers need no coordination for single-point access.</li>
+          <li>For consistent multi-point snapshots, one mutex around the image is sufficient — copying 3 kB on a 168 MHz M4 holds it for under 10 µs. Reach for a seqlock only if measurement says so.</li>
+          <li>Put the process image in <strong>CCM RAM</strong>. It is 64 kB, CPU-only, unreachable by DMA — which is a perfect fit for a structure no peripheral touches, and it leaves main SRAM for DMA buffers and a TCP stack. A thousand points of runtime state is roughly 8 kB.</li>
+          <li>Static point metadata lives in flash, about 32 bytes per point. There is 1 MB.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 9. PINS ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>09</i> Hardware</div>
+      <div class="sec-body">
+        <h2>Three pin conflicts already waiting</h2>
+        <p>Checked against the current <code>.ioc</code>. These are cheap to avoid now and expensive after a board spin.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Conflicts and resolutions</caption>
+            <thead><tr><th class="m">Pin</th><th>Used today</th><th>Wanted by</th><th>Resolution</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="m">PA11</td><td>RS485_EN output</td><td>CAN1_RX (AF9)</td>
+                <td><strong>Put CAN1 on PD0/PD1 instead.</strong> Both are free, and it leaves PA11/PA12 available — they are also USB_OTG_FS D&#8722;/D+, so keeping them clear preserves a future USB option.</td>
+              </tr>
+              <tr>
+                <td class="m">PC4</td><td>GPIO output</td><td>RMII_RXD0</td>
+                <td><span class="pill b">no alternate</span> PC4 and PC5 are the only RMII receive-data pins on this part. Native Ethernet means giving both up.</td>
+              </tr>
+              <tr>
+                <td class="m">PB11</td><td>USART3_RX &#8212; the ESP32 link</td><td>RMII_TX_EN</td>
+                <td>Use PG11 instead. The 144-pin ZG package has port G, so RMII can route around the link entirely: PA1, PA2, PA7, PC1, PC4, PC5, PG11, PG13, PG14.</td>
+              </tr>
+              <tr>
+                <td class="m">PB13</td><td>SPI2_SCK</td><td>RMII_TXD1, CAN2_TX</td>
+                <td>PG14 for RMII; PB5/PB6 if a second CAN channel is needed.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Spare capacity</h3>
+        <p>Four USARTs remain for the serial devices: USART2 on PD5/PD6, USART6 on PC6/PC7, UART4 on PC10/PC11, UART5 on PC12/PD2. Prefer these routings over the PA0–PA3 alternates, which collide with RMII if Ethernet goes native.</p>
+
+        <h3>Where Modbus TCP should live</h3>
+        <p>Two questions hide inside one: acquiring <em>from</em> TCP slaves, and serving <em>to</em> a SCADA or HMI. They have different answers.</p>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Option</th><th>Cost</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>A.</strong> W5500 on the existing SPI2, STM32 acquires</td>
+                <td>One chip plus CS and INT. No TCP stack, 8 hardware sockets, minimal RAM.</td>
+                <td><span class="pill g">recommended</span> Modbus TCP moves almost no data; hardware sockets are ample. SPI2 is already configured and currently unused.</td>
+              </tr>
+              <tr>
+                <td><strong>B.</strong> LAN8720 PHY, native RMII, LwIP</td>
+                <td>Nine pins, a 50 MHz clock, real RAM and flash, PC4/PC5 surrendered.</td>
+                <td>Only if you need many sockets or genuine throughput. Otherwise it buys complexity.</td>
+              </tr>
+              <tr>
+                <td><strong>C.</strong> Modbus TCP <em>server</em> on the ESP32, from its mirror</td>
+                <td>Software only.</td>
+                <td><span class="pill g">also do this</span> A local HMI polls the gateway over the network it is already on, and the data is already sitting in the mirror. Cheap and useful.</td>
+              </tr>
+              <tr>
+                <td><strong>D.</strong> ESP32 acquires from TCP slaves</td>
+                <td>Software only.</td>
+                <td><span class="pill w">avoid unless forced</span> Makes the ESP32 a second source of truth and splits the process image across two chips. Justified only when the slaves are reachable solely over the ESP32's network.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Also required and easy to forget: a CAN transceiver per channel, 120 Ω termination at both physical ends of the bus, and a decision about whether the CAN ground is the same ground as RS-485.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 10. MIGRATION ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>10</i> Sequence</div>
+      <div class="sec-body">
+        <h2>Order of work</h2>
+        <p>Ordered so that each step is independently useful and nothing requires both firmwares to change at once — except step 3, which is a deliberate cutover.</p>
+        <div class="phases">
+          <div class="phase">
+            <div class="n">01</div>
+            <div class="c">
+              <div class="h">Report real quality, keep the old wire format</div>
+              <div class="d">Add the process image and a status byte that reflects the actual Modbus result. Closes the live data-integrity defect without touching the ESP32.</div>
+              <div class="tags"><span class="pill b">fixes a bug</span><span class="pill a">STM32 only</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">02</div>
+            <div class="c">
+              <div class="h">FreeRTOS and the driver task split</div>
+              <div class="d">One task per bus, image behind a mutex, link handling at top priority. The existing blocking Modbus code carries over unchanged.</div>
+              <div class="tags"><span class="pill a">STM32 only</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">03</div>
+            <div class="c">
+              <div class="h">New link stack, cutover</div>
+              <div class="d">COBS framing, envelope, <code>HELLO</code>, metadata streaming, bulk reads. The ESP32 link layer becomes an async reader with a transaction map; the hardcoded tag table is deleted in favour of discovery.</div>
+              <div class="tags"><span class="pill s">both chips</span><span class="pill w">cutover</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">04</div>
+            <div class="c">
+              <div class="h">Events, change-only reads, time sync</div>
+              <div class="d">MQTT switches to report-by-exception. Alarm latency stops depending on the poll interval.</div>
+              <div class="tags"><span class="pill s">both chips</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">05</div>
+            <div class="c">
+              <div class="h">Buses, one at a time</div>
+              <div class="d">CAN, then local IO, then Modbus TCP, then the custom serial devices. <strong>Each is a driver task plus point-table entries. No link protocol change, no ESP32 change, no cloud schema change.</strong> This is the whole return on the design.</div>
+              <div class="tags"><span class="pill g">the payoff</span><span class="pill a">STM32 only</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">06</div>
+            <div class="c">
+              <div class="h">Field configuration and firmware update</div>
+              <div class="d">Push a point table from the cloud; let the ESP32 reflash the STM32 over the link so the radio side becomes the recovery path.</div>
+              <div class="tags"><span class="pill s">both chips</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 11. QUESTIONS ================= -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>11</i> Open</div>
+      <div class="sec-body">
+        <h2>Decisions I need from you</h2>
+        <p>Each of these changes something concrete in the spec above. My recommendation is given where I have one, but these are yours to make.</p>
+
+        <details open>
+          <summary>How many points, and what is the fastest thing on the list?</summary>
+          <div class="inner">
+            <p>Sizes the index space, the metadata transfer and the poll strategy. A hundred points at 1 Hz and five thousand at 50 ms are different machines.</p>
+            <p class="rec"><b>Why it matters</b> If anything needs faster than about 50 ms end to end, it should be closed-loop on the STM32 and only reported upward — not round-tripped through the link.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Modbus TCP: acquiring, serving, or both? W5500 or native PHY?</summary>
+          <div class="inner">
+            <p>Decides whether PC4/PC5 stay as GPIO and whether the STM32 needs a TCP stack at all.</p>
+            <p class="rec"><b>Recommend</b> W5500 on the existing SPI2 for acquisition, plus a Modbus TCP server on the ESP32 serving its mirror for any local HMI.</p>
+          </div>
+        </details>
+        <details>
+          <summary>CAN: raw IDs, CANopen, or J1939?</summary>
+          <div class="inner">
+            <p>Raw means you hand-write ID-to-point bindings. J1939 means PGN and SPN decoding plus transport-protocol reassembly. CANopen means SDO, PDO mapping and NMT state. The three differ by an order of magnitude in effort, and the choice shapes the point metadata.</p>
+            <p class="rec"><b>Also needed</b> Bus rate, roughly how many distinct IDs, and whether the gateway ever transmits or only listens.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Who owns alarm logic — STM32 or cloud?</summary>
+          <div class="inner">
+            <p>On the STM32 it keeps working through a WAN outage and can act on outputs; in the cloud it is easier to change. These are not exclusive.</p>
+            <p class="rec"><b>Recommend</b> Safety and interlocks on the STM32, always. Reporting thresholds and notification rules in the cloud.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How much history must survive an internet outage?</summary>
+          <div class="inner">
+            <p>Minutes fit in ESP32 RAM. Hours belong in its flash. Days need an SD card or external flash, and change the mirror into a proper historian with backfill on reconnect.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Galvanic isolation on the inter-chip link?</summary>
+          <div class="inner">
+            <p>If the industrial side is mains-referenced, two isolator channels on the UART is the cheapest barrier in the system — and a strong argument against ever moving to SPI, which would need four or more and be speed-limited by propagation delay.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Is the point table compile-time or field-configurable?</summary>
+          <div class="inner">
+            <p>Compile-time is far simpler and is the right start. Field-configurable means a schema, validated persistent storage, and a way to recover from a bad configuration — worth deferring to phase 6, but worth knowing now because it affects how metadata is stored.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Local display or HMI on the device?</summary>
+          <div class="inner">
+            <p>If yes, it reads the process image directly on the STM32 and must keep working with the ESP32 absent — which reinforces keeping all data ownership on the industrial half.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Proposal for review. Nothing in the repository implements this yet — the current firmware pair still speaks the <code>0xAA</code>/<code>0xBB</code> protocol documented in <code>IoTHandler/README.md</code>. Companion notes on the transport and master/slave reasoning are in <code>docs/GATEWAY_ARCHITECTURE.md</code>.</p>
+  </footer>
+</main>

@@ -36,7 +36,11 @@ reasons to prefer it over SPI here.
 ## Build
 
 ```sh
-# 1. Bring up the serial link first. Needs no certificates.
+# 0. NEW: bring up the v2 inter-chip link first. No WiFi, no libraries,
+#    no certificates. Procedure: ../docs/LINK_V2_TESTING.html
+pio run -e linkv2 -t upload -t monitor
+
+# 1. Legacy v1 (0xAA/0xBB) link test.
 pio run -e linktest -t upload -t monitor
 
 # 2. Then the full gateway.
@@ -57,7 +61,11 @@ Both environments currently build warning-clean under `-Wall`:
 | file | role |
 |---|---|
 | `include/config.h` | pins, baud, timeouts, intervals, feature flags |
-| `include/stm_protocol.h` | wire format + the catalogue of STM32 V1.2 quirks |
+| `include/gw_model.h` | shim onto `../../shared/gw_model.h`, the **v2** wire contract |
+| `include/stm_link_v2.h` | **v2** client: transactions over the STM32 process image |
+| `src/stm_link_v2.cpp` | framing, sequence numbers, retries, block reads, stats |
+| `src/linkv2_test_main.cpp` | v2 bring-up console — its own firmware, env `linkv2` |
+| `include/stm_protocol.h` | v1 wire format + the catalogue of STM32 V1.2 quirks |
 | `src/crc16_modbus.cpp` | CRC-16/MODBUS, verified identical to the STM32's table |
 | `src/stm_link.cpp` | framed transaction master, retries, resync, stats |
 | `src/tag_map.cpp` | **the table you edit** — what to poll and publish |
@@ -71,7 +79,21 @@ shared mutable state beyond the process image and the link stats, both locked.
 
 ---
 
-## Wire protocol
+## Two link protocols
+
+**v2 (`0xA5` / `0x5A`) is the one to use.** It reads bytes out of a process image
+on the STM32 instead of proxying a live Modbus transaction, which is what lets the
+response timeout drop from 1600 ms to 100 and lets quality travel with every value.
+The contract is `../shared/gw_model.h`, compiled by both chips; the STM32 side is
+`ModbusRTU_AWS/Core/Src/gw_link.c`. Bring-up: `../docs/LINK_V2_TESTING.html`.
+
+```
+request   A5 seq op  reg addrLo addrHi lenLo lenHi [payload...] crcLo crcHi
+response  5A seq status reg lenLo lenHi           [payload...]  crcLo crcHi
+```
+
+**v1 (`0xAA` / `0xBB`) is the original**, kept for reference and still selectable
+by building the STM32 with `GW_LINK_ENABLE 0`. Only one protocol can own USART3.
 
 ```
 request   AA cmd type addrHi addrLo count [data...] crcLo crcHi

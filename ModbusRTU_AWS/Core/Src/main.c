@@ -27,6 +27,12 @@
 #include "modbusMaster.h"
 #include "esp32msghandler.h"
 
+/* Link v2 module - the ESP32 <-> STM32 communication handler.
+ * gw_link_cfg.h / GW_LINK_ENABLE decides which protocol owns USART3. */
+#include "gw_link_cfg.h"
+#include "gw_image.h"
+#include "gw_link.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,6 +69,12 @@ uint16_t inputRegisters[100];
 uint8_t coils[100];
 uint8_t discreteInputs[100];
 uint8_t SlaveID = 2;
+
+/* Result of the link-module bring-up, kept as globals so they are visible in
+ * the debugger's live expressions. Both must be true for the ESP32 to get any
+ * reply at all. */
+volatile bool gwImageOk = false;
+volatile bool gwLinkOk = false;
 
 /* USER CODE END PV */
 
@@ -119,7 +131,28 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   Modbus_Init(&hmodbus, &huart1, RS485_EN_GPIO_Port, RS485_EN_Pin);
+
+#if GW_LINK_ENABLE
+  /* ---- Link v2 (0xA5 / 0x5A) ----------------------------------------------
+   * USART3 belongs to the link module. The order matters: the image has to
+   * exist before the link can answer out of it, and GwLink_Init refuses to
+   * start otherwise rather than serving a half-built image.
+   *
+   * Both calls return a bool. Nothing useful can be done with a failure at this
+   * point in the boot - there is no console and no cloud yet - so the result is
+   * parked in a variable that the debugger's live expressions can see. The
+   * .launch file already has live expressions enabled; watch gwImageOk and
+   * gwLinkOk if the ESP32 reports a dead link.
+   */
+  gwImageOk = GwImage_Init();
+  gwLinkOk  = GwLink_Init(&huart3);
+#else
+  /* ---- Link v1 (0xAA / 0xBB) ----------------------------------------------
+   * The original handler. It polls USART3 one byte at a time from the main loop
+   * and runs a blocking Modbus transaction inside the request, so it cannot
+   * share the port with v2 - see GW_LINK_ENABLE in gw_link_cfg.h. */
   ESP32MsgHandler_Init(&huart3);
+#endif
 
   // Initialize some test values
   holdingRegisters[1] = 1234;
@@ -142,8 +175,28 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	ESP32MsgHandler_Task();  // Call this in main loop
-
+#if GW_LINK_ENABLE
+    /* The superloop the rest of the gateway will be built into.
+     *
+     * Every step is a state machine that returns immediately, so the loop rate
+     * is set by the slowest step rather than by the slowest device on a field
+     * bus. Keep it that way: the moment one of these blocks, the link goes deaf
+     * for the duration and the ESP32 starts timing out.
+     *
+     * Steps still to come, in build order (docs/UNIVERSAL_PROCESS_IMAGE.html):
+     *   RtuScan_Step();     P3 - non-blocking RS-485 master filling MB_RTU
+     *   LocalIo_Step();     P7 - DI debounce, ADC results, DO/AO apply
+     *   Can_Step();         P7 - drain the CAN RX queue into the CAN region
+     *   TcpMirror_Step();   P7 - staleness watchdog over the ESP32-fed region
+     *   Virtual_Step();     P7 - computed tags, evaluated last
+     *   WriteQueue_Step();  P8 - one pending field write per pass
+     *   Events_Step();      P8 - transitions into the ring, drive STM_EVENT
+     */
+    GwLink_Step();   /* parse a request, answer it from the image */
+    GwImage_Step();  /* uptime, staleness ageing, demo slots      */
+#else
+    ESP32MsgHandler_Task();  // link v1: blocking Modbus proxy
+#endif
 
   }
   /* USER CODE END 3 */

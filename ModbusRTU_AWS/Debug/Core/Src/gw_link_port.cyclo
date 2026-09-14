@@ -1,0 +1,8 @@
+../Core/Src/gw_link_port.c:37:17:dmaHead	2
+../Core/Src/gw_link_port.c:44:13:startRx	1
+../Core/Src/gw_link_port.c:53:6:GwLinkPort_Init	5
+../Core/Src/gw_link_port.c:72:10:GwLinkPort_Read	6
+../Core/Src/gw_link_port.c:113:6:GwLinkPort_TxBusy	2
+../Core/Src/gw_link_port.c:118:6:GwLinkPort_Send	4
+../Core/Src/gw_link_port.c:127:6:GwLinkPort_Service	3
+../Core/Src/gw_link_port.c:145:10:GwLinkPort_OverrunCount	1

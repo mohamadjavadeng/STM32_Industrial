@@ -1,0 +1,17 @@
+../Core/Inc/../../../shared/gw_model.h:412:24:gwRd16	16	static
+../Core/Inc/../../../shared/gw_model.h:421:20:gwWr16	16	static
+../Core/Src/gw_link.c:82:24:txPayload	4	static
+../Core/Src/gw_link.c:92:20:invalidateDedup	4	static
+../Core/Src/gw_link.c:109:13:sendReply	32	static
+../Core/Src/gw_link.c:169:16:handleEcho	24	static
+../Core/Src/gw_link.c:191:16:handleSync	48	static
+../Core/Src/gw_link.c:227:16:handleReadMeta	56	static
+../Core/Src/gw_link.c:274:16:handleReadRegion	32	static
+../Core/Src/gw_link.c:308:16:handleWriteRegion	32	static
+../Core/Src/gw_link.c:324:13:dispatch	32	static
+../Core/Src/gw_link.c:410:13:resetParser	4	static
+../Core/Src/gw_link.c:423:13:feedByte	24	static
+../Core/Src/gw_link.c:508:6:GwLink_Init	16	static
+../Core/Src/gw_link.c:530:6:GwLink_Step	8	static
+../Core/Src/gw_link.c:579:20:GwLink_Stats	4	static
+../Core/Src/gw_link.c:581:6:GwLink_IsReady	4	static

@@ -1,0 +1,1457 @@
+<title>Universal Process Image</title>
+<style>
+/* ---- reset ---------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body, h1, h2, h3, h4, p, ul, ol, li, figure, pre, table, dl, dd { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+img, svg { max-width: 100%; }
+svg { display: block; }
+table { border-collapse: collapse; }
+a { color: inherit; }
+
+/* ---- tokens: light is the complete set ------------------------------ */
+:root {
+  --bg:          #EDEFF2;
+  --surface:     #FCFDFE;
+  --surface-2:   #F1F4F6;
+  --ink:         #101A22;
+  --ink-2:       #4E5C68;
+  --ink-3:       #82919C;
+  --rule:        #D3DAE0;
+  --rule-strong: #B4BFC8;
+  --accent:      #0B6E88;
+  --accent-wash: #DDEBEF;
+
+  --r-sys: #67727E;
+  --r-io:  #1E7F53;
+  --r-rtu: #A85C05;
+  --r-tcp: #2456A6;
+  --r-can: #93307F;
+  --r-ser: #5B4FA8;
+  --r-vir: #0E7186;
+  --r-evt: #B03A2E;
+
+  --good: #1E7F53;
+  --warn: #A85C05;
+  --crit: #B03A2E;
+
+  --shadow: 0 1px 0 rgba(16,26,34,.04), 0 8px 24px -18px rgba(16,26,34,.5);
+
+  --f-display: Georgia, "Iowan Old Style", "Times New Roman", Times, serif;
+  --f-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --f-mono: Consolas, "Cascadia Mono", "SF Mono", ui-monospace, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:          #0E1419;
+    --surface:     #151D24;
+    --surface-2:   #1B242C;
+    --ink:         #DCE4EA;
+    --ink-2:       #9AA8B4;
+    --ink-3:       #6C7A86;
+    --rule:        #26313A;
+    --rule-strong: #3A4752;
+    --accent:      #4FBEDA;
+    --accent-wash: #12313A;
+    --r-sys: #99A5B1; --r-io: #4FC48D; --r-rtu: #E0A34A; --r-tcp: #6E9EE8;
+    --r-can: #D97BC6; --r-ser: #9B92E4; --r-vir: #55BFD4; --r-evt: #EF8579;
+    --good: #4FC48D; --warn: #E0A34A; --crit: #EF8579;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:          #0E1419;
+  --surface:     #151D24;
+  --surface-2:   #1B242C;
+  --ink:         #DCE4EA;
+  --ink-2:       #9AA8B4;
+  --ink-3:       #6C7A86;
+  --rule:        #26313A;
+  --rule-strong: #3A4752;
+  --accent:      #4FBEDA;
+  --accent-wash: #12313A;
+  --r-sys: #99A5B1; --r-io: #4FC48D; --r-rtu: #E0A34A; --r-tcp: #6E9EE8;
+  --r-can: #D97BC6; --r-ser: #9B92E4; --r-vir: #55BFD4; --r-evt: #EF8579;
+  --good: #4FC48D; --warn: #E0A34A; --crit: #EF8579;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -20px rgba(0,0,0,.9);
+}
+
+/* ---- page ----------------------------------------------------------- */
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.topbar-in {
+  max-width: 70rem; margin-inline: auto;
+  padding: .55rem 1.25rem;
+  display: flex; align-items: baseline; gap: 1.4rem; flex-wrap: wrap;
+}
+.topbar .mark {
+  font-family: var(--f-mono); font-size: .72rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-2); white-space: nowrap;
+}
+.topnav { display: flex; gap: 1rem; flex-wrap: wrap; }
+.topnav a {
+  font-family: var(--f-mono); font-size: .72rem; letter-spacing: .05em;
+  color: var(--ink-3); text-decoration: none; padding: .15rem 0;
+  border-bottom: 1px solid transparent;
+}
+.topnav a:hover, .topnav a:focus-visible { color: var(--accent); border-bottom-color: var(--accent); }
+
+.doc {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(1.25rem, 1fr)
+    [main-start] min(46rem, 100% - 2.5rem) [main-end]
+    minmax(1.25rem, 1fr) [full-end];
+  row-gap: 1.05rem;
+  padding: 0 0 6rem;
+}
+.doc > * { grid-column: main; }
+.doc > .bleed { grid-column: full; }
+.bleed > .inner { width: min(66rem, 100%); margin-inline: auto; }
+
+/* ---- masthead ------------------------------------------------------- */
+.masthead { padding: 4.25rem 0 1.25rem; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: .72rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+}
+h1 {
+  font-family: var(--f-display);
+  font-size: clamp(2.35rem, 6vw, 3.6rem);
+  line-height: 1.03; letter-spacing: -.022em; font-weight: 700;
+  text-wrap: balance;
+}
+.standfirst {
+  margin-top: 1.1rem; font-size: 1.14rem; line-height: 1.52; color: var(--ink-2);
+  max-width: 33rem; text-wrap: pretty;
+}
+.byline {
+  margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--rule);
+  font-family: var(--f-mono); font-size: .73rem; color: var(--ink-3);
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+}
+
+/* ---- headings ------------------------------------------------------- */
+h2 {
+  font-family: var(--f-display);
+  font-size: clamp(1.6rem, 3.4vw, 2.05rem);
+  line-height: 1.14; letter-spacing: -.015em; font-weight: 700;
+  margin-top: 3.4rem; text-wrap: balance; scroll-margin-top: 4rem;
+}
+h2 .num {
+  font-family: var(--f-mono); font-size: .78rem; font-weight: 400;
+  letter-spacing: .12em; color: var(--accent); display: block; margin-bottom: .45rem;
+}
+h3 { font-size: 1.02rem; font-weight: 650; margin-top: 1.9rem; }
+h4 {
+  font-family: var(--f-mono); font-size: .73rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-top: 1.4rem;
+}
+p { text-wrap: pretty; }
+strong { font-weight: 650; }
+.lede { font-size: 1.06rem; color: var(--ink-2); }
+
+/* ---- lists ---------------------------------------------------------- */
+ul.bul { display: grid; gap: .5rem; }
+ul.bul > li { padding-left: 1.15rem; position: relative; }
+ul.bul > li::before {
+  content: ""; position: absolute; left: 0; top: .68em;
+  width: .38rem; height: .38rem; background: var(--rule-strong);
+}
+
+dl.qa { display: grid; gap: 1.3rem; }
+dl.qa dt { font-weight: 650; }
+dl.qa dd { color: var(--ink-2); margin-top: .2rem; }
+dl.qa dd .verdict {
+  display: inline-block; font-family: var(--f-mono); font-size: .69rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-right: .5rem;
+}
+
+/* ---- code ----------------------------------------------------------- */
+code { font-family: var(--f-mono); font-size: .875em; }
+p code, li code, td code, dd code, figcaption code {
+  background: var(--surface-2); border: 1px solid var(--rule);
+  padding: .05em .3em; border-radius: 2px; white-space: nowrap;
+}
+pre {
+  background: var(--surface); border: 1px solid var(--rule);
+  padding: .95rem 1.1rem; overflow-x: auto; border-radius: 2px;
+  font-family: var(--f-mono); font-size: .79rem; line-height: 1.6;
+  color: var(--ink); box-shadow: var(--shadow);
+}
+pre .c { color: var(--ink-3); }
+pre .k { color: var(--accent); }
+
+figure { display: grid; gap: .55rem; }
+figcaption { font-family: var(--f-mono); font-size: .715rem; letter-spacing: .02em; color: var(--ink-3); line-height: 1.5; }
+.figframe {
+  border: 1px solid var(--rule); background: var(--surface);
+  border-radius: 2px; padding: 1rem; overflow-x: auto; box-shadow: var(--shadow);
+}
+.dsvg { width: 100%; height: auto; min-width: 600px; }
+
+/* ---- tables --------------------------------------------------------- */
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 2px; background: var(--surface); }
+table { width: 100%; font-size: .87rem; min-width: 32rem; }
+thead th {
+  text-align: left; font-family: var(--f-mono); font-weight: 600;
+  font-size: .69rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); padding: .65rem .85rem; border-bottom: 1px solid var(--rule-strong);
+  white-space: nowrap; background: var(--surface-2);
+}
+tbody td { padding: .58rem .85rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+td.mono, th.mono { font-family: var(--f-mono); font-size: .79rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.dim { color: var(--ink-2); }
+
+/* ---- chips / legend ------------------------------------------------- */
+.legend { display: flex; flex-wrap: wrap; gap: .4rem .95rem; }
+.chip { display: inline-flex; align-items: center; gap: .4rem; font-family: var(--f-mono); font-size: .73rem; white-space: nowrap; color: var(--ink-2); }
+.chip::before { content: ""; width: .58rem; height: .58rem; background: var(--c, var(--rule-strong)); flex: none; }
+
+/* ---- memory map ----------------------------------------------------- */
+.memmap { display: grid; gap: 2px; font-family: var(--f-mono); font-size: .77rem; }
+.memrow { display: grid; grid-template-columns: 6rem 1fr 6.5rem; gap: .7rem; }
+.memrow .addr { color: var(--ink-3); padding-top: .5rem; font-variant-numeric: tabular-nums; }
+.memrow .size { color: var(--ink-3); padding-top: .5rem; text-align: right; font-variant-numeric: tabular-nums; }
+.memrow .band {
+  background: var(--surface-2); border: 1px solid var(--rule);
+  border-left: 5px solid var(--c, var(--rule-strong));
+  padding: .45rem .75rem; display: flex; align-items: center; gap: .75rem;
+  flex-wrap: wrap; min-height: var(--h, 2.4rem);
+}
+.memrow .band b { font-weight: 650; color: var(--ink); }
+.memrow .band span { color: var(--ink-2); font-size: .73rem; }
+
+/* ---- byte strip ----------------------------------------------------- */
+.stripwrap { overflow-x: auto; padding-bottom: .25rem; }
+.strip { display: flex; gap: 3px; min-width: max-content; }
+.strip .byte {
+  border: 1px solid var(--rule-strong); background: var(--surface-2);
+  padding: .4rem .5rem; text-align: center; min-width: 3.3rem;
+  font-family: var(--f-mono); font-size: .72rem; color: var(--ink);
+}
+.strip .byte i { display: block; font-style: normal; font-size: .61rem; color: var(--ink-3); letter-spacing: .03em; }
+.strip .byte b { display: block; font-size: .84rem; font-weight: 600; letter-spacing: .04em; }
+.strip .byte.sof { background: var(--accent-wash); border-color: var(--accent); }
+.strip .byte.pay { flex: 1 1 8rem; border-style: dashed; }
+.strip .byte.on { border-color: var(--accent); }
+
+/* ---- proportional bars ---------------------------------------------- */
+.bars { display: grid; gap: .7rem; font-family: var(--f-mono); font-size: .76rem; }
+.barrow { display: grid; grid-template-columns: 10.5rem 1fr 5.5rem; gap: .8rem; align-items: center; }
+.barrow .lab { color: var(--ink-2); }
+.barrow .t { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.bartrack { background: var(--surface-2); border: 1px solid var(--rule); height: 1.9rem; position: relative; }
+.barfill { height: 100%; }
+.barfill.many {
+  background: repeating-linear-gradient(90deg, var(--r-rtu) 0 2px, transparent 2px 9px);
+  border-right: 1px solid var(--r-rtu);
+}
+.barfill.one { background: var(--good); }
+@media (max-width: 40rem) { .barrow { grid-template-columns: 1fr; gap: .3rem; } .barrow .t { text-align: left; } }
+
+/* ---- notes ---------------------------------------------------------- */
+.note {
+  border: 1px solid var(--rule); background: var(--surface);
+  padding: .95rem 1.1rem 1rem; border-radius: 2px; display: grid; gap: .45rem;
+}
+.note .tag { font-family: var(--f-mono); font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.note.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--rule)); }
+.note.warn .tag { color: var(--warn); }
+.note.crit { border-color: color-mix(in srgb, var(--crit) 45%, var(--rule)); }
+.note.crit .tag { color: var(--crit); }
+
+/* ---- cards ---------------------------------------------------------- */
+.twoup { display: grid; gap: 1.15rem; grid-template-columns: 1fr; }
+@media (min-width: 52rem) { .twoup { grid-template-columns: 1fr 1fr; } }
+.card {
+  border: 1px solid var(--rule); background: var(--surface);
+  padding: 1rem 1.1rem 1.15rem; border-radius: 2px; display: grid; gap: .5rem; align-content: start;
+}
+.card h4 { margin-top: 0; }
+.card p { font-size: .92rem; color: var(--ink-2); }
+.card .lead { color: var(--ink); font-size: .99rem; font-weight: 600; }
+
+/* ---- roadmap rail --------------------------------------------------- */
+.rail { display: grid; gap: 0; }
+.railrow { display: grid; grid-template-columns: 3.4rem 1fr; gap: 1rem; }
+.railrow .gutter { position: relative; }
+.railrow .gutter::before {
+  content: ""; position: absolute; left: 1.55rem; top: 0; bottom: 0; width: 1px; background: var(--rule);
+}
+.railrow:first-child .gutter::before { top: 1.1rem; }
+.railrow:last-child .gutter::before { bottom: auto; height: 1.1rem; }
+.railrow .dot {
+  position: absolute; left: 1.05rem; top: .72rem; width: 1.05rem; height: 1.05rem;
+  background: var(--bg); border: 2px solid var(--accent); border-radius: 50%;
+}
+.railrow .pnum {
+  position: absolute; left: 0; top: .78rem; font-family: var(--f-mono);
+  font-size: .72rem; color: var(--accent);
+}
+.railrow .body { padding: .35rem 0 1.5rem; display: grid; gap: .35rem; }
+.railrow .body h3 { margin-top: 0; }
+.railrow .body p { font-size: .93rem; color: var(--ink-2); }
+.railrow .done {
+  font-family: var(--f-mono); font-size: .72rem; color: var(--ink);
+  border-left: 3px solid var(--good); padding-left: .6rem; margin-top: .2rem;
+}
+
+footer.end {
+  margin-top: 3.5rem; padding-top: 1.1rem; border-top: 1px solid var(--rule);
+  font-family: var(--f-mono); font-size: .73rem; color: var(--ink-3);
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="mark">Universal Process Image</div>
+    <nav class="topnav">
+      <a href="#layers">Two layers</a>
+      <a href="#journey">One value</a>
+      <a href="#why">Before / after</a>
+      <a href="#map">Memory map</a>
+      <a href="#link">Link v2</a>
+      <a href="#drivers">Drivers</a>
+      <a href="#tool">PC tool</a>
+      <a href="#plan">Build order</a>
+      <a href="#decide">Decisions</a>
+    </nav>
+  </div>
+</div>
+
+<article class="doc">
+
+  <header class="masthead">
+    <div class="eyebrow">STM32F407 + ESP32-S3 gateway &middot; architecture plan</div>
+    <h1>One memory image, many buses</h1>
+    <p class="standfirst">
+      Your two ideas — memory areas per protocol, and fixed arrays of structs — are not
+      two options. They are the two halves of one design, and every real PLC ships both.
+      This is what each half does, and the order to build them in.
+    </p>
+    <div class="byline">
+      <span>ModbusRTU_AWS &middot; IoTHandler</span>
+      <span>Extends docs/GATEWAY_ARCHITECTURE.md §4</span>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <h2 id="layers"><span class="num">01</span>The two layers</h2>
+
+  <p class="lede">
+    The structs describe <strong>where a value comes from</strong>. They almost never
+    change, and they stay in flash. The memory regions hold <strong>what the value is
+    right now</strong>. They change every scan, and only they cross the link.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 980 430" role="img" aria-label="The PC tool writes a channel table into STM32 flash. That table tells the scanner which field address maps to which slot in the process image in RAM. The ESP32 reads only the process image; the channel table never crosses the link.">
+            <defs>
+              <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+              </marker>
+            </defs>
+
+            <!-- PC tool -->
+            <g color="var(--ink-2)">
+              <rect x="20" y="64" width="150" height="72" fill="var(--surface-2)" stroke="var(--rule-strong)"/>
+              <text x="34" y="90" font-family="Consolas, ui-monospace, monospace" font-size="12" fill="var(--ink)">PC config tool</text>
+              <text x="34" y="110" font-family="Consolas, ui-monospace, monospace" font-size="9.5" fill="var(--ink-3)">project.json</text>
+              <text x="34" y="125" font-family="Consolas, ui-monospace, monospace" font-size="9.5" fill="var(--ink-3)">device profiles</text>
+              <line x1="172" y1="100" x2="242" y2="100" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)"/>
+              <text x="174" y="92" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)">config.bin, once</text>
+            </g>
+
+            <!-- channel table -->
+            <rect x="248" y="40" width="452" height="180" fill="var(--surface)" stroke="var(--rule-strong)"/>
+            <text x="262" y="64" font-family="Consolas, ui-monospace, monospace" font-size="12" fill="var(--accent)">CHANNEL TABLE</text>
+            <text x="262" y="82" font-family="Consolas, ui-monospace, monospace" font-size="9.5" fill="var(--ink-3)">STM32 flash &#183; changes only when you commission a device</text>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)">
+              <text x="264" y="110">tagId</text><text x="318" y="110">driver</text>
+              <text x="392" y="110">field address</text><text x="600" y="110">lands in</text>
+            </g>
+            <line x1="262" y1="118" x2="686" y2="118" stroke="var(--rule-strong)"/>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--ink)">
+              <text x="264" y="140">17</text><text x="318" y="140">MB_RTU</text><text x="392" y="140">slave 2, FC03, reg 4097</text><text x="600" y="140">0x02 : 5</text>
+              <text x="264" y="166">18</text><text x="318" y="166">MB_RTU</text><text x="392" y="166">slave 2, FC03, reg 4098</text><text x="600" y="166">0x02 : 6</text>
+              <text x="264" y="192">40</text><text x="318" y="192">CAN</text><text x="392" y="192">id 18FF50E5, bits 16-31</text><text x="600" y="192">0x04 : 2</text>
+            </g>
+            <line x1="262" y1="150" x2="686" y2="150" stroke="var(--rule)"/>
+            <line x1="262" y1="176" x2="686" y2="176" stroke="var(--rule)"/>
+
+            <!-- down arrow -->
+            <g color="var(--ink-2)">
+              <line x1="474" y1="222" x2="474" y2="258" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)"/>
+              <text x="488" y="236" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)">at commit: every value</text>
+              <text x="488" y="249" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)">is given a fixed slot</text>
+            </g>
+
+            <!-- process image -->
+            <rect x="248" y="262" width="452" height="126" fill="var(--surface)" stroke="var(--rule-strong)"/>
+            <text x="262" y="286" font-family="Consolas, ui-monospace, monospace" font-size="12" fill="var(--accent)">PROCESS IMAGE</text>
+            <text x="262" y="304" font-family="Consolas, ui-monospace, monospace" font-size="9.5" fill="var(--ink-3)">STM32 RAM &#183; region 0x02 &#183; refreshed every scan</text>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)" text-anchor="middle">
+              <rect x="264" y="318" width="60" height="42" fill="var(--surface-2)" stroke="var(--rule)"/><text x="294" y="332">slot 3</text>
+              <rect x="336" y="318" width="60" height="42" fill="var(--surface-2)" stroke="var(--rule)"/><text x="366" y="332">slot 4</text>
+              <rect x="408" y="318" width="60" height="42" fill="var(--r-rtu)" fill-opacity=".18" stroke="var(--r-rtu)" stroke-width="1.6"/><text x="438" y="332" fill="var(--r-rtu)">slot 5</text>
+              <rect x="480" y="318" width="60" height="42" fill="var(--surface-2)" stroke="var(--rule)"/><text x="510" y="332">slot 6</text>
+              <rect x="552" y="318" width="60" height="42" fill="var(--surface-2)" stroke="var(--rule)"/><text x="582" y="332">slot 7</text>
+              <rect x="624" y="318" width="60" height="42" fill="var(--surface-2)" stroke="var(--rule)"/><text x="654" y="332">slot 8</text>
+            </g>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="11" fill="var(--ink)" text-anchor="middle">
+              <text x="294" y="350">1180</text><text x="366" y="350">0</text>
+              <text x="438" y="350" fill="var(--r-rtu)">4124</text><text x="510" y="350">981</text>
+              <text x="582" y="350">55</text><text x="654" y="350">0</text>
+            </g>
+
+            <!-- to ESP -->
+            <g color="var(--accent)">
+              <line x1="702" y1="330" x2="760" y2="330" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+              <text x="704" y="322" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--accent)">RD_REGION</text>
+            </g>
+            <rect x="766" y="272" width="196" height="110" fill="var(--surface)" stroke="var(--rule-strong)" stroke-dasharray="3 4"/>
+            <text x="780" y="296" font-family="Consolas, ui-monospace, monospace" font-size="12" fill="var(--ink)">ESP32-S3</text>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="9.5" fill="var(--ink-2)">
+              <text x="780" y="318">asks for region 0x02</text>
+              <text x="780" y="334">takes slot 5</text>
+              <text x="780" y="350">calls it Pump1_Pressure</text>
+            </g>
+            <text x="780" y="370" font-family="Consolas, ui-monospace, monospace" font-size="11" fill="var(--ink)">41.24 barg</text>
+
+            <!-- blocked path -->
+            <g color="var(--crit)">
+              <path d="M702 130 H738 V244" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4"/>
+              <line x1="731" y1="180" x2="745" y2="194" stroke="currentColor" stroke-width="2"/>
+              <line x1="745" y1="180" x2="731" y2="194" stroke="currentColor" stroke-width="2"/>
+              <text x="754" y="183" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--crit)">the channel table</text>
+              <text x="754" y="196" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--crit)">never crosses</text>
+              <text x="754" y="209" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--crit)">the link</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption>
+          Config goes down once, at commissioning. Values come up continuously. Keeping
+          them apart is what makes a PC configuration tool possible at all — otherwise
+          re-commissioning a device means reflashing both chips.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="twoup">
+    <div class="card">
+      <h4>Your idea B &middot; the structs</h4>
+      <p class="lead">Configuration. Flash. Rarely changes.</p>
+      <p>Slave ID, register number, register class, data type, scan rate, scaling. The
+      ESP32 never sees any of it.</p>
+    </div>
+    <div class="card">
+      <h4>Your idea A &middot; the memory areas</h4>
+      <p class="lead">Process image. RAM. Changes constantly.</p>
+      <p>Value, quality, timestamp. Nothing else. This is the only thing that travels
+      over the UART.</p>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <h2 id="journey"><span class="num">02</span>One value, end to end</h2>
+
+  <p class="lede">
+    Follow a single pressure reading from the RS-485 slave to the cloud. Notice where
+    the Modbus address stops existing.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 1020 250" role="img" aria-label="A pressure value travels from a Modbus slave register, through the RTU driver, into a process image slot, across the link as a region read, into the ESP32 tag map, and out to the cloud as a named tag. The Modbus address exists only in the first three stages.">
+            <defs>
+              <marker id="ar2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="8.5" fill="var(--ink-3)" letter-spacing="1">
+              <text x="10" y="30">FIELD DEVICE</text>
+              <text x="182" y="30">RTU DRIVER</text>
+              <text x="354" y="30">PROCESS IMAGE</text>
+              <text x="526" y="30">LINK</text>
+              <text x="698" y="30">ESP32 TAG MAP</text>
+              <text x="870" y="30">CLOUD</text>
+            </g>
+
+            <rect x="10"  y="42" width="140" height="112" fill="var(--surface-2)" stroke="var(--rule-strong)"/>
+            <rect x="182" y="42" width="140" height="112" fill="var(--surface-2)" stroke="var(--r-rtu)"/>
+            <rect x="354" y="42" width="140" height="112" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+            <rect x="526" y="42" width="140" height="112" fill="var(--surface-2)" stroke="var(--accent)"/>
+            <rect x="698" y="42" width="140" height="112" fill="var(--surface-2)" stroke="var(--rule-strong)"/>
+            <rect x="870" y="42" width="140" height="112" fill="var(--surface-2)" stroke="var(--rule-strong)"/>
+
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--ink)">
+              <text x="24" y="70">Slave 2</text><text x="24" y="90">FC 03</text>
+              <text x="24" y="110">register 4097</text><text x="24" y="134" fill="var(--ink-2)">raw = 4124</text>
+
+              <text x="196" y="70">reads 20 regs</text><text x="196" y="90">in ONE request</text>
+              <text x="196" y="110">scatters them</text><text x="196" y="134" fill="var(--ink-2)">to their slots</text>
+
+              <text x="368" y="70">region 0x02</text><text x="368" y="90" fill="var(--accent)">slot 5 = 4124</text>
+              <text x="368" y="110">quality GOOD</text><text x="368" y="134" fill="var(--ink-2)">age 40 ms</text>
+
+              <text x="540" y="70">RD_REGION</text><text x="540" y="90">region 0x02</text>
+              <text x="540" y="110">512 bytes</text><text x="540" y="134" fill="var(--crit)">no address</text>
+
+              <text x="712" y="70">slot 5 = tag 17</text><text x="712" y="90">&#215; 0.01</text>
+              <text x="712" y="110">unit barg</text><text x="712" y="134" fill="var(--ink-2)">quality GOOD</text>
+
+              <text x="884" y="70">Pump1_Pressure</text><text x="884" y="94" fill="var(--accent)">41.24 barg</text>
+              <text x="884" y="118">quality GOOD</text><text x="884" y="138" fill="var(--ink-2)">age 40 ms</text>
+            </g>
+
+            <g color="var(--ink-2)" stroke-width="1.3">
+              <line x1="152" y1="98" x2="178" y2="98" stroke="currentColor" marker-end="url(#ar2)"/>
+              <line x1="324" y1="98" x2="350" y2="98" stroke="currentColor" marker-end="url(#ar2)"/>
+              <line x1="496" y1="98" x2="522" y2="98" stroke="currentColor" marker-end="url(#ar2)"/>
+              <line x1="668" y1="98" x2="694" y2="98" stroke="currentColor" marker-end="url(#ar2)"/>
+              <line x1="840" y1="98" x2="866" y2="98" stroke="currentColor" marker-end="url(#ar2)"/>
+            </g>
+
+            <g stroke="var(--r-rtu)" fill="none" stroke-width="1.4">
+              <path d="M10 182 v10 h484 v-10"/>
+            </g>
+            <text x="252" y="212" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--r-rtu)" text-anchor="middle">Modbus addressing lives only here</text>
+
+            <g stroke="var(--accent)" fill="none" stroke-width="1.4">
+              <path d="M526 182 v10 h484 v-10"/>
+            </g>
+            <text x="768" y="212" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--accent)" text-anchor="middle">from here: region + slot only</text>
+          </svg>
+        </div>
+        <figcaption>
+          This is what "avoid addressing on the link" means in practice. Change the slave
+          from ID 2 to ID 7 and only the first two boxes change — nothing on the ESP32,
+          nothing in the cloud, no firmware rebuild.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <h2 id="why"><span class="num">03</span>Why the image, not a proxy</h2>
+
+  <p class="lede">
+    Today the link is a pass-through: an ESP32 request triggers a live Modbus
+    transaction and waits for it. That is the source of most of your known bugs.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 980 380" role="img" aria-label="Today the ESP32 request travels through the STM32 to the RS-485 slave and back, so the ESP32 waits 25 to 1600 milliseconds. After the refactor the scanner polls the slave continuously on its own and the ESP32 request is answered from RAM in 2 to 5 milliseconds.">
+            <defs>
+              <marker id="ar3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+              </marker>
+            </defs>
+
+            <!-- band A -->
+            <text x="20" y="22" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--crit)" letter-spacing=".5">TODAY &#183; the link waits for the field bus</text>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--ink)" text-anchor="middle">
+              <text x="90" y="52">ESP32</text><text x="470" y="52">STM32</text><text x="850" y="52">RS-485 slave</text>
+            </g>
+            <g stroke="var(--rule)" stroke-dasharray="3 4">
+              <line x1="90" y1="60" x2="90" y2="170"/><line x1="470" y1="60" x2="470" y2="170"/><line x1="850" y1="60" x2="850" y2="170"/>
+            </g>
+            <g color="var(--ink-2)" stroke-width="1.3" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="90"  y1="84"  x2="466" y2="84"  stroke="currentColor" marker-end="url(#ar3)"/><text x="278" y="78" fill="var(--ink-2)">read register 4097</text>
+              <line x1="470" y1="112" x2="846" y2="112" stroke="currentColor" marker-end="url(#ar3)"/><text x="658" y="106" fill="var(--ink-2)">Modbus FC03 on the wire</text>
+              <line x1="850" y1="140" x2="474" y2="140" stroke="currentColor" marker-end="url(#ar3)"/><text x="662" y="134" fill="var(--ink-2)">reply &#8230; or nothing</text>
+              <line x1="470" y1="166" x2="94"  y2="166" stroke="currentColor" marker-end="url(#ar3)"/><text x="282" y="160" fill="var(--ink-2)">value</text>
+            </g>
+            <rect x="24" y="76" width="4" height="98" fill="var(--crit)"/>
+            <text x="36" y="120" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--crit)">blocked</text>
+            <text x="36" y="134" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--crit)">25-1600 ms</text>
+
+            <line x1="20" y1="196" x2="960" y2="196" stroke="var(--rule)"/>
+
+            <!-- band B -->
+            <text x="20" y="224" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--good)" letter-spacing=".5">AFTER &#183; the scanner runs free, the link reads RAM</text>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--ink)" text-anchor="middle">
+              <text x="90" y="254">ESP32</text><text x="470" y="254">STM32 + image</text><text x="850" y="254">RS-485 slave</text>
+            </g>
+            <g stroke="var(--rule)" stroke-dasharray="3 4">
+              <line x1="90" y1="262" x2="90" y2="356"/><line x1="470" y1="262" x2="470" y2="356"/><line x1="850" y1="262" x2="850" y2="356"/>
+            </g>
+            <g color="var(--r-rtu)" stroke-width="1.3" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="474" y1="286" x2="846" y2="286" stroke="currentColor" marker-end="url(#ar3)" marker-start="url(#ar3)"/>
+              <text x="660" y="280" fill="var(--r-rtu)">polls grouped registers at its own pace &#183; never stops</text>
+            </g>
+            <g color="var(--accent)" stroke-width="1.4" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="90"  y1="318" x2="466" y2="318" stroke="currentColor" marker-end="url(#ar3)"/><text x="278" y="312" fill="var(--accent)">RD_REGION 0x02</text>
+              <line x1="470" y1="346" x2="94"  y2="346" stroke="currentColor" marker-end="url(#ar3)"/><text x="282" y="340" fill="var(--accent)">512 bytes straight from RAM</text>
+            </g>
+            <rect x="24" y="310" width="4" height="42" fill="var(--good)"/>
+            <text x="36" y="326" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--good)">blocked</text>
+            <text x="36" y="340" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--good)">2-5 ms</text>
+          </svg>
+        </div>
+        <figcaption>
+          The two loops are cut apart. A dead slave now costs one tag's quality flag
+          instead of stalling the uplink, and <code>STM_RSP_TIMEOUT_MS</code> drops from
+          1600&nbsp;ms to about 50.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <h3>The second reason: grouping</h3>
+
+  <p>
+    Once the scanner is free-running it can read registers in blocks instead of one at a
+    time. At 9600&nbsp;baud that is the difference between a scan you can use and one you
+    cannot.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <div class="bars">
+            <div class="barrow">
+              <div class="lab">100 single reads</div>
+              <div class="bartrack"><div class="barfill many" style="width:100%"></div></div>
+              <div class="t">3 400 ms</div>
+            </div>
+            <div class="barrow">
+              <div class="lab">1 grouped read</div>
+              <div class="bartrack"><div class="barfill one" style="width:6.6%"></div></div>
+              <div class="t">225 ms</div>
+            </div>
+          </div>
+        </div>
+        <figcaption>
+          100 registers on one slave at 9600&nbsp;8N1. Each single read costs 8&nbsp;B out,
+          7&nbsp;B back, two 3.6&nbsp;ms silences and the slave's turnaround &asymp; 34&nbsp;ms.
+          One FC03 for all 100 costs 8&nbsp;B out and 205&nbsp;B back. Fifteen times faster,
+          from grouping alone.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="note">
+    <div class="tag">Consequence for the design</div>
+    <p>
+      The scanner must iterate <strong>request groups, not channels</strong>. Build those
+      groups when the config is committed: sort by (port, slaveId, fc, address), merge
+      runs of up to 125 registers, store as a second table. The runtime never sorts
+      anything.
+    </p>
+  </div>
+
+  <!-- ================================================================= -->
+  <h2 id="map"><span class="num">04</span>The memory map</h2>
+
+  <p class="lede">
+    One flat byte array in SRAM, cut into a region per protocol — exactly your idea. 8&nbsp;KB
+    total. Sizes are decided at commit time, not hardcoded.
+  </p>
+
+  <div class="legend" style="margin-top:.4rem">
+    <span class="chip" style="--c: var(--r-sys)">SYS</span>
+    <span class="chip" style="--c: var(--r-io)">LOCAL_IO</span>
+    <span class="chip" style="--c: var(--r-rtu)">MB_RTU</span>
+    <span class="chip" style="--c: var(--r-tcp)">MB_TCP</span>
+    <span class="chip" style="--c: var(--r-can)">CAN</span>
+    <span class="chip" style="--c: var(--r-ser)">SERIAL</span>
+    <span class="chip" style="--c: var(--r-vir)">VIRTUAL</span>
+    <span class="chip" style="--c: var(--r-evt)">EVENTS</span>
+  </div>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <div class="memmap">
+            <div class="memrow"><div class="addr">+0x0000</div>
+              <div class="band" style="--c: var(--r-sys)"><b>0x00 &nbsp;SYS</b><span>uptime, firmware and config identity, scan stats, fault bits</span></div>
+              <div class="size">128 B</div></div>
+            <div class="memrow"><div class="addr">+0x0080</div>
+              <div class="band" style="--c: var(--r-io); --h: 3rem"><b>0x01 &nbsp;LOCAL_IO</b><span>the module&rsquo;s own DI / DO / AI / AO</span></div>
+              <div class="size">512 B</div></div>
+            <div class="memrow"><div class="addr">+0x0280</div>
+              <div class="band" style="--c: var(--r-rtu); --h: 5rem"><b>0x02 &nbsp;MB_RTU</b><span>RS-485 slaves &mdash; the only region populated today</span></div>
+              <div class="size">2304 B</div></div>
+            <div class="memrow"><div class="addr">+0x0B80</div>
+              <div class="band" style="--c: var(--r-tcp); --h: 3.4rem"><b>0x03 &nbsp;MB_TCP</b><span>written by whoever runs the TCP master &mdash; see §6.3</span></div>
+              <div class="size">1152 B</div></div>
+            <div class="memrow"><div class="addr">+0x1000</div>
+              <div class="band" style="--c: var(--r-can); --h: 3.4rem"><b>0x04 &nbsp;CAN</b><span>decoded signals, refreshed on receive not on request</span></div>
+              <div class="size">1152 B</div></div>
+            <div class="memrow"><div class="addr">+0x1480</div>
+              <div class="band" style="--c: var(--r-ser)"><b>0x05 &nbsp;SERIAL</b><span>custom / ASCII devices</span></div>
+              <div class="size">576 B</div></div>
+            <div class="memrow"><div class="addr">+0x16C0</div>
+              <div class="band" style="--c: var(--r-vir)"><b>0x06 &nbsp;VIRTUAL</b><span>computed tags: totalizers, derived alarms, conversions</span></div>
+              <div class="size">576 B</div></div>
+            <div class="memrow"><div class="addr">+0x1900</div>
+              <div class="band" style="--c: var(--r-evt)"><b>0x07 &nbsp;EVENTS</b><span>ring buffer of timestamped transitions and faults</span></div>
+              <div class="size">1792 B</div></div>
+          </div>
+        </div>
+        <figcaption>
+          The ESP32 learns these offsets from <code>RD_META</code> at boot. It never
+          hardcodes them, so resizing a region is a config change, not a firmware change.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <h3>Inside one region</h3>
+
+  <p>
+    Three parallel blocks, not an array of structs. The ESP32 almost always wants
+    <em>all values</em> or <em>all qualities</em>, and a contiguous block is one
+    <code>memcpy</code>.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 980 250" role="img" aria-label="A region is split into a value block of four bytes per slot, a quality block of one byte per slot, and a timestamp block of four bytes per slot. The byte offset of slot five in the value block is valueOff plus five times four.">
+            <defs>
+              <marker id="ar4" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <text x="20" y="26" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)" letter-spacing="1">ONE REGION &#183; 128 SLOTS &#183; 1152 BYTES</text>
+
+            <rect x="20"  y="38" width="416" height="44" fill="var(--r-rtu)" fill-opacity=".14" stroke="var(--r-rtu)"/>
+            <rect x="440" y="38" width="104" height="44" fill="var(--r-rtu)" fill-opacity=".32" stroke="var(--r-rtu)"/>
+            <rect x="548" y="38" width="416" height="44" fill="var(--r-rtu)" fill-opacity=".22" stroke="var(--r-rtu)"/>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="11" fill="var(--ink)" text-anchor="middle">
+              <text x="228" y="60">values</text><text x="492" y="60">quality</text><text x="756" y="60">timestamps</text>
+            </g>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-2)" text-anchor="middle">
+              <text x="228" y="74">4 B &#215; 128 = 512 B</text><text x="492" y="74">1 B &#215; 128</text><text x="756" y="74">4 B &#215; 128 = 512 B</text>
+            </g>
+
+            <g stroke="var(--rule-strong)" stroke-dasharray="3 3" fill="none">
+              <path d="M20 84 L20 126"/><path d="M436 84 L960 126"/>
+            </g>
+
+            <text x="20" y="120" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)" letter-spacing="1">VALUE BLOCK, EXPANDED</text>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" text-anchor="middle">
+              <rect x="20"  y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="75"  y="150" fill="var(--ink-3)">slot 0</text><text x="75"  y="166" fill="var(--ink-2)">4 B</text>
+              <rect x="138" y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="193" y="150" fill="var(--ink-3)">slot 1</text><text x="193" y="166" fill="var(--ink-2)">4 B</text>
+              <rect x="256" y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="311" y="150" fill="var(--ink-3)">slot 2</text><text x="311" y="166" fill="var(--ink-2)">4 B</text>
+              <rect x="374" y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="429" y="150" fill="var(--ink-3)">slot 3</text><text x="429" y="166" fill="var(--ink-2)">4 B</text>
+              <rect x="492" y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="547" y="150" fill="var(--ink-3)">slot 4</text><text x="547" y="166" fill="var(--ink-2)">4 B</text>
+              <rect x="610" y="130" width="110" height="44" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="1.8"/><text x="665" y="150" fill="var(--accent)">slot 5</text><text x="665" y="166" fill="var(--ink)">4124</text>
+              <rect x="728" y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="783" y="150" fill="var(--ink-3)">slot 6</text><text x="783" y="166" fill="var(--ink-2)">4 B</text>
+              <rect x="846" y="130" width="110" height="44" fill="var(--surface-2)" stroke="var(--rule)"/><text x="901" y="150" fill="var(--ink-3)">slot 7</text><text x="901" y="166" fill="var(--ink-2)">4 B</text>
+            </g>
+
+            <g color="var(--accent)">
+              <line x1="665" y1="178" x2="665" y2="200" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar4)"/>
+            </g>
+            <text x="665" y="218" font-family="Consolas, ui-monospace, monospace" font-size="11" fill="var(--accent)" text-anchor="middle">byte offset = valueOff + 5 &#215; 4</text>
+            <text x="665" y="234" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)" text-anchor="middle">quality byte = qualityOff + 5 &#183; timestamp = stampOff + 5 &#215; 4</text>
+          </svg>
+        </div>
+        <figcaption>
+          Fixed 4-byte slots cover bool, u16, i16, u32, i32 and f32 with one arithmetic
+          rule. The 2&nbsp;KB wasted in the worst case is nothing on a 192&nbsp;KB part,
+          and the ESP32 stays completely dumb about data types.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <div class="tag">F407 gotcha</div>
+    <p>
+      Put the image in SRAM1 at <code>0x20000000</code>, never in the 64&nbsp;KB CCM at
+      <code>0x10000000</code>. <strong>CCM is not reachable by DMA on the STM32F4</strong>,
+      and serving the link from DMA is the whole point. Put the stack and the config copy
+      in CCM instead.
+    </p>
+  </div>
+
+  <h3>No mutex needed</h3>
+
+  <p>
+    On Cortex-M4 an aligned 32-bit store is atomic, so a reader can never catch half a
+    value. It can catch slot&nbsp;5 being 3&nbsp;ms newer than slot&nbsp;4 — which is what
+    a process image <em>is</em>, and what the timestamp block is for. Add a per-region
+    <code>seq</code> counter so a consumer that needs a consistent set can read seq, read
+    the block, read seq again, retry on mismatch. No critical sections, no blocked scan.
+  </p>
+
+  <!-- ================================================================= -->
+  <h2 id="quality"><span class="num">05</span>Quality — the bug this kills</h2>
+
+  <p class="lede">
+    Today a failed Modbus read is answered with <code>STATUS_OK</code> and stale bytes
+    (quirk Q5). The cloud is told bad data is good. Make quality a real value that
+    travels with every slot.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 940 210" role="img" aria-label="Quality moves from UNKNOWN to GOOD on the first successful read, from GOOD to STALE when no refresh arrives within staleMs, and from STALE to COMM_FAIL after three consecutive failures. Any successful read returns the slot to GOOD.">
+            <defs>
+              <marker id="ar5" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="11" text-anchor="middle">
+              <rect x="20"  y="56" width="170" height="46" fill="var(--surface-2)" stroke="var(--rule-strong)"/><text x="105" y="78" fill="var(--ink-2)">0 UNKNOWN</text><text x="105" y="93" font-size="8.5" fill="var(--ink-3)">never read yet</text>
+              <rect x="260" y="56" width="170" height="46" fill="var(--surface-2)" stroke="var(--good)" stroke-width="1.8"/><text x="345" y="78" fill="var(--good)">1 GOOD</text><text x="345" y="93" font-size="8.5" fill="var(--ink-3)">fresh</text>
+              <rect x="500" y="56" width="170" height="46" fill="var(--surface-2)" stroke="var(--warn)" stroke-width="1.8"/><text x="585" y="78" fill="var(--warn)">2 STALE</text><text x="585" y="93" font-size="8.5" fill="var(--ink-3)">old but was valid</text>
+              <rect x="740" y="56" width="180" height="46" fill="var(--surface-2)" stroke="var(--crit)" stroke-width="1.8"/><text x="830" y="78" fill="var(--crit)">3 COMM_FAIL</text><text x="830" y="93" font-size="8.5" fill="var(--ink-3)">bus is not answering</text>
+            </g>
+            <g color="var(--ink-2)" stroke-width="1.3" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="192" y1="79" x2="256" y2="79" stroke="currentColor" marker-end="url(#ar5)"/><text x="224" y="42" fill="var(--ink-3)">first</text><text x="224" y="52" fill="var(--ink-3)">good read</text>
+              <line x1="432" y1="79" x2="496" y2="79" stroke="currentColor" marker-end="url(#ar5)"/><text x="464" y="42" fill="var(--ink-3)">no refresh</text><text x="464" y="52" fill="var(--ink-3)">within staleMs</text>
+              <line x1="672" y1="79" x2="736" y2="79" stroke="currentColor" marker-end="url(#ar5)"/><text x="704" y="42" fill="var(--ink-3)">3 failures</text><text x="704" y="52" fill="var(--ink-3)">in a row</text>
+            </g>
+            <g color="var(--good)">
+              <path d="M830 106 C 830 168, 345 168, 345 108" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar5)"/>
+            </g>
+            <text x="588" y="182" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--good)" text-anchor="middle">any successful read goes straight back to GOOD</text>
+          </svg>
+        </div>
+        <figcaption>
+          Codes 0&ndash;3 deliberately match the existing <code>TagQuality</code> enum in
+          <code>IoTHandler/include/process_image.h</code>, so the ESP32 side barely changes.
+          Codes 4&ndash;7 are new: EXCEPTION, CONFIG_ERR, OVERRANGE, DISABLED.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="note crit">
+    <div class="tag">The interlock you must not skip</div>
+    <p>
+      Once the PC tool can reassign slots, "slot&nbsp;5 of region&nbsp;0x02" stops meaning
+      the same thing forever. If the ESP32 publishes with an older map than the STM32 is
+      filling, every tag is silently mislabelled — pressure reported as temperature, and
+      <strong>nothing anywhere errors</strong>.
+    </p>
+    <p>
+      Store a <strong>CRC32 + version with the config</strong>, return it in <code>SYS</code>
+      and in every <code>RD_META</code>, and have the ESP32 refuse to publish on mismatch.
+      Cheap now. Impossible to retrofit after the first field incident.
+    </p>
+  </div>
+
+  <!-- ================================================================= -->
+  <h2 id="link"><span class="num">06</span>The link protocol, version 2</h2>
+
+  <p class="lede">
+    Your sketch <code>SOF | CMD | RD/WR | data | CRC | EOF</code> is the right shape.
+    Four changes, each paying for a class of bug you already have.
+  </p>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="stripwrap">
+          <div class="strip">
+            <div class="byte sof"><i>0</i><b>A5</b>start</div>
+            <div class="byte on"><i>1</i><b>SEQ</b>new</div>
+            <div class="byte"><i>2</i><b>CMD</b></div>
+            <div class="byte"><i>3</i><b>REG</b>region</div>
+            <div class="byte"><i>4-5</i><b>OFF</b>offset</div>
+            <div class="byte on"><i>6-7</i><b>LEN</b>new</div>
+            <div class="byte pay"><i>8 &hellip;</i><b>payload</b>write data only</div>
+            <div class="byte"><i>last 2</i><b>CRC16</b></div>
+          </div>
+        </div>
+        <figcaption>Request &middot; 8-byte header. Little-endian OFF / LEN / CRC. No EOF.</figcaption>
+      </figure>
+      <div style="height:.9rem"></div>
+      <figure>
+        <div class="stripwrap">
+          <div class="strip">
+            <div class="byte sof"><i>0</i><b>5A</b>start</div>
+            <div class="byte on"><i>1</i><b>SEQ</b>echoed</div>
+            <div class="byte on"><i>2</i><b>STATUS</b>real result</div>
+            <div class="byte"><i>3</i><b>REG</b></div>
+            <div class="byte"><i>4-5</i><b>LEN</b></div>
+            <div class="byte pay"><i>6 &hellip;</i><b>payload</b></div>
+            <div class="byte"><i>last 2</i><b>CRC16</b></div>
+          </div>
+        </div>
+        <figcaption>Response &middot; 6-byte header. SEQ echoes the request it answers.</figcaption>
+      </figure>
+      <div style="height:.9rem"></div>
+      <figure>
+        <div class="stripwrap">
+          <div class="strip">
+            <div class="byte sof"><b>A5</b><i>start</i></div>
+            <div class="byte"><b>1F</b><i>seq 31</i></div>
+            <div class="byte"><b>01</b><i>RD_REGION</i></div>
+            <div class="byte"><b>02</b><i>MB_RTU</i></div>
+            <div class="byte"><b>00 00</b><i>offset 0</i></div>
+            <div class="byte"><b>00 02</b><i>len 512</i></div>
+            <div class="byte"><b>xx xx</b><i>CRC16</i></div>
+          </div>
+        </div>
+        <figcaption>A real request: give me the first 512 bytes of the Modbus RTU region. 10 bytes on the wire.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="twoup">
+    <div class="card">
+      <h4>Drop the EOF byte</h4>
+      <p>In a binary protocol no byte can be reserved as a terminator, because payload
+      may contain it. LEN + CRC <em>is</em> the frame boundary. EOF costs a byte and buys
+      false confidence.</p>
+    </div>
+    <div class="card">
+      <h4>Add explicit 16-bit LEN</h4>
+      <p>Today the STM32 infers length from the command
+      (<code>6 + (cmd==WRITE ? count : 0) + 2</code>). That inference is the root of the
+      byte-versus-register confusion in Q2 and Q3. One parser, one length field.</p>
+    </div>
+    <div class="card">
+      <h4>Add SEQ, echoed back</h4>
+      <p>Kills the whole desync family: Q4's ghost frame, and the subtle case where a
+      late reply to a timed-out request is eaten as the answer to the next one. The
+      ESP32's <code>resync()</code> hack disappears.</p>
+    </div>
+    <div class="card">
+      <h4>Make STATUS a result code</h4>
+      <p>Not "I understood your frame" but "here is what happened":
+      <code>OK</code>, <code>BAD_CRC</code>, <code>BAD_CMD</code>, <code>BAD_REGION</code>,
+      <code>RANGE</code>, <code>BUSY</code>, <code>CFG_MISMATCH</code>,
+      <code>NOT_WRITABLE</code>, <code>QUEUE_FULL</code>, <code>FLASH_ERR</code>.</p>
+    </div>
+  </div>
+
+  <h3>Commands</h3>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th class="mono">Code</th><th>Command</th><th>Arguments</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">0x01</td><td>RD_REGION</td><td class="mono">region, offset, len</td><td class="dim">len bytes, a straight <code>memcpy</code> from the image</td></tr>
+        <tr><td class="mono">0x02</td><td>WR_REGION</td><td class="mono">region, offset, data</td><td class="dim">ack &mdash; only for regions marked externally owned</td></tr>
+        <tr><td class="mono">0x03</td><td>RD_META</td><td class="mono">region (0xFF = all)</td><td class="dim">region descriptors + config CRC + version</td></tr>
+        <tr><td class="mono">0x04</td><td>RD_DELTA</td><td class="mono">region, sinceSeq</td><td class="dim">only slots changed since <code>sinceSeq</code></td></tr>
+        <tr><td class="mono">0x05</td><td>WR_CHANNEL</td><td class="mono">region, slot, value</td><td class="dim">a 16-bit token &mdash; queued, not executed inline</td></tr>
+        <tr><td class="mono">0x06</td><td>RD_ACK</td><td class="mono">token</td><td class="dim">pending / done / failed + driver status</td></tr>
+        <tr><td class="mono">0x07</td><td>RD_EVENTS</td><td class="mono">maxCount</td><td class="dim">pops from the EVENTS ring</td></tr>
+        <tr><td class="mono">0x08</td><td>SYNC</td><td class="mono">esp uptime</td><td class="dim">fw version, config CRC, stm uptime, heartbeat</td></tr>
+        <tr><td class="mono">0x10-13</td><td>CFG_*</td><td class="mono">begin / chunk / commit / abort</td><td class="dim">config download &mdash; §8.3</td></tr>
+        <tr><td class="mono">0x7F</td><td>ECHO</td><td class="mono">any payload</td><td class="dim">the same payload &mdash; link bring-up</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Keep CRC-16/MODBUS (poly&nbsp;0xA001, init&nbsp;0xFFFF, low byte first). It is already
+    correct on both sides and reusing it means no new test surface. Cap payload at
+    1024&nbsp;B and size the STM32 RX buffer at 2&nbsp;KB — today's 64-byte buffer with
+    no bounds check (Q8) is a live overflow and must not survive the refactor.
+  </p>
+
+  <div class="note">
+    <div class="tag">Migration &mdash; no big-bang switch</div>
+    <p>
+      Run both protocols during the change. <code>0xAA</code> enters the v1 parser,
+      <code>0xA5</code> enters v2, and v1 is re-implemented to answer <em>from the
+      image</em> instead of hitting RS-485. The ESP32 tries <code>RD_META</code> at boot
+      and falls back to v1 if there is no reply. Once it runs on v2 only, delete v1 and
+      set <code>STM_FW_QUIRKS 0</code>.
+    </p>
+  </div>
+
+  <h3>Writes never run inline</h3>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 980 300" role="img" aria-label="A write command is validated, pushed onto a queue and acknowledged with a token in two milliseconds. The RTU driver executes it on a later pass and records the result, which the ESP32 collects afterwards with RD_ACK.">
+            <defs>
+              <marker id="ar6" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L8 4 L0 8 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--ink)" text-anchor="middle">
+              <text x="90" y="30">ESP32</text><text x="340" y="30">STM32 link</text><text x="600" y="30">write queue</text><text x="870" y="30">RS-485 slave</text>
+            </g>
+            <g stroke="var(--rule)" stroke-dasharray="3 4">
+              <line x1="90" y1="40" x2="90" y2="284"/><line x1="340" y1="40" x2="340" y2="284"/>
+              <line x1="600" y1="40" x2="600" y2="284"/><line x1="870" y1="40" x2="870" y2="284"/>
+            </g>
+            <g color="var(--ink-2)" stroke-width="1.3" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="90"  y1="72"  x2="336" y2="72"  stroke="currentColor" marker-end="url(#ar6)"/><text x="213" y="66" fill="var(--ink-2)">WR_CHANNEL 0x02:5 = 1200</text>
+              <line x1="340" y1="98"  x2="596" y2="98"  stroke="currentColor" marker-end="url(#ar6)"/><text x="468" y="92" fill="var(--ink-2)">validate, push</text>
+            </g>
+            <g color="var(--accent)" stroke-width="1.5" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="340" y1="126" x2="94" y2="126" stroke="currentColor" marker-end="url(#ar6)"/><text x="217" y="120" fill="var(--accent)">token 0x41 &#183; 2 ms, always</text>
+            </g>
+
+            <line x1="20" y1="152" x2="960" y2="152" stroke="var(--rule)" stroke-dasharray="5 5"/>
+            <text x="20" y="146" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)">later &#183; on the driver&#8217;s next pass, at the bus&#8217;s own pace</text>
+
+            <g color="var(--r-rtu)" stroke-width="1.3" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="600" y1="182" x2="866" y2="182" stroke="currentColor" marker-end="url(#ar6)"/><text x="733" y="176" fill="var(--r-rtu)">FC06 write register</text>
+              <line x1="870" y1="208" x2="604" y2="208" stroke="currentColor" marker-end="url(#ar6)"/><text x="737" y="202" fill="var(--r-rtu)">ack or timeout</text>
+            </g>
+            <g color="var(--ink-2)" stroke-width="1.3" font-family="Consolas, ui-monospace, monospace" font-size="9" text-anchor="middle">
+              <line x1="90"  y1="244" x2="336" y2="244" stroke="currentColor" marker-end="url(#ar6)"/><text x="213" y="238" fill="var(--ink-2)">RD_ACK 0x41</text>
+              <line x1="340" y1="270" x2="94"  y2="270" stroke="currentColor" marker-end="url(#ar6)"/><text x="217" y="264" fill="var(--ink-2)">done, ok</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption>
+          An inline write would put field-bus latency straight back on the link. Ownership
+          rule: <strong>only the owning driver writes a value slot</strong> — cloud commands
+          and local control logic both enter through this queue, so there is exactly one
+          writer per slot and nothing to arbitrate.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <h2 id="drivers"><span class="num">07</span>Drivers</h2>
+
+  <h3>7.1 &nbsp;The channel struct</h3>
+
+  <p>
+    One shared pool of 512 channels, not fixed 100 per protocol — a gateway wired to a
+    single 300-point energy meter should not be stuck at 100 while 400 CAN slots sit
+    empty. Same RAM, far more useful.
+  </p>
+  <p>
+    And a CAN address shares nothing with a Modbus address, so do not force them into
+    common fields. Use a union.
+  </p>
+
+  <figure>
+<pre><span class="c">/* shared/gw_model.h  - compiled by BOTH projects, one source of truth */</span>
+
+<span class="k">typedef struct</span> { uint8_t slaveId, fc; uint16_t address; uint8_t port; } MbRtuAddr;
+<span class="k">typedef struct</span> { uint8_t ip[4]; uint16_t port; uint8_t unitId, fc; uint16_t address; } MbTcpAddr;
+<span class="k">typedef struct</span> { uint32_t canId; uint8_t bus, startBit, bitLen, flags; } CanSigAddr;
+<span class="k">typedef struct</span> { uint8_t kind, channel; } LocalIoAddr;    <span class="c">/* DI / DO / AI / AO */</span>
+
+<span class="k">typedef struct</span> {
+    uint16_t tagId;      <span class="c">/* stable id; the NAME lives on PC + ESP32 only  */</span>
+    uint8_t  driver;     <span class="c">/* DRV_MB_RTU, DRV_CAN, DRV_LOCAL_IO, ...        */</span>
+    uint8_t  dtype;      <span class="c">/* DT_BOOL, DT_U16, DT_I16, DT_U32, DT_F32       */</span>
+    uint8_t  region;     <span class="c">/* which region it lands in                      */</span>
+    uint8_t  flags;      <span class="c">/* ENABLED | WRITABLE | WORD_SWAP | INVERT       */</span>
+    uint16_t slot;       <span class="c">/* index inside that region                      */</span>
+    uint16_t scanMs;     <span class="c">/* 0 = event driven (CAN, DI edge)               */</span>
+    uint16_t staleMs;    <span class="c">/* goes bad if not refreshed within this         */</span>
+    float    scale, offset, deadband;
+    <span class="k">union</span> { MbRtuAddr rtu; MbTcpAddr tcp; CanSigAddr can;
+            LocalIoAddr io; uint8_t raw[12]; } addr;
+} ChannelDef;            <span class="c">/* 40 bytes -> 512 channels = 20 KB of flash     */</span>
+</pre>
+    <figcaption>No strings. Names belong on the PC and in the ESP32 tag map, not in STM32 flash.</figcaption>
+  </figure>
+
+  <h3>7.2 &nbsp;RS-485: a state machine, never a blocking call</h3>
+
+  <figure>
+<pre><span class="c">/* Called every superloop pass. Returns immediately, always. */</span>
+<span class="k">void</span> RtuScan_Step(<span class="k">void</span>) {
+  <span class="k">switch</span> (rtu.state) {
+  <span class="k">case</span> RTU_IDLE:
+      <span class="k">if</span> (!Group_Due(&amp;rtu.group)) <span class="k">return</span>;
+      Rtu_BuildRequest(&amp;rtu); DE_HIGH();
+      HAL_UART_Transmit_DMA(&amp;huart1, rtu.tx, rtu.txLen);
+      rtu.t0 = HAL_GetTick(); rtu.state = RTU_TX; <span class="k">return</span>;
+  <span class="k">case</span> RTU_TX:                     <span class="c">/* TC callback drops DE, starts RX DMA   */</span>
+  <span class="k">case</span> RTU_WAIT:
+      <span class="k">if</span> (rtu.frameReady) { Rtu_Parse(&amp;rtu); rtu.state = RTU_GAP; }
+      <span class="k">else if</span> (Elapsed(rtu.t0) &gt; rtu.group-&gt;timeoutMs)
+                          { Group_MarkBad(rtu.group, Q_COMM_FAIL); rtu.state = RTU_GAP; }
+      <span class="k">return</span>;
+  <span class="k">case</span> RTU_GAP:
+      <span class="k">if</span> (Elapsed(rtu.t0) &gt;= RTU_T35_MS) rtu.state = RTU_IDLE;
+      <span class="k">return</span>;
+  }
+}
+</pre>
+    <figcaption>Replaces the blocking <code>Modbus_SendRequest</code> in <code>ModbusRTU_AWS/Core/Src/modbusMaster.c</code>, which uses <code>HAL_MAX_DELAY</code> today.</figcaption>
+  </figure>
+
+  <h3>7.3 &nbsp;CAN is not request/response</h3>
+
+  <p>
+    Nothing polls CAN — frames arrive when the bus decides. The driver is an interrupt
+    handler with a lookup from <code>canId</code> to the signals that frame carries, each
+    extracted by <code>(startBit, bitLen, byteOrder, signed)</code>. That is exactly the
+    DBC model, so your PC tool can import DBC files later without a format change.
+    Quality here comes from a per-message receive timeout, and <code>scanMs = 0</code>
+    marks the channel event-driven.
+  </p>
+  <p>
+    Two bxCAN peripherals on the F407, 14 filter banks each. Allocate filters at commit
+    from the distinct IDs in the table; fall back to mask acceptance plus software
+    filtering when there are more IDs than banks.
+  </p>
+
+  <h3>7.4 &nbsp;Modbus TCP — decide where the master runs</h3>
+
+  <div class="twoup">
+    <div class="card">
+      <h4>Option A &middot; on the ESP32</h4>
+      <p class="lead">Recommended for v1.</p>
+      <p>The ESP32 already has lwIP. It polls TCP devices and pushes results into region
+      <code>0x03</code> with <code>WR_REGION</code>. No new stack on the STM32, and the
+      data model stays universal because the image is still the single destination.</p>
+      <p><strong>The catch:</strong> if the ESP32 reboots, region 0x03 freezes holding
+      plausible values. Add a per-region write watchdog on the STM32 that forces the whole
+      region to <code>COMM_FAIL</code> after a timeout — otherwise you have recreated Q5
+      in a new place.</p>
+    </div>
+    <div class="card">
+      <h4>Option B &middot; on the STM32</h4>
+      <p class="lead">Only if you need it.</p>
+      <p>The F407ZG has an Ethernet MAC but needs an external PHY (LAN8720 or similar) plus
+      lwIP on the industrial half. Choose this when the plant network is isolated from the
+      WiFi network, or when TCP devices must keep being polled with the radio half dead.</p>
+      <p>It roughly doubles the STM32 firmware surface, which cuts against the "small
+      enough to review, stable for years" argument for splitting the chips at all.</p>
+    </div>
+  </div>
+
+  <h3>7.5 &nbsp;The rest, and the loop that runs them</h3>
+
+  <ul class="bul">
+    <li><strong>Local IO</strong> is the easiest driver and the best one to write first —
+      no bus, no timeouts, and it proves the whole config &rarr; image &rarr; link path.
+      The unused GPIOs in <code>main.h</code> (PC4, PD12–PD15) plus ADC channels are
+      enough.</li>
+    <li><strong>Serial</strong> stays narrow in v1: fixed-offset binary frames on a
+      configured port. Vendor ASCII protocols want a small scripting engine, which is a
+      project of its own — defer it rather than half-build it.</li>
+    <li><strong>Virtual</strong> channels read other slots and write their own: totalizers,
+      conversions, alarm flags. Evaluate them last each pass, and forbid virtual-to-virtual
+      chains in v1 so evaluation order cannot matter.</li>
+    <li><strong>No RTOS.</strong> Keep the superloop and make every driver a state machine.
+      An RTOS costs you the "small and reviewable" property the two-chip split was for.</li>
+  </ul>
+
+  <figure>
+<pre><span class="k">while</span> (1) {
+    Link_Step();        <span class="c">/* USART3 DMA + IDLE, parse, answer from the image */</span>
+    RtuScan_Step();     <span class="c">/* one RS-485 group at a time                      */</span>
+    Can_Step();         <span class="c">/* drain the CAN RX queue                          */</span>
+    LocalIo_Step();     <span class="c">/* DI debounce, ADC results, DO/AO apply           */</span>
+    TcpMirror_Step();   <span class="c">/* region 0x03 staleness watchdog                  */</span>
+    Virtual_Step();     <span class="c">/* derived tags                                    */</span>
+    WriteQueue_Step();  <span class="c">/* pending writes, one per pass                    */</span>
+    Events_Step();      <span class="c">/* transitions -&gt; ring buffer, drive STM_EVENT     */</span>
+    Diag_Step();        <span class="c">/* SYS region, LEDs, watchdog kick                 */</span>
+}
+</pre>
+  </figure>
+
+  <p>
+    While you are in there, wire <code>STM_EVENT</code> (STM32 &rarr; ESP32). The ESP32
+    already supports it through <code>PIN_STM_EVENT</code>; the STM32 has never driven it.
+    It buys millisecond alarm latency without polling fast, and it is the natural signal
+    for "an ack is ready" and "the event ring is not empty".
+  </p>
+
+  <!-- ================================================================= -->
+  <h2 id="tool"><span class="num">08</span>The configuration tool</h2>
+
+  <p class="lede">
+    The PC project file is the single source of truth, and it generates <em>both</em>
+    halves. That is where the design pays off.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Artifact</th><th>Goes to</th><th>Contains</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">project.json</td><td>the tool</td><td class="dim">Devices, channels, names, units, comments. Version-controlled, diffable, readable.</td></tr>
+        <tr><td class="mono">config.bin</td><td>STM32 flash</td><td class="dim">Header + region descriptors + packed <code>ChannelDef</code> array + precomputed request groups + CRC32.</td></tr>
+        <tr><td class="mono">tag_map.json</td><td>ESP32</td><td class="dim">tagId &rarr; name, unit, region, slot, publish policy, MQTT topic. Stamped with the same CRC32.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Both outputs carry the identical CRC, so a mismatched pair is detectable instead of
+    silently wrong. Ship <code>tag_map.json</code> to the ESP32 over MQTT or its own serial
+    port and keep it in NVS — that removes the recompile step from commissioning entirely.
+  </p>
+
+  <h3>8.1 &nbsp;What makes it usable</h3>
+
+  <ul class="bul">
+    <li><strong>A device profile library.</strong> One JSON per device model — "Schneider
+      PM5560", "Delta VFD-M" — holding its register map. The engineer picks a device and a
+      slave ID, not forty register numbers. This is the single biggest difference between a
+      tool people use and a tool people avoid, and profiles accumulate across projects.</li>
+    <li><strong>CSV import/export</strong> for the long tail, so bulk edits happen in a
+      spreadsheet.</li>
+    <li><strong>A feasibility check at commit.</strong> Estimated scan time per bus versus
+      requested rates, region capacity versus channel count, duplicate slots. Refuse to
+      build a config that cannot meet its own timing.</li>
+    <li><strong>A live pane.</strong> Read the image now: value, quality and age per
+      channel, plus a force-write button. Commissioning without this means guessing.</li>
+  </ul>
+
+  <p>Qt&nbsp;6 fits well here — table editing, device tree and live view are all things Qt
+  Widgets does properly, and it deploys to Windows with no runtime install.</p>
+
+  <h3>8.2 &nbsp;Download, and why two flash slots</h3>
+
+  <div class="bleed">
+    <div class="inner">
+      <figure>
+        <div class="figframe">
+          <svg class="dsvg" viewBox="0 0 940 230" role="img" aria-label="Config download writes the inactive flash slot B, verifies its CRC32, then flips the active marker as the last operation. A power cut during the first two steps leaves slot A running untouched.">
+            <g font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)" letter-spacing="1">
+              <text x="20"  y="24">STEP 1 &#183; WRITE SLOT B</text>
+              <text x="330" y="24">STEP 2 &#183; VERIFY CRC32</text>
+              <text x="640" y="24">STEP 3 &#183; FLIP MARKER</text>
+            </g>
+
+            <!-- step 1 -->
+            <rect x="20"  y="60" width="130" height="52" fill="var(--good)" fill-opacity=".16" stroke="var(--good)" stroke-width="1.6"/>
+            <rect x="164" y="60" width="130" height="52" fill="var(--surface-2)" stroke="var(--warn)" stroke-dasharray="4 3"/>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" text-anchor="middle">
+              <text x="85"  y="82" fill="var(--good)">slot A</text><text x="85"  y="98" font-size="8.5" fill="var(--ink-3)">sector 10</text>
+              <text x="229" y="82" fill="var(--warn)">slot B</text><text x="229" y="98" font-size="8.5" fill="var(--ink-3)">writing&#8230;</text>
+            </g>
+            <text x="85" y="46" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--good)" text-anchor="middle">&#9660; active</text>
+
+            <!-- step 2 -->
+            <rect x="330" y="60" width="130" height="52" fill="var(--good)" fill-opacity=".16" stroke="var(--good)" stroke-width="1.6"/>
+            <rect x="474" y="60" width="130" height="52" fill="var(--surface-2)" stroke="var(--rule-strong)"/>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" text-anchor="middle">
+              <text x="395" y="82" fill="var(--good)">slot A</text><text x="395" y="98" font-size="8.5" fill="var(--ink-3)">still running</text>
+              <text x="539" y="82" fill="var(--ink-2)">slot B</text><text x="539" y="98" font-size="8.5" fill="var(--ink-3)">CRC ok</text>
+            </g>
+            <text x="395" y="46" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--good)" text-anchor="middle">&#9660; active</text>
+
+            <!-- step 3 -->
+            <rect x="640" y="60" width="130" height="52" fill="var(--surface-2)" stroke="var(--rule-strong)"/>
+            <rect x="784" y="60" width="130" height="52" fill="var(--good)" fill-opacity=".16" stroke="var(--good)" stroke-width="1.6"/>
+            <g font-family="Consolas, ui-monospace, monospace" font-size="10" text-anchor="middle">
+              <text x="705" y="82" fill="var(--ink-2)">slot A</text><text x="705" y="98" font-size="8.5" fill="var(--ink-3)">old config</text>
+              <text x="849" y="82" fill="var(--good)">slot B</text><text x="849" y="98" font-size="8.5" fill="var(--ink-3)">sector 11</text>
+            </g>
+            <text x="849" y="46" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--good)" text-anchor="middle">&#9660; active</text>
+
+            <line x1="20" y1="150" x2="920" y2="150" stroke="var(--rule)"/>
+            <text x="20" y="176" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--crit)">power cut during step 1 or 2 &#8594; slot A is untouched, the gateway keeps running</text>
+            <text x="20" y="196" font-family="Consolas, ui-monospace, monospace" font-size="10" fill="var(--ink-2)">without A/B &#8594; half-erased sector, gateway boots with no configuration, in a cabinet, on a site</text>
+            <text x="20" y="216" font-family="Consolas, ui-monospace, monospace" font-size="9" fill="var(--ink-3)">F407ZG: sector 10 = 0x080C0000, sector 11 = 0x080E0000, 128 KB each</text>
+          </svg>
+        </div>
+        <figcaption>
+          Config travels PC &rarr; ESP32 (USB serial or MQTT) &rarr; STM32 via
+          <code>CFG_BEGIN</code>, <code>CFG_CHUNK</code>&hellip;, <code>CFG_COMMIT</code>.
+          The marker flip is the only irreversible step, and it is last.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <p>
+    On commit: stop the scanners, rebuild region descriptors and request groups, set every
+    quality to <code>UNKNOWN</code>, bump the config version, restart. A reboot is an
+    acceptable v1 shortcut — and an honest one.
+  </p>
+
+  <!-- ================================================================= -->
+  <h2 id="plan"><span class="num">09</span>Build order</h2>
+
+  <p class="lede">
+    Every phase leaves a gateway that still works. Nothing here needs a switchover — which
+    matters, because you have hardware on a bench and a cloud path that already runs.
+  </p>
+
+  <div class="rail">
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P1</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Freeze and measure</h3>
+        <p>Tag the current firmware. Add a <code>.gitignore</code> for <code>Debug/</code>
+        and <code>.metadata/</code> so real diffs stop drowning in build churn. Record
+        today's link round-trip, scan time per tag, and behaviour with one slave unplugged.</p>
+        <p class="done">Done when you have baseline numbers to compare against.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P2</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Shared model header</h3>
+        <p>Create <code>shared/gw_model.h</code> — types, region IDs, command codes, status
+        codes. Include it from both projects. No behaviour change at all.</p>
+        <p class="done">Done when ModbusRTU_AWS and both PlatformIO environments compile with it.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P3</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Process image + non-blocking RTU scanner</h3>
+        <p>The heart of the work. Add the image and region descriptors, compile the channel
+        table in as a constant for now, convert <code>modbusMaster.c</code> to the state
+        machine, add request grouping. Re-implement the existing <code>0xAA</code> handlers
+        to answer <em>from the image</em> so the ESP32 keeps working unchanged.</p>
+        <p class="done">Done when link round-trip is under 5 ms and unplugging a slave changes only that tag's quality.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P4</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Link v2 + DMA</h3>
+        <p>USART3 to DMA with IDLE-line detection — already configured in the
+        <code>.ioc</code>, never used. Add the <code>0xA5</code> parser beside
+        <code>0xAA</code>, and a <code>StmLinkV2</code> on the ESP32 that negotiates with
+        <code>RD_META</code>. Then delete v1.</p>
+        <p class="done">Done when STM_FW_QUIRKS is 0 and STM_RSP_TIMEOUT_MS is 50.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P5</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Config in flash</h3>
+        <p>A/B slots, CRC32 verification, the <code>CFG_*</code> commands, group
+        precomputation at commit, rollback on failure.</p>
+        <p class="done">Done when you can change a slave ID from a test blob, push it, and pull power mid-download with nothing lost.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P6</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>PC tool v1</h3>
+        <p>Project file, channel editor, device profiles, blob builder, download through
+        the ESP32, live read pane, feasibility check.</p>
+        <p class="done">Done when a device can be commissioned end to end without anyone opening an IDE.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P7</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>The other drivers</h3>
+        <p>Local IO first (simplest, proves the path), then CAN, then Modbus TCP by
+        whichever option you chose, then serial. Each is an isolated addition now — a
+        driver, a region, a config record, profile entries in the tool.</p>
+      </div>
+    </div>
+    <div class="railrow">
+      <div class="gutter"><span class="pnum">P8</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Writes, events, speed</h3>
+        <p>Write queue and acks, the event ring, deadband publishing, <code>STM_EVENT</code>
+        driven from the STM32, and raising both UARTs — the link to 460800 or 921600, RS-485
+        to 19200/38400 wherever field devices support it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <h2 id="decide"><span class="num">10</span>Decisions you still owe</h2>
+
+  <dl class="qa">
+    <dt>Fixed 100 channels per protocol, or one shared 512-channel pool?</dt>
+    <dd><span class="verdict">Shared pool</span> Same RAM, far more useful. Keep per-region
+      caps in the config so one runaway protocol cannot starve another.</dd>
+
+    <dt>Where does the Modbus TCP master run?</dt>
+    <dd><span class="verdict">ESP32 for v1</span> No new stack on the industrial half. Add
+      the region write-watchdog on day one, not later.</dd>
+
+    <dt>4-byte fixed value slot, or a variable-width byte pool?</dt>
+    <dd><span class="verdict">Fixed 4 bytes</span> Covers bool through f32, makes the offset
+      <code>slot &times; 4</code>, wastes 2&nbsp;KB worst case on a 192&nbsp;KB part. Add a
+      byte pool only when a real string or blob channel appears.</dd>
+
+    <dt>Does control logic run on the STM32, or is it purely a gateway?</dt>
+    <dd><span class="verdict">Answer before P3</span> If yes, the process image is also the
+      control loop's I/O image and the write-ownership rule is mandatory. If no, the virtual
+      region can stay small.</dd>
+
+    <dt>Real time on the STM32?</dt>
+    <dd><span class="verdict">No RTC</span> Stamp in milliseconds since boot; let the ESP32
+      convert to wall clock with the <code>SYNC</code> exchange. Keeps the industrial half
+      free of time-source dependencies.</dd>
+
+    <dt>Config storage: internal flash or external EEPROM?</dt>
+    <dd><span class="verdict">Internal flash, A/B</span> 20&nbsp;KB of config in a 1&nbsp;MB
+      part needs no extra hardware. Revisit only if config outgrows a sector, or you want it
+      to survive a firmware reflash.</dd>
+  </dl>
+
+  <!-- ================================================================= -->
+  <h2 id="risks"><span class="num">11</span>What will bite you</h2>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Risk</th><th>How it shows up</th><th>Guard</th></tr></thead>
+      <tbody>
+        <tr><td>Config / map drift</td><td class="dim">Cloud publishes correct numbers under wrong names. No error anywhere.</td><td class="dim">Config CRC in SYS and RD_META; ESP32 refuses to publish on mismatch.</td></tr>
+        <tr><td>Half-written config</td><td class="dim">Brownout during commit; gateway boots unconfigured.</td><td class="dim">A/B flash slots, marker flipped last.</td></tr>
+        <tr><td>Frozen external region</td><td class="dim">ESP32 stops writing region 0x03; old values look fine forever.</td><td class="dim">Per-region write watchdog forcing COMM_FAIL.</td></tr>
+        <tr><td>Scan overrun</td><td class="dim">200 channels at 100&nbsp;ms on a 9600 bus. Everything is quietly stale.</td><td class="dim">Feasibility check at commit; STALE quality makes it visible anyway.</td></tr>
+        <tr><td>Link buffer overflow</td><td class="dim">Line noise produces a length that overruns the RX buffer. Today: Q8, live.</td><td class="dim">LEN validated against the buffer before accepting; inter-frame idle timeout resets the parser.</td></tr>
+        <tr><td>Two writers per slot</td><td class="dim">Cloud setpoint and local logic fight; the value oscillates.</td><td class="dim">One owning driver per slot; everything else queues.</td></tr>
+        <tr><td>CCM placement</td><td class="dim">DMA silently transfers nothing from the image.</td><td class="dim">Image in SRAM1; assert the address at boot.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="close"><span class="num">12</span>The short version</h2>
+
+  <p>
+    Config in flash as structs. Values in RAM as regions. A link that only ever says "give
+    me bytes from region R". A CRC binding both halves' idea of what those bytes mean.
+  </p>
+  <p>
+    Everything else — CAN, TCP, local IO, the PC tool — then becomes an addition rather
+    than a redesign. That is the real test of whether the architecture is right.
+  </p>
+  <p>
+    <strong>Start at P3.</strong> It is the largest single step, it removes the worst live
+    defect (bad data reported as good), and every phase after it is comparatively small.
+  </p>
+
+  <footer class="end">
+    Companion to docs/GATEWAY_ARCHITECTURE.md &middot; ModbusRTU_AWS (STM32F407ZGT6) &middot; IoTHandler (ESP32-S3)
+  </footer>
+
+</article>

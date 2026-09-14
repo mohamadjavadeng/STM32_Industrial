@@ -1,0 +1,1013 @@
+<title>Link v2 Bring-Up</title>
+<style>
+/* ---- reset ---------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body, h1, h2, h3, h4, p, ul, ol, li, figure, pre, table, dl, dd { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+img, svg { max-width: 100%; }
+svg { display: block; }
+table { border-collapse: collapse; }
+a { color: inherit; }
+
+/* ---- tokens: shared with docs/UNIVERSAL_PROCESS_IMAGE.html ----------- */
+:root {
+  --bg:          #EDEFF2;
+  --surface:     #FCFDFE;
+  --surface-2:   #F1F4F6;
+  --ink:         #101A22;
+  --ink-2:       #4E5C68;
+  --ink-3:       #82919C;
+  --rule:        #D3DAE0;
+  --rule-strong: #B4BFC8;
+  --accent:      #0B6E88;
+  --accent-wash: #DDEBEF;
+
+  --r-sys: #67727E;
+  --r-io:  #1E7F53;
+  --r-rtu: #A85C05;
+  --r-tcp: #2456A6;
+
+  --good: #1E7F53;
+  --warn: #A85C05;
+  --crit: #B03A2E;
+
+  --term-bg:   #10191F;
+  --term-ink:  #C9D6DE;
+  --term-dim:  #6C7F8B;
+  --term-ok:   #5FC08A;
+  --term-bad:  #EF8579;
+  --term-acc:  #63C3DC;
+
+  --shadow: 0 1px 0 rgba(16,26,34,.04), 0 8px 24px -18px rgba(16,26,34,.5);
+
+  --f-display: Georgia, "Iowan Old Style", "Times New Roman", Times, serif;
+  --f-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --f-mono: Consolas, "Cascadia Mono", "SF Mono", ui-monospace, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:          #0E1419;
+    --surface:     #151D24;
+    --surface-2:   #1B242C;
+    --ink:         #DCE4EA;
+    --ink-2:       #9AA8B4;
+    --ink-3:       #6C7A86;
+    --rule:        #26313A;
+    --rule-strong: #3A4752;
+    --accent:      #4FBEDA;
+    --accent-wash: #12313A;
+    --r-sys: #99A5B1; --r-io: #4FC48D; --r-rtu: #E0A34A; --r-tcp: #6E9EE8;
+    --good: #4FC48D; --warn: #E0A34A; --crit: #EF8579;
+    --term-bg: #0A1116; --term-ink: #C9D6DE;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:          #0E1419;
+  --surface:     #151D24;
+  --surface-2:   #1B242C;
+  --ink:         #DCE4EA;
+  --ink-2:       #9AA8B4;
+  --ink-3:       #6C7A86;
+  --rule:        #26313A;
+  --rule-strong: #3A4752;
+  --accent:      #4FBEDA;
+  --accent-wash: #12313A;
+  --r-sys: #99A5B1; --r-io: #4FC48D; --r-rtu: #E0A34A; --r-tcp: #6E9EE8;
+  --good: #4FC48D; --warn: #E0A34A; --crit: #EF8579;
+  --term-bg: #0A1116; --term-ink: #C9D6DE;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -20px rgba(0,0,0,.9);
+}
+
+/* ---- page ----------------------------------------------------------- */
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.topbar-in {
+  max-width: 70rem; margin-inline: auto;
+  padding: .55rem 1.25rem;
+  display: flex; align-items: baseline; gap: 1.4rem; flex-wrap: wrap;
+}
+.topbar .mark {
+  font-family: var(--f-mono); font-size: .72rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-2); white-space: nowrap;
+}
+.topnav { display: flex; gap: 1rem; flex-wrap: wrap; }
+.topnav a {
+  font-family: var(--f-mono); font-size: .72rem; letter-spacing: .05em;
+  color: var(--ink-3); text-decoration: none; padding: .15rem 0;
+  border-bottom: 1px solid transparent;
+}
+.topnav a:hover, .topnav a:focus-visible { color: var(--accent); border-bottom-color: var(--accent); }
+
+.doc {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(1.25rem, 1fr)
+    [main-start] min(46rem, 100% - 2.5rem) [main-end]
+    minmax(1.25rem, 1fr) [full-end];
+  row-gap: 1.05rem;
+  padding: 0 0 6rem;
+}
+.doc > * { grid-column: main; }
+.doc > .bleed { grid-column: full; }
+.bleed > .inner { width: min(66rem, 100%); margin-inline: auto; padding-inline: 1.25rem; }
+
+/* ---- masthead ------------------------------------------------------- */
+.masthead { padding: 4.25rem 0 1.25rem; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: .72rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+}
+h1 {
+  font-family: var(--f-display);
+  font-size: clamp(2.35rem, 6vw, 3.6rem);
+  line-height: 1.03; letter-spacing: -.022em; font-weight: 700;
+  text-wrap: balance;
+}
+.standfirst {
+  margin-top: 1.1rem; font-size: 1.14rem; line-height: 1.52; color: var(--ink-2);
+  max-width: 33rem; text-wrap: pretty;
+}
+.byline {
+  margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--rule);
+  font-family: var(--f-mono); font-size: .73rem; color: var(--ink-3);
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+}
+
+/* ---- headings ------------------------------------------------------- */
+h2 {
+  font-family: var(--f-display);
+  font-size: clamp(1.6rem, 3.4vw, 2.05rem);
+  line-height: 1.14; letter-spacing: -.015em; font-weight: 700;
+  margin-top: 3.4rem; text-wrap: balance; scroll-margin-top: 4rem;
+}
+h2 .num {
+  font-family: var(--f-mono); font-size: .78rem; font-weight: 400;
+  letter-spacing: .12em; color: var(--accent); display: block; margin-bottom: .45rem;
+}
+h3 { font-size: 1.02rem; font-weight: 650; margin-top: 1.9rem; }
+h4 {
+  font-family: var(--f-mono); font-size: .73rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-top: 1.4rem;
+}
+p { text-wrap: pretty; }
+strong { font-weight: 650; }
+.lede { font-size: 1.06rem; color: var(--ink-2); }
+
+/* ---- lists ---------------------------------------------------------- */
+ul.bul { display: grid; gap: .5rem; }
+ul.bul > li { padding-left: 1.15rem; position: relative; }
+ul.bul > li::before {
+  content: ""; position: absolute; left: 0; top: .68em;
+  width: .38rem; height: .38rem; background: var(--rule-strong);
+}
+
+/* ---- code ----------------------------------------------------------- */
+code { font-family: var(--f-mono); font-size: .875em; }
+p code, li code, td code, dd code, figcaption code, .steprow code {
+  background: var(--surface-2); border: 1px solid var(--rule);
+  padding: .05em .3em; border-radius: 2px; white-space: nowrap;
+}
+pre {
+  background: var(--surface); border: 1px solid var(--rule);
+  padding: .95rem 1.1rem; overflow-x: auto; border-radius: 2px;
+  font-family: var(--f-mono); font-size: .79rem; line-height: 1.6;
+  color: var(--ink); box-shadow: var(--shadow);
+}
+pre .c { color: var(--ink-3); }
+pre .k { color: var(--accent); }
+
+figure { display: grid; gap: .55rem; }
+figcaption { font-family: var(--f-mono); font-size: .715rem; letter-spacing: .02em; color: var(--ink-3); line-height: 1.5; }
+
+/* ---- terminal transcript -------------------------------------------- */
+.console {
+  background: var(--term-bg); border: 1px solid var(--rule-strong);
+  border-radius: 2px; overflow-x: auto; box-shadow: var(--shadow);
+}
+.console .bar {
+  display: flex; gap: .8rem; align-items: center;
+  padding: .4rem .85rem; border-bottom: 1px solid rgba(255,255,255,.09);
+  font-family: var(--f-mono); font-size: .66rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--term-dim);
+}
+.console pre {
+  background: none; border: 0; box-shadow: none; border-radius: 0;
+  color: var(--term-ink); padding: .85rem 1.1rem 1rem; font-size: .765rem; line-height: 1.55;
+}
+.console .ok { color: var(--term-ok); }
+.console .bad { color: var(--term-bad); }
+.console .hi { color: var(--term-acc); }
+.console .dim { color: var(--term-dim); }
+
+/* ---- tables --------------------------------------------------------- */
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 2px; background: var(--surface); }
+table { width: 100%; font-size: .87rem; min-width: 32rem; }
+thead th {
+  text-align: left; font-family: var(--f-mono); font-weight: 600;
+  font-size: .69rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); padding: .65rem .85rem; border-bottom: 1px solid var(--rule-strong);
+  white-space: nowrap; background: var(--surface-2);
+}
+tbody td { padding: .58rem .85rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+td.mono, th.mono { font-family: var(--f-mono); font-size: .79rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.dim { color: var(--ink-2); }
+td.wrap { white-space: normal; }
+
+/* ---- byte strip ----------------------------------------------------- */
+.stripwrap { overflow-x: auto; padding-bottom: .25rem; }
+.strip { display: flex; gap: 3px; min-width: max-content; }
+.strip .byte {
+  border: 1px solid var(--rule-strong); background: var(--surface-2);
+  padding: .4rem .5rem; text-align: center; min-width: 3.4rem;
+  font-family: var(--f-mono); font-size: .72rem; color: var(--ink);
+}
+.strip .byte i { display: block; font-style: normal; font-size: .61rem; color: var(--ink-3); letter-spacing: .03em; }
+.strip .byte b { display: block; font-size: .84rem; font-weight: 600; letter-spacing: .04em; }
+.strip .byte.sof { background: var(--accent-wash); border-color: var(--accent); }
+.strip .byte.pay { flex: 1 1 8rem; border-style: dashed; }
+.strip .byte.crc { background: var(--surface); }
+
+/* ---- notes ---------------------------------------------------------- */
+.note {
+  border: 1px solid var(--rule); background: var(--surface);
+  padding: .95rem 1.1rem 1rem; border-radius: 2px; display: grid; gap: .45rem;
+}
+.note .tag { font-family: var(--f-mono); font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.note.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--rule)); }
+.note.warn .tag { color: var(--warn); }
+.note.crit { border-color: color-mix(in srgb, var(--crit) 45%, var(--rule)); }
+.note.crit .tag { color: var(--crit); }
+.note p { font-size: .95rem; }
+
+/* ---- ordered procedure rail ----------------------------------------- */
+.steps { display: grid; gap: 0; }
+.steprow { display: grid; grid-template-columns: 3.4rem 1fr; gap: 1rem; }
+.steprow .gutter { position: relative; }
+.steprow .gutter::before {
+  content: ""; position: absolute; left: 1.55rem; top: 0; bottom: 0; width: 1px; background: var(--rule);
+}
+.steprow:first-child .gutter::before { top: 1.1rem; }
+.steprow:last-child .gutter::before { bottom: auto; height: 1.1rem; }
+.steprow .dot {
+  position: absolute; left: 1.05rem; top: .72rem; width: 1.05rem; height: 1.05rem;
+  background: var(--bg); border: 2px solid var(--accent); border-radius: 50%;
+}
+.steprow .snum {
+  position: absolute; left: 0; top: .78rem; font-family: var(--f-mono);
+  font-size: .72rem; color: var(--accent);
+}
+.steprow .body { padding: .35rem 0 1.5rem; display: grid; gap: .55rem; }
+.steprow .body h3 { margin-top: 0; }
+.steprow .body p { font-size: .93rem; color: var(--ink-2); }
+.steprow .body p.strongline { color: var(--ink); }
+
+/* ---- key caps ------------------------------------------------------- */
+kbd {
+  font-family: var(--f-mono); font-size: .76rem; font-weight: 600;
+  background: var(--surface); border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px; border-radius: 3px; padding: .1em .42em;
+  color: var(--ink); white-space: nowrap;
+}
+
+/* ---- verdict pills -------------------------------------------------- */
+.pill {
+  display: inline-block; font-family: var(--f-mono); font-size: .66rem;
+  letter-spacing: .1em; text-transform: uppercase; padding: .12em .45em;
+  border: 1px solid currentColor; border-radius: 2px; white-space: nowrap;
+}
+.pill.pass { color: var(--good); }
+.pill.fail { color: var(--crit); }
+.pill.warnp { color: var(--warn); }
+
+/* ---- two-up cards --------------------------------------------------- */
+.twoup { display: grid; gap: 1.15rem; grid-template-columns: 1fr; }
+@media (min-width: 52rem) { .twoup { grid-template-columns: 1fr 1fr; } }
+.card {
+  border: 1px solid var(--rule); background: var(--surface);
+  padding: 1rem 1.1rem 1.15rem; border-radius: 2px; display: grid; gap: .5rem; align-content: start;
+}
+.card h4 { margin-top: 0; }
+.card p { font-size: .92rem; color: var(--ink-2); }
+.card .lead { color: var(--ink); font-size: .99rem; font-weight: 600; }
+
+footer.end {
+  margin-top: 3.5rem; padding-top: 1.1rem; border-top: 1px solid var(--rule);
+  font-family: var(--f-mono); font-size: .73rem; color: var(--ink-3);
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="mark">Link v2 Bring-Up</div>
+    <nav class="topnav">
+      <a href="#module">The module</a>
+      <a href="#bench">Bench</a>
+      <a href="#flash">Flash</a>
+      <a href="#wire">Wire format</a>
+      <a href="#run">Run</a>
+      <a href="#tests">What it proves</a>
+      <a href="#manual">Without the ESP32</a>
+      <a href="#trouble">When it fails</a>
+      <a href="#next">Next</a>
+    </nav>
+  </div>
+</div>
+
+<main class="doc">
+
+  <header class="masthead">
+    <div class="eyebrow">ModbusRTU_AWS &middot; IoTHandler &middot; step 1 of the IIoT PLC</div>
+    <h1>Proving the link between the two chips</h1>
+    <p class="standfirst">
+      A test procedure for the new inter-chip communication module. Forty minutes on a
+      bench, two boards and a USB cable &mdash; and at the end of it you know the
+      transport is not the thing that is wrong.
+    </p>
+    <div class="byline">
+      <span>STM32F407ZGT6 &harr; ESP32-S3</span>
+      <span>Protocol v2.0</span>
+      <span>Implements P2 + P4 of UNIVERSAL_PROCESS_IMAGE.html</span>
+    </div>
+  </header>
+
+  <h2 id="module"><span class="num">01</span>What was built, and where it lives</h2>
+
+  <p class="lede">
+    The connection between the two chips is now a module with a published contract,
+    not a handler bolted to whatever was convenient. Three files on each side, one
+    header shared between them, and a single point at which the rest of the firmware
+    plugs in.
+  </p>
+
+  <p>
+    The shape matters more than the code. The industrial half owns the field buses and
+    writes everything it learns into a RAM <em>process image</em>. The network half asks
+    for a slice of that image and publishes it. Neither one waits for the other, and
+    neither one knows anything about the other's world &mdash; the link carries bytes and
+    quality flags, never Modbus register numbers and never MQTT topics. That is what
+    lets three different clouds and five different field buses be added later without
+    either side learning a new protocol.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>File</th><th>Side</th><th>Role</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">shared/gw_model.h</td><td class="dim">both</td><td class="wrap">The wire contract. Framing, opcodes, status codes, region ids, quality codes, payload structs. Compiled by both projects through a two-line shim, so there is exactly one copy.</td></tr>
+        <tr><td class="mono">Core/Inc/gw_link_cfg.h</td><td class="dim">STM32</td><td class="wrap">Every local tunable: buffer sizes, slots per region, the master <code>GW_LINK_ENABLE</code> switch.</td></tr>
+        <tr><td class="mono">Core/Src/gw_image.c</td><td class="dim">STM32</td><td class="wrap">The process image. Regions, slots, quality, timestamps, bounds checks. Drivers write it; the link reads it.</td></tr>
+        <tr><td class="mono">Core/Src/gw_link.c</td><td class="dim">STM32</td><td class="wrap">The protocol engine. Parses a request, answers it from the image, never blocks, never calls a field bus.</td></tr>
+        <tr><td class="mono">Core/Src/gw_link_port.c</td><td class="dim">STM32</td><td class="wrap">The only file that knows about a UART. Circular RX DMA, TX DMA, and a health check. Move to another port or to SPI by rewriting this one file.</td></tr>
+        <tr><td class="mono">include/stm_link_v2.h</td><td class="dim">ESP32</td><td class="wrap">The client. One synchronous, retried, mutex-guarded transaction per call.</td></tr>
+        <tr><td class="mono">src/linkv2_test_main.cpp</td><td class="dim">ESP32</td><td class="wrap">The bring-up console this document drives. Its own firmware, built by the <code>linkv2</code> environment.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>What the rest of the firmware plugs into</h3>
+
+  <p>
+    A future driver &mdash; the RS-485 scanner, local IO, CAN &mdash; never touches the link.
+    It writes slots, and the link serves them. That is the entire integration surface:
+  </p>
+
+<pre><span class="c">/* an RS-485 scanner, when it lands (phase P3) */</span>
+GwImage_SetU32(GW_REGION_MB_RTU, slot, value, GW_Q_GOOD);
+GwImage_SetQuality(GW_REGION_MB_RTU, slot, GW_Q_COMM_FAIL);  <span class="c">/* slave stopped answering */</span>
+
+<span class="c">/* the superloop in main.c */</span>
+<span class="k">while</span> (1) {
+    GwLink_Step();    <span class="c">/* parse a request, answer it from the image */</span>
+    GwImage_Step();   <span class="c">/* uptime, staleness ageing, demo slots        */</span>
+    <span class="c">/* RtuScan_Step(); LocalIo_Step(); Can_Step(); ... all state machines */</span>
+}</pre>
+
+  <div class="note">
+    <div class="tag">Why the demo generator exists</div>
+    <p>
+      With <code>GW_IMAGE_DEMO 1</code> the STM32 animates six slots of the Modbus RTU
+      region: a counter, a triangle wave, a float, a toggling bool, one slot left at
+      <code>COMM_FAIL</code> and one never written at all. It means the link can be
+      proven end to end, quality codes included, before a single RS-485 device is
+      wired. Set it to 0 the day the real scanner owns those slots &mdash; two writers on
+      one slot is the one rule this architecture cannot bend.
+    </p>
+  </div>
+
+  <h2 id="bench"><span class="num">02</span>The bench</h2>
+
+  <p>
+    Two boards, three wires and two USB cables. No RS-485 device, no WiFi, no
+    certificates, no cloud account. Everything in this document runs on that.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>ESP32-S3</th><th></th><th>STM32F407</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">GPIO18 &mdash; <code>PIN_STM_RX</code></td><td class="mono">&larr;</td><td class="mono">PB10 &mdash; USART3_TX</td><td class="dim wrap">Crossed. RX to TX.</td></tr>
+        <tr><td class="mono">GPIO17 &mdash; <code>PIN_STM_TX</code></td><td class="mono">&rarr;</td><td class="mono">PB11 &mdash; USART3_RX</td><td class="dim wrap">Crossed the other way.</td></tr>
+        <tr><td class="mono">GND</td><td class="mono">&mdash;</td><td class="mono">GND</td><td class="dim wrap">Mandatory, and keep it short. Most "random CRC errors" are this wire.</td></tr>
+        <tr><td class="mono">GPIO43 / 44</td><td class="mono">&mdash;</td><td class="dim">&mdash;</td><td class="dim wrap">UART0, the debug console. This is where the test output appears. Never log to Serial1.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    115200 8N1, which must match <code>huart3.Init.BaudRate</code> in the STM32's
+    <code>main.c</code> and <code>STM_LINK_BAUD</code> in the ESP32's <code>config.h</code>.
+    Raise both together once the link is proven, not before.
+  </p>
+
+  <div class="note warn">
+    <div class="tag">If the two boards have separate supplies</div>
+    <p>
+      Common ground first, always. If the industrial side is mains-referenced, put a
+      two-channel digital isolator in the data lines &mdash; being cheap to isolate is one
+      of the reasons this link is a UART and not SPI. A missing or long ground shows up
+      as intermittent CRC errors that look exactly like a firmware bug.
+    </p>
+  </div>
+
+  <h2 id="flash"><span class="num">03</span>Flash both halves</h2>
+
+  <div class="steps">
+
+    <div class="steprow">
+      <div class="gutter"><span class="snum">01</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Let STM32CubeIDE see the new files</h3>
+        <p>
+          Four new source files landed in <code>Core/Src</code> and five headers in
+          <code>Core/Inc</code>. CubeIDE builds from a generated
+          <code>Debug/Core/Src/subdir.mk</code>, which it only rewrites when it
+          re-scans the project. Open the project, press <kbd>F5</kbd> on it in the
+          Project Explorer, then <strong>Project &rarr; Clean</strong>.
+        </p>
+        <p class="strongline">
+          Symptom if you skip this: undefined references to <code>GwLink_Init</code> and
+          <code>GwImage_Init</code> at link time, even though the files are plainly there.
+        </p>
+      </div>
+    </div>
+
+    <div class="steprow">
+      <div class="gutter"><span class="snum">02</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Build and flash the STM32</h3>
+        <p>
+          Build <code>Debug</code> and flash over ST-LINK with the existing
+          <code>ModbusRTU_AWS Debug.launch</code>. Nothing about the .ioc changed, so no
+          CubeMX regeneration is needed &mdash; and all application code sits inside
+          <code>USER CODE</code> markers, so a regeneration would not destroy it either.
+        </p>
+        <p>
+          <code>GW_LINK_ENABLE</code> defaults to 1, which gives USART3 to the new module.
+          The old <code>0xAA/0xBB</code> handler is still compiled and one
+          <code>#define</code> away; the two cannot share the port, because v1 polls it
+          one byte at a time from the main loop.
+        </p>
+      </div>
+    </div>
+
+    <div class="steprow">
+      <div class="gutter"><span class="snum">03</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Check two variables before you unplug the debugger</h3>
+        <p>
+          <code>gwImageOk</code> and <code>gwLinkOk</code> are globals in
+          <code>main.c</code> precisely so they can be watched. Live expressions are
+          already enabled in the launch configuration. Both must be
+          <code>true</code>.
+        </p>
+        <p>
+          <code>gwImageOk == false</code> means the configured regions do not fit
+          <code>GW_IMAGE_BYTES</code>, or the image landed somewhere DMA cannot reach.
+          <code>gwLinkOk == false</code> means USART3 has no DMA stream linked &mdash; check
+          the .ioc.
+        </p>
+      </div>
+    </div>
+
+    <div class="steprow">
+      <div class="gutter"><span class="snum">04</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Build and flash the ESP32</h3>
+<pre>pio run -e linkv2 -t upload -t monitor</pre>
+        <p>
+          No <code>secrets.h</code>, no certificates, no libraries to download. The
+          environment compiles the test console, the v2 client and the CRC, and nothing
+          else &mdash; if it fails to build, nothing about the cloud is involved.
+        </p>
+      </div>
+    </div>
+
+    <div class="steprow">
+      <div class="gutter"><span class="snum">05</span><span class="dot"></span></div>
+      <div class="body">
+        <h3>Watch it run itself</h3>
+        <p>
+          The console runs the whole suite once at boot, so plugging the board in is the
+          test. After that it waits for a key: <kbd>a</kbd> runs everything again,
+          <kbd>?</kbd> lists the menu, <kbd>l</kbd> opens a live view of the image.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <h2 id="wire"><span class="num">04</span>The wire format, on one screen</h2>
+
+  <p>
+    Worth twenty seconds before you read any traces. Everything is little endian,
+    including the CRC. The header is self-describing: <strong>frame length is
+    always header + LEN + 2</strong>, for every opcode, with no special cases. That
+    single property is why one parser handles every frame and why a corrupted byte can
+    never leave either side unable to resynchronise.
+  </p>
+
+  <figure>
+    <div class="stripwrap">
+      <div class="strip">
+        <div class="byte sof"><i>0</i><b>A5</b></div>
+        <div class="byte"><i>1</i><b>SEQ</b></div>
+        <div class="byte"><i>2</i><b>OP</b></div>
+        <div class="byte"><i>3</i><b>REG</b></div>
+        <div class="byte"><i>4&ndash;5</i><b>OFF</b></div>
+        <div class="byte"><i>6&ndash;7</i><b>LEN</b></div>
+        <div class="byte pay"><i>8&hellip;</i><b>payload &times; LEN</b></div>
+        <div class="byte crc"><i>last 2</i><b>CRC16</b></div>
+      </div>
+    </div>
+    <figcaption>Request, ESP32 &rarr; STM32. SEQ is 1&ndash;255 and is echoed back. LEN counts payload bytes only &mdash; a read puts its byte count in a two-byte payload rather than overloading LEN.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="stripwrap">
+      <div class="strip">
+        <div class="byte sof"><i>0</i><b>5A</b></div>
+        <div class="byte"><i>1</i><b>SEQ</b></div>
+        <div class="byte"><i>2</i><b>STATUS</b></div>
+        <div class="byte"><i>3</i><b>REG</b></div>
+        <div class="byte"><i>4&ndash;5</i><b>LEN</b></div>
+        <div class="byte pay"><i>6&hellip;</i><b>payload &times; LEN</b></div>
+        <div class="byte crc"><i>last 2</i><b>CRC16</b></div>
+      </div>
+    </div>
+    <figcaption>Response, STM32 &rarr; ESP32. STATUS is a real result code &mdash; OK, BAD_CRC, BAD_REGION, RANGE, NOT_WRITABLE&hellip; &mdash; not "I understood your frame".</figcaption>
+  </figure>
+
+  <p>
+    A complete transaction, byte for byte. This is an <code>ECHO</code> of the two
+    characters <code>Hi</code>, and it is a frame you can paste into a terminal
+    yourself &mdash; see <a href="#manual">section 08</a>.
+  </p>
+
+<pre><span class="c">out  </span>A5 01 7F 00 00 00 02 00 48 69 DB F7
+     <span class="c">^  ^  ^  ^  ^---^ ^---^ ^---^ ^---^</span>
+     <span class="c">|  |  |  |  off=0 len=2 "Hi"  CRC</span>
+     <span class="c">|  |  |  region 0 (unused by ECHO)</span>
+     <span class="c">|  |  opcode 0x7F = ECHO</span>
+     <span class="c">|  sequence 0x01</span>
+     <span class="c">start of request</span>
+
+<span class="c">in   </span>5A 01 00 00 02 00 48 69 22 1E
+     <span class="c">^  ^  ^  ^  ^---^ ^---^ ^---^</span>
+     <span class="c">|  |  |  |  len=2 "Hi"  CRC</span>
+     <span class="c">|  |  status 0x00 = OK</span>
+     <span class="c">|  sequence echoed</span>
+     <span class="c">start of response</span></pre>
+
+  <h2 id="run"><span class="num">05</span>What a good run looks like</h2>
+
+  <p>
+    Eight tests, about twelve seconds, ending in a count. Values will differ &mdash; uptimes,
+    round trips, the counter slot &mdash; but the shape and the verdicts should match this
+    exactly.
+  </p>
+
+  <div class="console">
+    <div class="bar"><span>COM &middot; 115200</span><span class="dim">pio run -e linkv2 -t upload -t monitor</span></div>
+<pre>############################################################
+#  IIoT gateway - inter-chip link v2 bring-up console       #
+#  ESP32-S3 (network half)  &lt;-&gt;  STM32F407 (industrial half)#
+############################################################
+  protocol v2.0, payload cap 1024 bytes, 115200 baud
+  UART1 rx=GPIO18 tx=GPIO17   (console is UART0 on GPIO43/44)
+
+<span class="hi">=== T1  ECHO - transport, framing, CRC ====================</span>
+  <span class="ok">[ OK ]</span> echo    0 bytes -&gt; OK, 0 back, 2104 us
+  <span class="ok">[ OK ]</span> echo    1 bytes -&gt; OK, 1 back, 2280 us
+  <span class="ok">[ OK ]</span> echo   64 bytes -&gt; OK, 64 back, 13045 us
+  <span class="ok">[ OK ]</span> echo  255 bytes -&gt; OK, 255 back, 45912 us
+  <span class="ok">[ OK ]</span> echo 1024 bytes -&gt; OK, 1024 back, 180633 us
+
+<span class="hi">=== T2  SYNC - identity and uptime ========================</span>
+  <span class="ok">[ OK ]</span> sync OK
+       STM32 firmware   1.4.0
+       protocol         v2.0
+       uptime           8471 ms
+       config           CRC C0DE0001  version 1
+       capabilities     0x0000
+  <span class="ok">[ OK ]</span> protocol major matches
+  <span class="ok">[ OK ]</span> sync again OK
+  <span class="ok">[ OK ]</span> uptime advances +252 ms over 250 ms
+
+<span class="hi">=== T3  RD_META - image layout ============================</span>
+  <span class="ok">[ OK ]</span> read meta OK
+       image 6464 bytes, 8 regions, config CRC C0DE0001 v1
+       id  name       flags  slots  bytes   value  stamp   qual
+       00  SYS        0x03       0    128      0      0      0
+       01  LOCAL_IO   0x01      64    576      0    256    512
+       02  MB_RTU     0x01     256   2304      0   1024   2048
+       03  MB_TCP     0x0D     128   1152      0    512   1024
+       04  CAN        0x01     128   1152      0    512   1024
+       05  SERIAL     0x01      64    576      0    256    512
+       06  VIRTUAL    0x01      64    576      0    256    512
+       07  EVENTS     0x03       0      0      0      0      0
+  <span class="ok">[ OK ]</span> at least one region
+  <span class="ok">[ OK ]</span> SYS region present
+  <span class="ok">[ OK ]</span> MB_RTU region present
+  <span class="ok">[ OK ]</span> MB_RTU block offsets are self-consistent
+
+<span class="hi">=== T4  RD_REGION on SYS - diagnostics ====================</span>
+  <span class="ok">[ OK ]</span> read SYS OK
+       uptime       9013 ms
+       firmware     1.4.0, protocol v2.0
+       link frames  rx 9  tx 8
+       link errors  crc 0  frame 0  dropped 0
+       loop count   412903
+       fault bits   0x00000000
+  <span class="ok">[ OK ]</span> STM32 counted our requests
+  <span class="ok">[ OK ]</span> STM32 superloop is running
+       <span class="dim">(rx is one ahead of tx: the SYS bytes were copied after this</span>
+       <span class="dim">request was counted and before its reply was sent)</span>
+
+<span class="hi">=== T5  Slots - value, timestamp and quality together =====</span>
+       MB_RTU, the region the demo generator fills:
+       slot       raw        as float     stamp(ms)   quality
+          0          89       0.0000            8901   good
+          1         575       0.0000            8901   good
+          2  1080941724       3.7166            8901   good
+          3           1       0.0000            8901   good
+          4        4321       0.0000             312   commFail
+          5           0       0.0000               0   unknown
+          6           0       0.0000               0   unknown
+          7           0       0.0000               0   unknown
+  <span class="ok">[ OK ]</span> read MB_RTU slots 0..7 OK
+  <span class="ok">[ OK ]</span> slot 0 (counter) is GOOD
+  <span class="ok">[ OK ]</span> slot 4 is COMM_FAIL as designed
+  <span class="ok">[ OK ]</span> slot 5 never written -&gt; UNKNOWN
+  <span class="ok">[ OK ]</span> re-read slot 0 OK
+  <span class="ok">[ OK ]</span> the image is being refreshed 89 -&gt; 94 over 500 ms
+
+<span class="hi">=== T6  WR_REGION - the externally owned region ===========</span>
+  <span class="ok">[ OK ]</span> write value OK
+  <span class="ok">[ OK ]</span> write quality OK
+  <span class="ok">[ OK ]</span> read it back OK
+  <span class="ok">[ OK ]</span> value survived the round trip wrote 9622, read 9622
+
+<span class="hi">=== T7  Error handling - the paths nobody exercises =======</span>
+  <span class="ok">[ OK ]</span> bad CRC rejected DEVICE/BAD_CRC
+  <span class="ok">[ OK ]</span> unknown opcode -&gt; BAD_CMD DEVICE/BAD_CMD
+  <span class="ok">[ OK ]</span> unknown region -&gt; BAD_REGION DEVICE/BAD_REGION
+  <span class="ok">[ OK ]</span> over-long read -&gt; RANGE DEVICE/RANGE
+  <span class="ok">[ OK ]</span> impossible length -&gt; BAD_LEN DEVICE/BAD_LEN
+  <span class="ok">[ OK ]</span> write to a driver-owned region -&gt; NOT_WRITABLE DEVICE/NOT_WRITABLE
+  <span class="ok">[ OK ]</span> first request with SEQ 0x43 echoed 'A'
+  <span class="ok">[ OK ]</span> repeat of SEQ 0x43 returned the cached reply, not 'B'
+  <span class="ok">[ OK ]</span> same SEQ with a different opcode is executed, not cached OK
+  <span class="ok">[ OK ]</span> link still healthy after every error case OK
+
+<span class="hi">=== T8  Soak - latency and error rate =====================</span>
+       200 iterations of a 64-byte echo...
+       ....
+       success      200 / 200
+       round trip   min 12904 us, avg 13022 us, max 14771 us
+       errors       timeout 0  crc 0  frame 0  seq 0  device 0
+       retries      0
+  <span class="ok">[ OK ]</span> no transaction lost
+  <span class="ok">[ OK ]</span> average round trip under 20 ms avg 13022 us
+
+<span class="hi">=== Summary ===============================================</span>
+       39 passed, 0 failed, 11890 ms
+       Link v2 is good. Next step: the cloud back ends.</pre>
+  </div>
+
+  <div class="note">
+    <div class="tag">Reading the round-trip numbers</div>
+    <p>
+      A 64-byte echo moves 146 bytes over the wire, which is 12.7 ms of pure
+      transmission at 115200 baud. Measured 13.0 ms means the STM32's own handling cost
+      about 300&nbsp;&micro;s &mdash; it answered essentially immediately. That is the claim the
+      process image makes, and it is the number to compare against v1, where the same
+      shape of request could take 1.6&nbsp;seconds because it ran a live Modbus transaction
+      inside the reply.
+    </p>
+    <p>
+      Everything above is wire time, so raising the baud is what makes it faster. At
+      921600 the same echo is 1.6 ms.
+    </p>
+  </div>
+
+  <h2 id="tests"><span class="num">06</span>What each test actually proves</h2>
+
+  <p>
+    If one fails, this is the column that tells you where to look. They are ordered so
+    that a failure early makes the later results meaningless &mdash; fix them in order.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>Test</th><th>Proves</th><th>If it fails</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">T1 ECHO</td>
+          <td class="wrap">Wiring, baud, DMA on both sides, framing, CRC. Nothing above the transport is involved.</td>
+          <td class="dim wrap">Stop here. Nothing below means anything until this passes at all five sizes. If small sizes pass and 1024 fails, suspect the receive buffer sizes rather than the cable.</td>
+        </tr>
+        <tr>
+          <td class="mono">T2 SYNC</td>
+          <td class="wrap">Both chips agree on the protocol version, and the STM32's clock is running.</td>
+          <td class="dim wrap">A version mismatch means one chip was flashed with an older <code>shared/gw_model.h</code>. Frozen uptime means SysTick is dead &mdash; the link would look perfectly healthy.</td>
+        </tr>
+        <tr>
+          <td class="mono">T3 RD_META</td>
+          <td class="wrap">The ESP32 can discover the image layout instead of hardcoding it, and the block arithmetic is self-consistent.</td>
+          <td class="dim wrap">Offsets that fail the consistency check mean the region table and the layout code disagree. Every later read would be shifted by a few bytes and return plausible nonsense.</td>
+        </tr>
+        <tr>
+          <td class="mono">T4 SYS region</td>
+          <td class="wrap">A real region read works, and the STM32's own counters confirm it is seeing the same traffic you think you sent.</td>
+          <td class="dim wrap">Compare <code>rx</code> here with <code>requests</code> in the client statistics. A gap is bytes being lost; look at <code>dropped</code> and the fault bits.</td>
+        </tr>
+        <tr>
+          <td class="mono">T5 Slots</td>
+          <td class="wrap">The full path: a driver wrote a slot, the image stamped and graded it, the bytes arrived here meaning the same thing. Quality codes included.</td>
+          <td class="dim wrap">If slot 0 does not advance between two reads, the superloop is stalled &mdash; something is blocking. That is a value that looks fine and is not being refreshed, which is exactly what v1 could not report.</td>
+        </tr>
+        <tr>
+          <td class="mono">T6 WR_REGION</td>
+          <td class="wrap">The network half can fill the region it owns, and only that one.</td>
+          <td class="dim wrap">A <code>NOT_WRITABLE</code> here means the MB_TCP region lost its <code>GW_REGF_WRITABLE</code> flag in the region table.</td>
+        </tr>
+        <tr>
+          <td class="mono">T7 Errors</td>
+          <td class="wrap">Every refusal path, and that none of them wedges the parser. The duplicate-sequence check proves a retried write cannot apply twice.</td>
+          <td class="dim wrap">The last check &mdash; "link still healthy" &mdash; is the important one. If it fails, the parser can be jammed by a malformed frame, which is the defect v1 carried a client-side resync hack to work around.</td>
+        </tr>
+        <tr>
+          <td class="mono">T8 Soak</td>
+          <td class="wrap">It keeps working. Two hundred transactions with no retries is the difference between "it worked once" and "it works".</td>
+          <td class="dim wrap">Occasional timeouts with a clean cable point at the STM32 superloop stalling. Occasional CRC errors point at grounding or cable length.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Quality codes you will see in T5</h3>
+
+  <p>
+    Quality is the reason this rewrite exists. In the old link a Modbus timeout was
+    answered with <code>STATUS_OK</code> and stale bytes, so the cloud was told bad data
+    was good &mdash; a wrong number with a plausible shape, and nothing anywhere to detect
+    it. Now every value carries its own verdict.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th class="mono">Code</th><th>Name</th><th>Means</th><th>Publish it?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">0</td><td class="mono">unknown</td><td class="wrap">Never read since boot. Not the same as "read successfully as zero".</td><td><span class="pill fail">no</span></td></tr>
+        <tr><td class="mono">1</td><td class="mono">good</td><td class="wrap">Fresh and trustworthy.</td><td><span class="pill pass">yes</span></td></tr>
+        <tr><td class="mono">2</td><td class="mono">stale</td><td class="wrap">The last read succeeded, but longer ago than the staleness window.</td><td><span class="pill warnp">with the flag</span></td></tr>
+        <tr><td class="mono">3</td><td class="mono">commFail</td><td class="wrap">The device stopped answering. The last known value is still visible, which is useful to a human and misleading to a chart.</td><td><span class="pill warnp">with the flag</span></td></tr>
+        <tr><td class="mono">4&ndash;7</td><td class="mono">exception, configErr, overrange, disabled</td><td class="wrap">Defined for the drivers that land in later phases.</td><td><span class="pill warnp">with the flag</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="manual"><span class="num">07</span>Testing the STM32 with no ESP32 at all</h2>
+
+  <p>
+    Useful when you suspect the ESP32, when you have only one board, or when you want
+    to see raw bytes rather than a client's interpretation of them. Any USB-to-serial
+    adapter at 115200 8N1 will do: adapter TX to PB11, adapter RX to PB10, ground to
+    ground. Use a terminal that sends and shows hex &mdash; RealTerm, Docklight, or the
+    HEX mode of most serial monitors.
+  </p>
+
+  <p>
+    Every frame below is complete and correct, CRC included. Send the bytes, read the
+    reply.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>Send</th><th>Asks for</th><th>Expect back</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">A5 01 7F 00 00 00 02 00 48 69 DB F7</td>
+          <td class="wrap">ECHO of "Hi"</td>
+          <td class="mono">5A 01 00 00 02 00 48 69 22 1E</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 02 08 00 00 00 00 00 A8 C4</td>
+          <td class="wrap">SYNC &mdash; identity and uptime</td>
+          <td class="mono wrap">5A 02 00 00 10 00 &hellip;16 bytes&hellip; CRC</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 03 03 FF 00 00 00 00 AD 6B</td>
+          <td class="wrap">RD_META for every region</td>
+          <td class="mono wrap">5A 03 00 FF 6C 00 &hellip;108 bytes&hellip; CRC</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 04 01 00 00 00 02 00 40 00 A5 E1</td>
+          <td class="wrap">First 64 bytes of the SYS region</td>
+          <td class="mono wrap">5A 04 00 00 40 00 &hellip;64 bytes&hellip; CRC</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 05 01 02 00 00 02 00 20 00 A3 B1</td>
+          <td class="wrap">MB_RTU values, slots 0&ndash;7 (32 bytes)</td>
+          <td class="mono wrap">5A 05 00 02 20 00 &hellip;32 bytes&hellip; CRC</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 06 01 02 00 08 02 00 08 00 48 80</td>
+          <td class="wrap">MB_RTU quality bytes, slots 0&ndash;7 (offset 2048)</td>
+          <td class="mono wrap">5A 06 00 02 08 00 01 01 01 01 03 00 00 00 CRC</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 07 55 00 00 00 00 00 F0 89</td>
+          <td class="wrap">Opcode 0x55, which does not exist</td>
+          <td class="mono">5A 07 02 00 00 00 B8 99</td>
+        </tr>
+        <tr>
+          <td class="mono">A5 08 01 7E 00 00 02 00 04 00 5D E6</td>
+          <td class="wrap">A read from region 0x7E, which does not exist</td>
+          <td class="mono">5A 08 03 7E 00 00 8D 7C</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The last two are the quickest confidence check in this document: two frames, two
+    known replies, and they prove the parser, the dispatcher and the CRC in both
+    directions. The quality row is the most informative &mdash; <code>01 01 01 01 03 00 00
+    00</code> is four good slots, one in comm-fail, and three never written, which is
+    the demo generator doing exactly what it says.
+  </p>
+
+  <div class="note">
+    <div class="tag">Making your own frames</div>
+    <p>
+      CRC-16/MODBUS, polynomial 0xA001 reflected, init 0xFFFF, no final xor, low byte
+      transmitted first &mdash; the same CRC the RS-485 side already uses, deliberately, so
+      there is no second implementation to get wrong. Its check value over ASCII
+      "123456789" is 0x4B37, and both firmwares verify that at boot.
+    </p>
+  </div>
+
+  <h2 id="trouble"><span class="num">08</span>When it fails</h2>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>Symptom</th><th>Most likely cause</th><th>What to do</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="wrap">Every test times out. STM32 <code>rx</code> counter stays at 0.</td>
+          <td class="wrap">Nothing is arriving. TX and RX not crossed, no common ground, or the STM32 is not running this firmware.</td>
+          <td class="wrap">Swap the two data wires &mdash; it is the single most common cause. Then check <code>gwLinkOk</code> on the debugger.</td>
+        </tr>
+        <tr>
+          <td class="wrap">STM32 <code>rx</code> counter climbs, but the ESP32 sees nothing.</td>
+          <td class="wrap">Requests arrive, replies do not. STM32 TX (PB10) is not reaching the ESP32 RX pin.</td>
+          <td class="wrap">Scope or probe PB10 during a test. If it is transmitting, the fault is between PB10 and GPIO18.</td>
+        </tr>
+        <tr>
+          <td class="wrap">Undefined reference to <code>GwLink_Init</code> when linking the STM32.</td>
+          <td class="wrap">CubeIDE has not re-scanned the project, so the new files are missing from <code>subdir.mk</code>.</td>
+          <td class="wrap"><kbd>F5</kbd> on the project, then Project &rarr; Clean. Step 01 of section 03.</td>
+        </tr>
+        <tr>
+          <td class="wrap">Small echoes pass, 1024-byte echo times out.</td>
+          <td class="wrap">A buffer smaller than the largest frame somewhere in the chain.</td>
+          <td class="wrap">Check <code>STMV2_RX_BUFFER</code> (ESP32) and <code>GW_LINK_RX_DMA_BYTES</code> (STM32) against <code>GW_MAX_PAYLOAD</code>.</td>
+        </tr>
+        <tr>
+          <td class="wrap">Occasional CRC errors, no pattern.</td>
+          <td class="wrap">Electrical. Long or missing ground, unshielded jumpers next to a switching supply, or a floating line.</td>
+          <td class="wrap">Shorten the ground wire first. The STM32's <code>dropped</code> counter rising in bursts alongside CRC errors confirms noise; steadily rising with no CRC errors instead means a baud mismatch.</td>
+        </tr>
+        <tr>
+          <td class="wrap">Everything works, but <code>GW_FAULT_LINK_OVERRUN</code> is set in the SYS fault bits.</td>
+          <td class="wrap">The STM32 superloop stalled long enough for the DMA ring to lap, or the HAL aborted the receive after an overrun and the module restarted it.</td>
+          <td class="wrap">Not fatal &mdash; the link recovered. But find what blocked: at 115200 baud this needs 133 ms of unserviced loop. Almost always a blocking call that should be a state machine.</td>
+        </tr>
+        <tr>
+          <td class="wrap">T5 slot 0 does not change between reads.</td>
+          <td class="wrap"><code>GwImage_Step()</code> is not being called, or <code>GW_IMAGE_DEMO</code> is 0.</td>
+          <td class="wrap">Check the superloop in <code>main.c</code>. A frozen value with GOOD quality is the exact failure mode this architecture exists to make impossible.</td>
+        </tr>
+        <tr>
+          <td class="wrap">Client reports <code>SEQ</code> errors during the soak.</td>
+          <td class="wrap">Replies arriving after their request timed out &mdash; the STM32 is slower than <code>STMV2_RSP_TIMEOUT_MS</code> some of the time.</td>
+          <td class="wrap">Working as designed: the stale reply is dropped rather than mistaken for the next answer. Raise the timeout or find the stall.</td>
+        </tr>
+        <tr>
+          <td class="wrap">Protocol version mismatch reported by T2.</td>
+          <td class="wrap">The two chips were built from different copies of <code>shared/gw_model.h</code>.</td>
+          <td class="wrap">Rebuild and reflash both. There is only one copy in the repository; if a project has its own, delete it.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="next"><span class="num">09</span>Pass criteria, and what comes next</h2>
+
+  <div class="note">
+    <div class="tag">Done when</div>
+    <p>
+      <strong>39 passed, 0 failed</strong>, and a soak of 200 transactions with zero
+      retries and zero errors. Record the average round trip &mdash; it is the baseline every
+      later change is measured against, and the number that will tell you whether the
+      RS-485 scanner, once it lands, is stealing time from the link.
+    </p>
+  </div>
+
+  <p>
+    What this unlocks, in order. Each step leaves a gateway that still works; none of
+    them needs a switchover.
+  </p>
+
+  <div class="twoup">
+    <div class="card">
+      <h4>Immediately next</h4>
+      <p class="lead">The three cloud back ends</p>
+      <p>
+        The link is deliberately cloud-agnostic: it hands over raw values, timestamps
+        and quality codes, and knows nothing about AWS IoT, ThingsBoard or a plain MQTT
+        broker. A back-end interface over the process image, with the broker, port,
+        credentials and topic shape chosen from configuration, is the next module &mdash; and
+        it does not touch anything tested here.
+      </p>
+    </div>
+    <div class="card">
+      <h4>Then, on the STM32</h4>
+      <p class="lead">The non-blocking RS-485 scanner</p>
+      <p>
+        Phase P3: convert <code>modbusMaster.c</code> from a blocking
+        <code>HAL_MAX_DELAY</code> transaction into a state machine, group registers
+        into block reads, and let it fill the MB_RTU region at its own pace. Turn
+        <code>GW_IMAGE_DEMO</code> off in the same commit, and re-run this document's
+        suite &mdash; the numbers should not move.
+      </p>
+    </div>
+  </div>
+
+  <p>
+    After that the queued write path and the event ring (<code>WR_CHANNEL</code>,
+    <code>RD_ACK</code>, <code>RD_EVENTS</code>, and the <code>STM_EVENT</code> GPIO
+    that lets an alarm bypass the poll interval), then configuration in flash and the
+    PC commissioning tool. Every one of those is an addition to this module rather than
+    a change to it, which is the real test of whether the interface above was drawn in
+    the right place.
+  </p>
+
+  <footer class="end">
+    Companion to docs/GATEWAY_ARCHITECTURE.md and docs/UNIVERSAL_PROCESS_IMAGE.html
+    &middot; ModbusRTU_AWS (STM32F407ZGT6) &middot; IoTHandler (ESP32-S3)
+  </footer>
+
+</main>

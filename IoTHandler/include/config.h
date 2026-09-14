@@ -55,6 +55,31 @@
 #endif
 
 // ---------------------------------------------------------------------------
+// Link protocol v2 (0xA5 / 0x5A) - stm_link_v2.h
+// ---------------------------------------------------------------------------
+// v2 talks to a process image instead of proxying a Modbus transaction, so the
+// STM32 answers in microseconds rather than in however long the slowest RS-485
+// slave takes. Everything below is an order of magnitude tighter than the v1
+// numbers above, and that is the point of the rewrite - not the framing.
+//
+// The STM32 side must be built with GW_LINK_ENABLE 1 (ModbusRTU_AWS/Core/Inc/
+// gw_link_cfg.h). Only one protocol can own USART3.
+
+// 100 ms is ~40x the worst observed bench round trip and still 16x tighter than
+// v1's 1600 ms. Generous because the STM32 superloop will grow; tighten it once
+// the scan cycle is measured and stable.
+#define STMV2_RSP_TIMEOUT_MS 100
+// Gap tolerance once a frame has started arriving. One byte is 87 us at
+// 115200 baud, so 20 ms is 200 byte-times of slack for an interrupt storm.
+#define STMV2_BYTE_TIMEOUT_MS 20
+#define STMV2_MAX_ATTEMPTS 3    // total tries per transaction
+#define STMV2_RETRY_BASE_MS 10  // backoff = base * attempt number
+#define STMV2_GAP_MS 2          // quiet time before a retry goes out
+
+// Must hold the largest reply: 6 + GW_MAX_PAYLOAD + 2 = 1032 bytes.
+#define STMV2_RX_BUFFER 2048
+
+// ---------------------------------------------------------------------------
 // Poll engine
 // ---------------------------------------------------------------------------
 #define POLL_TASK_STACK 4096

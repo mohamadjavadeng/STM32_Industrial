@@ -32,6 +32,7 @@
 #include "gw_link_cfg.h"
 #include "gw_image.h"
 #include "gw_link.h"
+#include "gw_localio.h"
 
 /* USER CODE END Includes */
 
@@ -75,6 +76,7 @@ uint8_t SlaveID = 2;
  * reply at all. */
 volatile bool gwImageOk = false;
 volatile bool gwLinkOk = false;
+volatile bool gwLocalIoOk = false;
 
 /* USER CODE END PV */
 
@@ -145,6 +147,22 @@ int main(void)
    * gwLinkOk if the ESP32 reports a dead link.
    */
   gwImageOk = GwImage_Init();
+
+#if GW_LOCALIO_ENABLE
+  /* PD0..PD3 relays, PD4..PD7 pulled-up inputs.
+   *
+   * The pins are configured by MX_GPIO_Init() above, from the .ioc - PD0..PD3
+   * as outputs idling HIGH (de-energized on an active-low relay board) and
+   * PD4..PD7 as inputs with the internal pull-up. This call only starts the
+   * driver that scans and drives them.
+   *
+   * Placed between the image and the link on purpose: after GwImage_Init so the
+   * LOCAL_IO region exists to size-check and seed, and before GwLink_Init so the
+   * first RD_REGION the ESP32 sends cannot read a slot that has never been
+   * written. */
+  gwLocalIoOk = GwLocalIO_Init();
+#endif
+
   gwLinkOk  = GwLink_Init(&huart3);
 #else
   /* ---- Link v1 (0xAA / 0xBB) ----------------------------------------------
@@ -185,7 +203,6 @@ int main(void)
      *
      * Steps still to come, in build order (docs/UNIVERSAL_PROCESS_IMAGE.html):
      *   RtuScan_Step();     P3 - non-blocking RS-485 master filling MB_RTU
-     *   LocalIo_Step();     P7 - DI debounce, ADC results, DO/AO apply
      *   Can_Step();         P7 - drain the CAN RX queue into the CAN region
      *   TcpMirror_Step();   P7 - staleness watchdog over the ESP32-fed region
      *   Virtual_Step();     P7 - computed tags, evaluated last
@@ -193,6 +210,9 @@ int main(void)
      *   Events_Step();      P8 - transitions into the ring, drive STM_EVENT
      */
     GwLink_Step();   /* parse a request, answer it from the image */
+#if GW_LOCALIO_ENABLE
+    GwLocalIO_Step(); /* sample PD4..PD7, apply PD0..PD3, refresh LOCAL_IO */
+#endif
     GwImage_Step();  /* uptime, staleness ageing, demo slots      */
 #else
     ESP32MsgHandler_Task();  // link v1: blocking Modbus proxy
@@ -399,6 +419,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -410,6 +433,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD0 PD1 PD2 PD3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD4 PD5 PD6 PD7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
   GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;

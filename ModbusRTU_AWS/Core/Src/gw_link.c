@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "gw_image.h"
+#include "gw_localio.h"
 #include "gw_link_port.h"
 #include "gw_model.h"
 #include "modbus_crc.h" /* crc16() - the same CRC the RS-485 side uses */
@@ -209,6 +210,13 @@ static uint8_t handleSync(const uint8_t* payload, uint16_t payloadLen, uint16_t*
      * capability instead of erroring, so an older field unit keeps working when
      * the network half is upgraded first. */
     rsp.capabilities = 0u;
+#if GW_LOCALIO_ENABLE
+    /* WR_CHANNEL is answered for LOCAL_IO only, which is exactly what
+     * GW_CAP_LOCAL_IO says. A network half that sees the LOCAL_IO bit but not
+     * the WR_CHANNEL bit would have no way to know it can switch a relay, so
+     * both are set together and both are true. */
+    rsp.capabilities |= (uint16_t)(GW_CAP_LOCAL_IO | GW_CAP_WR_CHANNEL);
+#endif
 
     memcpy(txPayload(), &rsp, sizeof(rsp));
     *outLen = (uint16_t)sizeof(rsp);
@@ -316,6 +324,70 @@ static uint8_t handleWriteRegion(uint8_t reg, uint16_t off, const uint8_t* paylo
     return st;
 }
 
+/**
+ * WR_CHANNEL - ask the driver that owns a slot to write it.
+ *
+ * REG is the region, OFF is the slot, and the payload is a GwWrChannelReq
+ * saying what to write and how to read the four bytes. Nothing here knows what
+ * a slot means: this function routes to the owning driver and returns whatever
+ * it says.
+ *
+ * WHY THIS EXISTS SEPARATELY FROM WR_REGION
+ *   WR_REGION is a memcpy into a region the network half owns outright - the
+ *   Modbus TCP mirror. Its slots have no driver behind them. WR_CHANNEL is the
+ *   opposite case: the slot belongs to a driver, the driver is the only thing
+ *   that ever stores to it, and a caller asks rather than writes. That is what
+ *   keeps exactly one writer per slot when a cloud command and a scanner both
+ *   have an opinion about the same channel.
+ *
+ * WHY LOCAL IO ANSWERS INLINE
+ *   The full P8 design queues a write and hands back a token to poll with
+ *   RD_ACK, because a write to an RS-485 slave takes milliseconds and must not
+ *   sit on the link. Switching a GPIO does not: the driver validates the
+ *   request now and the pin follows on its next scan, at most GW_LIO_SCAN_MS
+ *   away. So the reply carries token 0 and applied = 1, which tells the caller
+ *   the answer is final and there is nothing to poll. When queued writes land,
+ *   a slow region returns a real token through this same reply shape and no
+ *   frame layout changes.
+ */
+static uint8_t handleWriteChannel(uint8_t reg, uint16_t off, const uint8_t* payload,
+                                  uint16_t payloadLen, uint16_t* outLen) {
+    GwWrChannelReq req;
+    GwWrChannelRsp rsp;
+    uint8_t st;
+
+    if (payloadLen != sizeof(GwWrChannelReq)) return GW_ST_BAD_LEN;
+    memcpy(&req, payload, sizeof(req));
+
+    switch (reg) {
+#if GW_LOCALIO_ENABLE
+        case GW_REGION_LOCAL_IO:
+            st = GwLocalIO_WriteSlot(off, req.value, req.encoding);
+            break;
+#endif
+        /* Every other region either has no driver yet or has one that cannot
+         * accept a write. Saying so is the point - a caller finds out from the
+         * status code, not from a value that never changes. */
+        default:
+            st = GW_ST_NOT_IMPL;
+            break;
+    }
+
+    if (st != GW_ST_OK) {
+        *outLen = 0u;
+        return st;
+    }
+
+    rsp.token = 0u;   /* nothing to poll - see the comment above */
+    rsp.applied = 1u;
+    rsp.reserved[0] = 0u;
+    rsp.reserved[1] = 0u;
+    rsp.reserved[2] = 0u;
+    memcpy(txPayload(), &rsp, sizeof(rsp));
+    *outLen = (uint16_t)sizeof(rsp);
+    return GW_ST_OK;
+}
+
 /* ==========================================================================
  * 4. Dispatch
  * ==========================================================================
@@ -377,12 +449,15 @@ static void dispatch(void) {
             status = handleWriteRegion(reg, off, payload, payloadLen, &outLen);
             break;
 
+        case GW_OP_WR_CHANNEL:
+            status = handleWriteChannel(reg, off, payload, payloadLen, &outLen);
+            break;
+
         /* Reserved and answered honestly until their phase lands. Returning a
          * defined status instead of silence is what lets the ESP32 discover
          * what this firmware can do at runtime rather than from a version
          * number - see the capabilities field in SYNC. */
         case GW_OP_RD_DELTA:   /* P8 - change-only reads                       */
-        case GW_OP_WR_CHANNEL: /* P8 - queued field writes                     */
         case GW_OP_RD_ACK:     /* P8 - outcome of a queued write               */
         case GW_OP_RD_EVENTS:  /* P8 - timestamped transition ring             */
         case GW_OP_CFG_BEGIN:  /* P5 - config download into flash              */

@@ -1,0 +1,11 @@
+../Core/Src/gw_localio.c:60:13:driveRelay	1
+../Core/Src/gw_localio.c:70:13:readInput	1
+../Core/Src/gw_localio.c:90:13:publish	3
+../Core/Src/gw_localio.c:117:13:stepInputs	8
+../Core/Src/gw_localio.c:160:13:stepFailsafe	1
+../Core/Src/gw_localio.c:191:6:GwLocalIO_Init	7
+../Core/Src/gw_localio.c:247:6:GwLocalIO_Step	6
+../Core/Src/gw_localio.c:273:9:GwLocalIO_WriteSlot	12
+../Core/Src/gw_localio.c:309:9:GwLocalIO_Relays	1
+../Core/Src/gw_localio.c:311:9:GwLocalIO_Inputs	1
+../Core/Src/gw_localio.c:313:6:GwLocalIO_Failsafe	3

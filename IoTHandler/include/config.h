@@ -100,6 +100,24 @@
 #define WRITE_VERIFY 1
 
 // ---------------------------------------------------------------------------
+// Identity and local IO
+// ---------------------------------------------------------------------------
+// Reported as a device attribute and by the provisioning console's GW? command,
+// so a unit in a cabinet can be identified without opening it.
+#ifndef GW_FW_STRING
+#define GW_FW_STRING "iothandler-2.1.0"
+#endif
+
+// How often the LOCAL_IO region is re-read from the STM32.
+//
+// 250 ms is a compromise with one side that matters: an operator watching a
+// dashboard notices a quarter second, and the relay confirmation after an RPC
+// does not wait for it because the RPC handler refreshes explicitly. Faster
+// costs link bandwidth that the RS-485 scan will want later; slower makes an
+// input look sluggish.
+#define LOCALIO_POLL_MS 250
+
+// ---------------------------------------------------------------------------
 // Cloud
 // ---------------------------------------------------------------------------
 #ifndef ENABLE_CLOUD
@@ -113,6 +131,21 @@
 #define TELEMETRY_INTERVAL_MS 10000  // full tag snapshot publish period
 #define STATUS_INTERVAL_MS 60000     // diagnostics publish period
 #define MQTT_KEEPALIVE_S 45
+
+// 1 = log every publish: topic, byte count, broker result, and the payload
+//     itself, plus a periodic line saying what the cloud connection is doing
+//     even when nothing is being published.
+//
+// On by default. "It reads the inputs but nothing reaches the cloud" is not
+// answerable without knowing whether a publish was attempted, what was in it,
+// and what the broker said - and every one of those was previously invisible.
+// One line per publish at the default 10 s cadence is not a burden.
+#ifndef CLOUD_TRACE
+#define CLOUD_TRACE 1
+#endif
+
+// How often the periodic connection line is printed when CLOUD_TRACE is on.
+#define CLOUD_TRACE_STATUS_MS 10000
 #define MQTT_BUFFER_BYTES 3072       // PubSubClient default 256 is far too small
 #define WIFI_CONNECT_TIMEOUT_MS 20000
 #define RECONNECT_MIN_MS 2000

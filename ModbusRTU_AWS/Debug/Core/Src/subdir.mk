@@ -9,6 +9,7 @@ C_SRCS += \
 ../Core/Src/gw_image.c \
 ../Core/Src/gw_link.c \
 ../Core/Src/gw_link_port.c \
+../Core/Src/gw_localio.c \
 ../Core/Src/main.c \
 ../Core/Src/modbusMaster.c \
 ../Core/Src/modbus_crc.c \
@@ -23,6 +24,7 @@ OBJS += \
 ./Core/Src/gw_image.o \
 ./Core/Src/gw_link.o \
 ./Core/Src/gw_link_port.o \
+./Core/Src/gw_localio.o \
 ./Core/Src/main.o \
 ./Core/Src/modbusMaster.o \
 ./Core/Src/modbus_crc.o \
@@ -37,6 +39,7 @@ C_DEPS += \
 ./Core/Src/gw_image.d \
 ./Core/Src/gw_link.d \
 ./Core/Src/gw_link_port.d \
+./Core/Src/gw_localio.d \
 ./Core/Src/main.d \
 ./Core/Src/modbusMaster.d \
 ./Core/Src/modbus_crc.d \
@@ -54,7 +57,7 @@ Core/Src/%.o Core/Src/%.su Core/Src/%.cyclo: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/esp32msghandler.cyclo ./Core/Src/esp32msghandler.d ./Core/Src/esp32msghandler.o ./Core/Src/esp32msghandler.su ./Core/Src/gw_image.cyclo ./Core/Src/gw_image.d ./Core/Src/gw_image.o ./Core/Src/gw_image.su ./Core/Src/gw_link.cyclo ./Core/Src/gw_link.d ./Core/Src/gw_link.o ./Core/Src/gw_link.su ./Core/Src/gw_link_port.cyclo ./Core/Src/gw_link_port.d ./Core/Src/gw_link_port.o ./Core/Src/gw_link_port.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/modbusMaster.cyclo ./Core/Src/modbusMaster.d ./Core/Src/modbusMaster.o ./Core/Src/modbusMaster.su ./Core/Src/modbus_crc.cyclo ./Core/Src/modbus_crc.d ./Core/Src/modbus_crc.o ./Core/Src/modbus_crc.su ./Core/Src/stm32f4xx_hal_msp.cyclo ./Core/Src/stm32f4xx_hal_msp.d ./Core/Src/stm32f4xx_hal_msp.o ./Core/Src/stm32f4xx_hal_msp.su ./Core/Src/stm32f4xx_it.cyclo ./Core/Src/stm32f4xx_it.d ./Core/Src/stm32f4xx_it.o ./Core/Src/stm32f4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f4xx.cyclo ./Core/Src/system_stm32f4xx.d ./Core/Src/system_stm32f4xx.o ./Core/Src/system_stm32f4xx.su
+	-$(RM) ./Core/Src/esp32msghandler.cyclo ./Core/Src/esp32msghandler.d ./Core/Src/esp32msghandler.o ./Core/Src/esp32msghandler.su ./Core/Src/gw_image.cyclo ./Core/Src/gw_image.d ./Core/Src/gw_image.o ./Core/Src/gw_image.su ./Core/Src/gw_link.cyclo ./Core/Src/gw_link.d ./Core/Src/gw_link.o ./Core/Src/gw_link.su ./Core/Src/gw_link_port.cyclo ./Core/Src/gw_link_port.d ./Core/Src/gw_link_port.o ./Core/Src/gw_link_port.su ./Core/Src/gw_localio.cyclo ./Core/Src/gw_localio.d ./Core/Src/gw_localio.o ./Core/Src/gw_localio.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/modbusMaster.cyclo ./Core/Src/modbusMaster.d ./Core/Src/modbusMaster.o ./Core/Src/modbusMaster.su ./Core/Src/modbus_crc.cyclo ./Core/Src/modbus_crc.d ./Core/Src/modbus_crc.o ./Core/Src/modbus_crc.su ./Core/Src/stm32f4xx_hal_msp.cyclo ./Core/Src/stm32f4xx_hal_msp.d ./Core/Src/stm32f4xx_hal_msp.o ./Core/Src/stm32f4xx_hal_msp.su ./Core/Src/stm32f4xx_it.cyclo ./Core/Src/stm32f4xx_it.d ./Core/Src/stm32f4xx_it.o ./Core/Src/stm32f4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f4xx.cyclo ./Core/Src/system_stm32f4xx.d ./Core/Src/system_stm32f4xx.o ./Core/Src/system_stm32f4xx.su
 
 .PHONY: clean-Core-2f-Src
 

@@ -2,6 +2,7 @@
 "./Core/Src/gw_image.o"
 "./Core/Src/gw_link.o"
 "./Core/Src/gw_link_port.o"
+"./Core/Src/gw_localio.o"
 "./Core/Src/main.o"
 "./Core/Src/modbusMaster.o"
 "./Core/Src/modbus_crc.o"

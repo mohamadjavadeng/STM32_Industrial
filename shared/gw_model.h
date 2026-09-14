@@ -77,7 +77,7 @@ extern "C" {
  * resized, opcode reused); bump the minor when you only add things.
  */
 #define GW_PROTO_VERSION_MAJOR 2
-#define GW_PROTO_VERSION_MINOR 0
+#define GW_PROTO_VERSION_MINOR 1
 #define GW_PROTO_VERSION ((GW_PROTO_VERSION_MAJOR << 4) | GW_PROTO_VERSION_MINOR)
 
 /* ==========================================================================
@@ -365,6 +365,50 @@ typedef struct __attribute__((packed)) {
 #define GW_CAP_EVENTS 0x0004u
 #define GW_CAP_CFG_DOWNLOAD 0x0008u
 #define GW_CAP_EVENT_PIN 0x0010u /* STM32 drives the STM_EVENT side-band GPIO */
+#define GW_CAP_LOCAL_IO 0x0020u  /* LOCAL_IO region is driven by a real IO driver */
+
+/*
+ * How to interpret the 4 value bytes of a WR_CHANNEL. The image itself is
+ * typeless - it stores four bytes and nothing else - so the encoding has to
+ * travel with the write. Without it a float setpoint of 1.0 and an integer 1
+ * are the same request, and only one of them is right.
+ */
+#define GW_ENC_U32 0u /* unsigned integer, also used for bool 0/1 */
+#define GW_ENC_I32 1u /* signed integer, two's complement          */
+#define GW_ENC_F32 2u /* IEEE-754 single, bit pattern not converted */
+
+/**
+ * WR_CHANNEL request payload.
+ *
+ * REG carries the region and OFF carries the slot index, exactly as they do for
+ * RD_REGION, so the payload only has to say what to write. Nothing here
+ * addresses a field device: the caller names a slot, and whichever driver owns
+ * that slot decides what "write slot 2" means on its bus. That is the whole
+ * reason a cloud setpoint goes through WR_CHANNEL instead of WR_REGION - one
+ * writer per slot, forever, with the owner deciding.
+ */
+typedef struct __attribute__((packed)) {
+    uint32_t value;
+    uint8_t encoding; /* GW_ENC_*                        */
+    uint8_t flags;    /* reserved for P8, send 0          */
+    uint16_t reserved;
+} GwWrChannelReq; /* 8 bytes */
+
+/**
+ * WR_CHANNEL reply payload.
+ *
+ * `token` is the handle a caller would later poll with RD_ACK once queued
+ * writes to slow buses land in P8. A driver that applies the write inside the
+ * request - local IO does, it is one GPIO store - returns token 0 and
+ * `applied` 1, which tells the caller the outcome is already final and there is
+ * nothing to poll. Returning the field now rather than adding it later keeps
+ * the frame layout stable when the queued path arrives.
+ */
+typedef struct __attribute__((packed)) {
+    uint32_t token;
+    uint8_t applied; /* 1 = already executed, 0 = queued, poll RD_ACK */
+    uint8_t reserved[3];
+} GwWrChannelRsp; /* 8 bytes */
 
 /* ==========================================================================
  * 9. SYS region layout
@@ -400,7 +444,43 @@ typedef struct __attribute__((packed)) {
 #define GW_FAULT_EXT_REGION_STALE 0x00000008u /* an EXTERNAL region froze        */
 
 /* ==========================================================================
- * 10. Shared helpers
+ * 10. LOCAL_IO slot map
+ * ==========================================================================
+ * Region 0x01 is this module's own terminals. Unlike a field bus region, whose
+ * slot assignment comes from configuration, these slots are wired to physical
+ * pins on the STM32 and so are fixed here in the contract: if the ESP32 and the
+ * STM32 disagreed about which slot is relay 1, a dashboard switch would close
+ * the wrong contactor, and nothing in the system could detect it.
+ *
+ *   slot  0..3   DO   relay 1..4       PD0..PD3, one slot per relay, 0 or 1
+ *   slot  8..11  DI   input 1..4       PD4..PD7, pulled up, 0 or 1
+ *   slot 16      DO word - all four relays packed, bit 0 = relay 1
+ *   slot 17      DI word - all four inputs packed, bit 0 = input 1
+ *
+ * The gap between 3 and 8, and again before 16, is deliberate: it leaves room
+ * for a wider IO card without renumbering anything that already exists in a
+ * deployed dashboard or tag map.
+ *
+ * The two packed word slots are redundant with the per-bit slots and exist
+ * because they are cheap and they make a consumer's life much easier: one
+ * value to read for a change-detect, one attribute to publish, and an
+ * unambiguous single-transaction snapshot of all four bits taken at the same
+ * instant. The per-bit slots stay because a dashboard widget binds to one
+ * value, not to a bit of one.
+ *
+ * WRITING: only slots 0..3 and 16 accept WR_CHANNEL. The DI slots are outputs
+ * of the driver; writing one would be writing to an input terminal.
+ */
+#define GW_LIO_DO_BASE 0u   /* first relay slot                         */
+#define GW_LIO_DO_COUNT 4u  /* PD0..PD3                                 */
+#define GW_LIO_DI_BASE 8u   /* first input slot                         */
+#define GW_LIO_DI_COUNT 4u  /* PD4..PD7                                 */
+#define GW_LIO_DO_WORD 16u  /* all relays as a bitmask, bit 0 = relay 1 */
+#define GW_LIO_DI_WORD 17u  /* all inputs as a bitmask, bit 0 = input 1 */
+#define GW_LIO_SLOT_MAX 18u /* slots this map occupies                  */
+
+/* ==========================================================================
+ * 11. Shared helpers
  * ==========================================================================
  * Header-only, no allocation, safe on both sides. The name lookups exist so
  * logs on the ESP32 and a future STM32 trace agree word for word - chasing a

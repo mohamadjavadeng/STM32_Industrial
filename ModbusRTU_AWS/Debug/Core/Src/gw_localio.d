@@ -1,7 +1,7 @@
-Core/Src/gw_link.o: ../Core/Src/gw_link.c ../Core/Inc/gw_link.h \
+Core/Src/gw_localio.o: ../Core/Src/gw_localio.c ../Core/Inc/gw_localio.h \
  ../Core/Inc/gw_link_cfg.h ../Core/Inc/gw_model.h \
- ../Core/Inc/../../../shared/gw_model.h ../Core/Inc/main.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
+ ../Core/Inc/../../../shared/gw_model.h ../Core/Inc/gw_image.h \
+ ../Core/Inc/main.h ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
@@ -27,14 +27,12 @@ Core/Src/gw_link.o: ../Core/Src/gw_link.c ../Core/Inc/gw_link.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Core/Inc/gw_image.h ../Core/Inc/gw_localio.h \
- ../Core/Inc/gw_link_port.h ../Core/Inc/gw_model.h \
- ../Core/Inc/modbus_crc.h
-../Core/Inc/gw_link.h:
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+../Core/Inc/gw_localio.h:
 ../Core/Inc/gw_link_cfg.h:
 ../Core/Inc/gw_model.h:
 ../Core/Inc/../../../shared/gw_model.h:
+../Core/Inc/gw_image.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -63,8 +61,3 @@ Core/Src/gw_link.o: ../Core/Src/gw_link.c ../Core/Inc/gw_link.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
-../Core/Inc/gw_image.h:
-../Core/Inc/gw_localio.h:
-../Core/Inc/gw_link_port.h:
-../Core/Inc/gw_model.h:
-../Core/Inc/modbus_crc.h:

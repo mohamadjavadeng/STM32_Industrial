@@ -172,6 +172,29 @@ class StmLinkV2 {
     StmV2Status writeRegion(uint8_t region, uint16_t off, const uint8_t* data, uint16_t len);
 
     /**
+     * WR_CHANNEL - ask the driver that owns a slot to write it.
+     *
+     * This is the path for a cloud setpoint or a relay command, and the reason
+     * it is not writeRegion(): a slot inside a driver-owned region has exactly
+     * one writer, the driver, and a caller asks rather than stores. Writing the
+     * image directly from here would put a second writer on a value the STM32
+     * is also computing, and whichever ran last would win - intermittently.
+     *
+     * `applied` comes back true when the owning driver executed the write
+     * inside the request, which is what local IO does because switching a GPIO
+     * costs nothing. A slow bus will answer with applied false and a nonzero
+     * token to poll once queued writes land; nothing in the frame changes when
+     * it does.
+     *
+     * Returns V2_ERR_DEVICE for a refusal - wrong slot, not writable, value out
+     * of range - with the reason in deviceStatus(). That is a real answer from
+     * the STM32, not a comms failure, and retrying it will not help.
+     */
+    StmV2Status writeChannel(uint8_t region, uint16_t slot, uint32_t value,
+                             uint8_t encoding = GW_ENC_U32, bool* applied = nullptr,
+                             uint32_t* token = nullptr);
+
+    /**
      * Reads `count` consecutive slots as value + timestamp + quality.
      *
      * Three RD_REGION transactions, one per parallel block, rather than one

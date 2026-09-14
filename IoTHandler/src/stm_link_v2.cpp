@@ -474,6 +474,34 @@ StmV2Status StmLinkV2::writeRegion(uint8_t region, uint16_t off, const uint8_t* 
     return transact(GW_OP_WR_REGION, region, off, data, len, nullptr, 0, got);
 }
 
+StmV2Status StmLinkV2::writeChannel(uint8_t region, uint16_t slot, uint32_t value,
+                                    uint8_t encoding, bool* applied, uint32_t* token) {
+    GwWrChannelReq req;
+    req.value = value;
+    req.encoding = encoding;
+    req.flags = 0;
+    req.reserved = 0;
+
+    uint8_t rsp[sizeof(GwWrChannelRsp)];
+    uint16_t got = 0;
+
+    StmV2Status st = transact(GW_OP_WR_CHANNEL, region, slot, (const uint8_t*)&req, sizeof(req),
+                              rsp, sizeof(rsp), got);
+    if (st != V2_OK) return st;
+
+    // An OK status with the wrong payload size means the two sides disagree
+    // about the structure, which is the one failure this protocol's version
+    // check exists to make loud. Reading `applied` out of a short buffer would
+    // turn it into a value that is occasionally right.
+    if (got != sizeof(GwWrChannelRsp)) return V2_ERR_FRAME;
+
+    GwWrChannelRsp parsed;
+    memcpy(&parsed, rsp, sizeof(parsed));
+    if (applied) *applied = (parsed.applied != 0);
+    if (token) *token = parsed.token;
+    return V2_OK;
+}
+
 StmV2Status StmLinkV2::readSlots(const GwImageMap& map, uint8_t region, uint16_t firstSlot,
                                  uint16_t count, GwSlot* out) {
     if (out == nullptr || count == 0) return V2_ERR_BAD_ARG;

@@ -162,6 +162,83 @@
 #define GW_LINK_DEDUP_ENABLE 1
 
 /* ==========================================================================
+ * Local IO - PD0..PD3 relays, PD4..PD7 inputs (gw_localio.c)
+ * ==========================================================================
+ * The driver owns the LOCAL_IO region and nothing else writes it. Its slot
+ * numbering is NOT here - it is in shared/gw_model.h section 10, because both
+ * chips have to agree on which slot is relay 1. What lives here is everything
+ * that is true of this panel only: polarity, timing, and what the outputs do
+ * when the network half goes quiet.
+ */
+#ifndef GW_LOCALIO_ENABLE
+#define GW_LOCALIO_ENABLE 1
+#endif
+
+/*
+ * 1 = the relay board energizes on a LOW pin (the usual opto-isolated module,
+ *     and the default because that is what most 4-channel boards are).
+ * 0 = it energizes on a HIGH pin (MOSFET / SSR boards, or your own transistor
+ *     driver).
+ *
+ * This is the ONLY place the inversion exists. Everything above the driver -
+ * the image, the link, the cloud, the dashboard - deals in logical ON and OFF,
+ * so getting the board polarity wrong costs one character here rather than a
+ * hunt through four components.
+ */
+#define GW_LIO_DO_ACTIVE_LOW 1
+
+/*
+ * READ THIS BEFORE SETTING THE ABOVE TO 0.
+ *
+ * The de-energized level is also baked into ModbusRTU_AWS.ioc, as PD0..PD3
+ * PinState, because MX_GPIO_Init runs long before this driver does and the pins
+ * have to be safe in between. The two must agree:
+ *
+ *   GW_LIO_DO_ACTIVE_LOW 1  ->  .ioc PinState = GPIO_PIN_SET    (idle high)
+ *   GW_LIO_DO_ACTIVE_LOW 0  ->  .ioc PinState = GPIO_PIN_RESET  (idle low)
+ *
+ * Change one without the other and every relay energizes for the few
+ * milliseconds between MX_GPIO_Init and GwLocalIO_Init. On a bench that is an
+ * audible click. On a machine it is four contactors closing at power-up.
+ */
+
+/*
+ * 1 = an input reads logical ON when the pin is pulled LOW.
+ *
+ * That is what a dry contact wired between the terminal and ground does against
+ * the internal pull-up, which is the normal field wiring for a limit switch, a
+ * pushbutton or a PNP-less proximity sensor. Set to 0 for a source-type sensor
+ * that actively drives the pin high.
+ */
+#define GW_LIO_DI_ACTIVE_LOW 1
+
+/* How often the driver samples inputs, applies pending relay commands and
+ * refreshes the image. 2 ms is far faster than any contact can move and slow
+ * enough that the scan costs nothing measurable in the superloop. */
+#define GW_LIO_SCAN_MS 2u
+
+/* An input has to hold a new reading for this long before it is published.
+ * 20 ms swallows the bounce of every mechanical contact worth the name while
+ * staying well under human perception. */
+#define GW_LIO_DEBOUNCE_MS 20u
+
+/*
+ * Drop every relay if the link has not accepted a frame for this long.
+ * 0 disables it and the outputs hold their last commanded state.
+ *
+ * Disabled by default on purpose. Whether a lost network should open the
+ * contacts is a property of the machine, not of the firmware - a conveyor
+ * should stop, a heater holding a setpoint should probably keep holding - and
+ * a default that silently opens contactors in the field would be worse than no
+ * default at all. Set it deliberately when commissioning the panel.
+ *
+ * Note this is a comms watchdog, not a command timeout: it watches the link's
+ * accepted-frame counter, so a relay left legitimately untouched for an hour
+ * never drops while the ESP32 is still talking.
+ */
+#define GW_LIO_FAILSAFE_MS 0u
+
+/* ==========================================================================
  * Bench aids
  * ==========================================================================
  */
@@ -179,5 +256,13 @@
 #ifndef GW_IMAGE_DEMO
 #define GW_IMAGE_DEMO 1
 #endif
+
+/*
+ * The demo animator writes MB_RTU slots only. It used to poke LOCAL_IO slot 0
+ * as well, to prove a second region was alive; gw_localio.c owns that region
+ * now, and two writers on one slot is exactly the ownership rule this design
+ * forbids. Whichever ran last would win, intermittently, which is the least
+ * debuggable kind of wrong.
+ */
 
 #endif /* INC_GW_LINK_CFG_H_ */

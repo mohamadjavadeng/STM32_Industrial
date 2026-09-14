@@ -30,7 +30,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/modbus_crc.h ../Core/Inc/esp32msghandler.h \
  ../Core/Inc/gw_link_cfg.h ../Core/Inc/gw_model.h \
  ../Core/Inc/../../../shared/gw_model.h ../Core/Inc/gw_image.h \
- ../Core/Inc/gw_link_cfg.h ../Core/Inc/gw_link.h
+ ../Core/Inc/gw_link_cfg.h ../Core/Inc/gw_link.h ../Core/Inc/gw_localio.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -70,3 +70,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/gw_image.h:
 ../Core/Inc/gw_link_cfg.h:
 ../Core/Inc/gw_link.h:
+../Core/Inc/gw_localio.h:

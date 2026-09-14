@@ -262,8 +262,12 @@ static void demoStep(void) {
 
     /* slot 5: never written at all - stays UNKNOWN for the whole run */
 
-    /* Local IO gets a slow counter so a second region is demonstrably alive. */
-    GwImage_SetU32(GW_REGION_LOCAL_IO, 0u, now / 1000u, GW_Q_GOOD);
+    /* LOCAL_IO used to get a slow counter here so that a second region was
+     * demonstrably alive. gw_localio.c owns that region now and writes it from
+     * real pins, so the counter is gone: two writers on one slot is the one
+     * thing the ownership rule in gw_image.h forbids outright, and the symptom
+     * would be a relay state that flickers between what the pin is doing and
+     * whatever the animator last stored. */
 }
 #endif
 

@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expansion Bus</title>
+<style>
+  /* ---- tokens: light is the base, both themes defined at token level ---- */
+  :root {
+    --ground: #f5f6f3;
+    --surface: #ffffff;
+    --surface-2: #ecefea;
+    --surface-3: #e3e7e0;
+    --ink: #171b19;
+    --ink-2: #495350;
+    --ink-3: #78837d;
+    --rule: #d6dad3;
+    --rule-strong: #b3b9b1;
+    --accent: #0e5b54;
+    --accent-ink: #0a4a44;
+    --accent-soft: #dcebe8;
+    --signal: #a5511a;
+    --signal-soft: #f5e6d9;
+    --good: #2c6b39;
+    --warn: #86620f;
+    --bad: #973031;
+    --shadow: 0 1px 2px rgba(23, 27, 25, .06), 0 8px 24px -16px rgba(23, 27, 25, .18);
+
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+
+    --measure: 68ch;
+    --gutter: 7.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1211;
+      --surface: #161b19;
+      --surface-2: #1c2321;
+      --surface-3: #232b28;
+      --ink: #e6ebe7;
+      --ink-2: #a8b2ac;
+      --ink-3: #7b8680;
+      --rule: #2a3230;
+      --rule-strong: #3d4743;
+      --accent: #58b9ad;
+      --accent-ink: #7fcdc3;
+      --accent-soft: #133330;
+      --signal: #dc8b50;
+      --signal-soft: #33210f;
+      --good: #6bba7c;
+      --warn: #cca43e;
+      --bad: #d67571;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0e1211;
+    --surface: #161b19;
+    --surface-2: #1c2321;
+    --surface-3: #232b28;
+    --ink: #e6ebe7;
+    --ink-2: #a8b2ac;
+    --ink-3: #7b8680;
+    --rule: #2a3230;
+    --rule-strong: #3d4743;
+    --accent: #58b9ad;
+    --accent-ink: #7fcdc3;
+    --accent-soft: #133330;
+    --signal: #dc8b50;
+    --signal-soft: #33210f;
+    --good: #6bba7c;
+    --warn: #cca43e;
+    --bad: #d67571;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 clamp(1.1rem, 4vw, 3rem); }
+
+  /* ---- masthead ---- */
+  header.mast { border-bottom: 1px solid var(--rule-strong); background: var(--surface); }
+  .mast-inner { display: flex; flex-direction: column; gap: 1.5rem; padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 4vw, 3rem); }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-3); display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; align-items: center;
+  }
+  .eyebrow b { color: var(--accent); font-weight: 600; }
+  h1 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(2.3rem, 6.2vw, 4rem);
+    line-height: 1.02; letter-spacing: -.018em; margin: 0; text-wrap: balance; max-width: 22ch;
+  }
+  .standfirst { font-size: clamp(1.05rem, 2.1vw, 1.22rem); color: var(--ink-2); max-width: 62ch; margin: 0; }
+  .mast-meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; font-family: var(--mono);
+    font-size: .76rem; color: var(--ink-3); padding-top: .6rem; border-top: 1px solid var(--rule);
+  }
+  .mast-meta span { white-space: nowrap; }
+  .mast-meta strong { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- section skeleton: mono gutter + measured body ---- */
+  section { border-bottom: 1px solid var(--rule); padding: clamp(2.6rem, 5vw, 4rem) 0; }
+  section:last-of-type { border-bottom: 0; }
+  .sec-grid { display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr); gap: 0 2.5rem; }
+  .sec-mark {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); padding-top: .55rem;
+  }
+  .sec-mark i { display: block; font-style: normal; color: var(--accent); }
+  .sec-body { display: flex; flex-direction: column; gap: 1.15rem; min-width: 0; }
+  @media (max-width: 900px) {
+    .sec-grid { grid-template-columns: 1fr; gap: .85rem; }
+    .sec-mark { padding-top: 0; }
+    .sec-mark i { display: inline; }
+    .sec-mark i::after { content: " ·"; color: var(--ink-3); }
+  }
+
+  h2 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+    line-height: 1.14; letter-spacing: -.012em; margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 600; font-size: 1.02rem; letter-spacing: -.005em;
+    margin: 1.1rem 0 -.35rem; color: var(--ink);
+  }
+  h4 {
+    font-family: var(--mono); font-weight: 600; font-size: .74rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); margin: .9rem 0 -.5rem;
+  }
+  p { margin: 0; max-width: var(--measure); }
+  ul, ol { margin: 0; padding-left: 1.35rem; max-width: var(--measure); display: flex; flex-direction: column; gap: .5rem; }
+  li::marker { color: var(--ink-3); }
+  strong { font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: .875em; background: var(--surface-2);
+    padding: .1em .34em; border-radius: 3px; border: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  a { color: var(--accent-ink); text-underline-offset: .18em; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---- verdict callout: the thesis, set in serif ---- */
+  .verdict {
+    background: var(--surface); border: 1px solid var(--rule-strong); border-left: 3px solid var(--accent);
+    padding: 1.4rem 1.6rem; display: flex; flex-direction: column; gap: .8rem; box-shadow: var(--shadow);
+  }
+  .verdict p { font-family: var(--serif); font-size: 1.14rem; line-height: 1.5; max-width: 58ch; }
+  .verdict .kicker {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent);
+  }
+
+  /* ---- keep / change / add ledger ---- */
+  .ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .ledger > div { background: var(--surface); padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .6rem; }
+  .ledger h5 {
+    margin: 0; font-family: var(--mono); font-size: .72rem; letter-spacing: .13em; text-transform: uppercase;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .ledger .dot { width: .55rem; height: .55rem; border-radius: 50%; flex: none; }
+  .ledger ul { padding-left: 1.1rem; gap: .38rem; font-size: .92rem; color: var(--ink-2); max-width: none; }
+  .keep h5 { color: var(--good); } .keep .dot { background: var(--good); }
+  .change h5 { color: var(--signal); } .change .dot { background: var(--signal); }
+  .add h5 { color: var(--accent); } .add .dot { background: var(--accent); }
+
+  /* ---- tables ---- */
+  .scroller { overflow-x: auto; border: 1px solid var(--rule-strong); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .875rem; min-width: 34rem; }
+  caption {
+    caption-side: top; text-align: left; font-family: var(--mono); font-size: .72rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+    padding: .75rem 1rem; border-bottom: 1px solid var(--rule); background: var(--surface-2);
+  }
+  th, td { padding: .5rem .85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  thead th {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; background: var(--surface-2); white-space: nowrap;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.m, th.m { font-family: var(--mono); font-size: .8rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  tbody tr:hover { background: var(--surface-2); }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: .68rem; letter-spacing: .06em;
+    text-transform: uppercase; padding: .12rem .45rem; border-radius: 2px; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .pill.g { color: var(--good); } .pill.w { color: var(--warn); }
+  .pill.b { color: var(--bad); } .pill.a { color: var(--accent); } .pill.s { color: var(--signal); }
+
+  /* ---- byte-layout grid ---- */
+  .bytes { display: grid; gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); grid-template-columns: repeat(8, minmax(5.4rem, 1fr)); min-width: 46rem; }
+  .bytes .cell { background: var(--surface); padding: .5rem .55rem .55rem; display: flex; flex-direction: column; gap: .18rem; }
+  .bytes .cell.wide2 { grid-column: span 2; }
+  .bytes .cell.varlen { grid-column: span 4; background: var(--surface-2); }
+  .bytes .cell.crc { grid-column: span 2; background: var(--accent-soft); }
+  .bytes .off { font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; color: var(--ink-3); }
+  .bytes .nm { font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--ink); }
+  .bytes .ds { font-size: .72rem; color: var(--ink-2); line-height: 1.35; }
+
+  /* ---- topology diagram ---- */
+  figure { margin: 0; display: flex; flex-direction: column; gap: .7rem; }
+  figcaption { font-family: var(--mono); font-size: .72rem; color: var(--ink-3); letter-spacing: .04em; max-width: var(--measure); }
+  svg { display: block; width: 100%; height: auto; }
+  .dgm-box { fill: var(--surface); stroke: var(--rule-strong); stroke-width: 1; }
+  .dgm-box-2 { fill: var(--surface-2); stroke: var(--rule-strong); stroke-width: 1; }
+  .dgm-band { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
+  .dgm-t { fill: var(--ink); font-family: var(--sans); font-size: 12.5px; }
+  .dgm-t-sm { fill: var(--ink-2); font-family: var(--mono); font-size: 10px; }
+  .dgm-t-lbl { fill: var(--ink-3); font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; }
+  .dgm-t-acc { fill: var(--accent-ink); font-family: var(--mono); font-size: 10.5px; font-weight: 600; }
+  .dgm-line { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; }
+  .dgm-line-acc { stroke: var(--accent); stroke-width: 1.75; fill: none; }
+  .dgm-line-sig { stroke: var(--signal); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+  .dgm-arrow { fill: var(--rule-strong); }
+  .dgm-arrow-acc { fill: var(--accent); }
+  .dgm-arrow-sig { fill: var(--signal); }
+
+  /* ---- phase list: a real sequence, so numbered ---- */
+  .phases { display: flex; flex-direction: column; gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .phase { background: var(--surface); display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: 0 1.1rem; padding: 1rem 1.2rem; }
+  .phase .n {
+    font-family: var(--mono); font-size: 1.25rem; color: var(--accent); font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .phase .c { display: flex; flex-direction: column; gap: .35rem; }
+  .phase .h { font-weight: 600; font-size: .98rem; }
+  .phase .d { font-size: .9rem; color: var(--ink-2); max-width: 62ch; }
+  .phase .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .15rem; }
+
+  /* ---- questions ---- */
+  details {
+    border: 1px solid var(--rule-strong); background: var(--surface); padding: 0;
+  }
+  details + details { border-top: 0; }
+  summary {
+    cursor: pointer; padding: .85rem 1.15rem; font-weight: 600; font-size: .95rem;
+    display: flex; gap: .7rem; align-items: baseline; list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "+"; font-family: var(--mono); color: var(--accent); font-weight: 400; flex: none; width: 1ch;
+  }
+  details[open] summary::before { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid var(--rule); }
+  details .inner { padding: .9rem 1.15rem 1.1rem 2.85rem; display: flex; flex-direction: column; gap: .6rem; font-size: .92rem; color: var(--ink-2); }
+  details .inner p { max-width: 60ch; }
+  .rec { color: var(--ink); }
+  .rec b { font-family: var(--mono); font-size: .72rem; letter-spacing: .11em; text-transform: uppercase; color: var(--accent); }
+
+  footer { padding: 2.5rem 0 4rem; font-family: var(--mono); font-size: .76rem; color: var(--ink-3); }
+  footer p { max-width: 70ch; }
+
+  .note {
+    border-left: 2px solid var(--signal); background: var(--signal-soft); padding: .8rem 1rem;
+    font-size: .9rem; max-width: var(--measure); display: flex; flex-direction: column; gap: .45rem;
+  }
+  .note .lbl { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--signal); }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+<style>
+  /* ---- additions local to this document ---- */
+  .cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .cmp > div { background: var(--surface); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .5rem; }
+  .cmp h5 { margin: 0; font-family: var(--mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .cmp .big { font-family: var(--mono); font-size: 1.5rem; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
+  .cmp .sub { font-size: .85rem; color: var(--ink-2); }
+  pre {
+    margin: 0; font-family: var(--mono); font-size: .8rem; line-height: 1.5; overflow-x: auto;
+    background: var(--surface); border: 1px solid var(--rule-strong); padding: .9rem 1.05rem; color: var(--ink);
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; white-space: pre; }
+  .bytes.b32 { grid-template-columns: repeat(8, minmax(4.9rem, 1fr)); min-width: 44rem; }
+  .bytes .cell.cyc { background: var(--accent-soft); }
+  .bytes .cell.mbx { background: var(--signal-soft); }
+  .bytes .cell.wide4 { grid-column: span 4; }
+  .bytes .cell.wide8 { grid-column: span 8; }
+  .bytes .cell.wide6 { grid-column: span 6; }
+  .legend { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; font-family: var(--mono); font-size: .72rem; color: var(--ink-3); }
+  .legend i { display: inline-block; width: .7rem; height: .7rem; border: 1px solid var(--rule-strong); margin-right: .35rem; vertical-align: -1px; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap mast-inner">
+    <div class="eyebrow"><b>Design proposal</b><span>STM32F407ZGT6 head &nbsp;/&nbsp; STM32F407VGT6 modules</span><span>Rack expansion bus</span></div>
+    <h1>The bus behind the modules</h1>
+    <p class="standfirst">Choosing the backplane protocol for a modular IIoT PLC: why an expansion bus must not be built like a field bus, why it should be a master-clocked SPI cycle rather than CAN or RS-485, and exactly how it lands in the process image this firmware already has.</p>
+    <div class="mast-meta">
+      <span><strong>Recommendation</strong> synchronous SPI backplane, cyclic full-duplex exchange</span>
+      <span><strong>Rejected</strong> CAN &middot; RS-485/Modbus &middot; UART multidrop &middot; Ethernet-per-module</span>
+      <span><strong>Status</strong> proposal, decisions needed before a board spin</span>
+      <span><strong>Companions</strong> UNIVERSAL_PROCESS_IMAGE.html &middot; point-bus-protocol.html</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ 01 VERDICT ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>01</i> Recommendation</div>
+      <div class="sec-body">
+        <h2>An expansion bus is not a field bus</h2>
+        <p>Every mistake available here comes from one confusion. A <em>field bus</em> connects devices you did not build, over wiring you do not control, at distances you cannot predict. It must be tolerant, addressable, multi-vendor and therefore slow. An <em>expansion bus</em> connects boards you designed, over a connector you designed, 20&nbsp;mm apart. It must be fast, deterministic and cheap in CPU time. Building the second like the first is how a modular PLC ends up with a 10&nbsp;ms I/O update and DIP switches on every card.</p>
+
+        <div class="verdict">
+          <span class="kicker">The recommendation</span>
+          <p>Use a <strong>master-clocked synchronous SPI backplane</strong>. The head CPU is the only master, each slot has its own chip select, and one transaction per slot per cycle exchanges outputs and inputs <em>in the same clocks</em>. Address the modules <strong>geographically</strong> &mdash; the slot tells the module who it is, through resistors on the backplane, so a replacement card needs no configuration. Carry rare traffic (identity, parameters, diagnostics) in a small <strong>mailbox window inside the same fixed-size frame</strong>, so there is exactly one frame shape, one DMA length per slot, and no bus arbitration anywhere in the system.</p>
+        </div>
+
+        <p>That cyclic/acyclic split is the same one PROFINET, EtherCAT and PROFIBUS-DP all make: a cyclic channel that is fast and never blocks, plus an acyclic mailbox that is slow and never urgent. It is worth copying because it is the single design decision that stops a diagnostic read from ever delaying an output update.</p>
+
+        <div class="ledger">
+          <div class="keep">
+            <h5><span class="dot"></span>Keep</h5>
+            <ul>
+              <li><code>crc16()</code> from <code>modbus_crc.c</code> &mdash; still the only CRC in the project.</li>
+              <li>Little-endian on the wire, everywhere, including the CRC.</li>
+              <li>The <code>GW_Q_*</code> quality codes &mdash; a missing module is just <code>GW_Q_COMM_FAIL</code>.</li>
+              <li>The <code>GW_ST_*</code> status codes, reused verbatim as mailbox result codes.</li>
+            </ul>
+          </div>
+          <div class="change">
+            <h5><span class="dot"></span>Change</h5>
+            <ul>
+              <li>Move the backplane master off <strong>SPI2</strong>: its only DMA stream collides with USART3 (&sect;08).</li>
+              <li>Bump <code>GW_REGION_COUNT</code> to 9 and <code>GW_PROTO_VERSION_MINOR</code> &mdash; adding a region is additive, so minor.</li>
+            </ul>
+          </div>
+          <div class="add">
+            <h5><span class="dot"></span>Add</h5>
+            <ul>
+              <li><code>GW_REGION_EXP 0x08</code> &mdash; the rack's I/O, one sub-map per slot.</li>
+              <li><code>exp_master.[ch]</code> on the head, <code>exp_slave.[ch]</code> on every module.</li>
+              <li><code>shared/exp_model.h</code>, compiled by both, under the same one-copy rule as <code>gw_model.h</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 CANDIDATES ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>02</i> Candidates</div>
+      <div class="sec-body">
+        <h2>Five options, measured on the same job</h2>
+        <p>The job: an eight-slot rack, each module exchanging 16 bytes of inputs and 16 bytes of outputs, refreshed every PLC cycle. What matters is the time to refresh the <em>whole rack</em> once, and what that costs a CPU that also has to run the Modbus scanner and the ESP32 link.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Full-rack I/O refresh &mdash; 8 slots &times; 16 B in + 16 B out</caption>
+            <thead>
+              <tr><th>Bus</th><th class="m">Rate</th><th class="num">Rack refresh</th><th>Why it lands there</th><th>Verdict</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>SPI, CS per slot</strong></td><td class="m">10.5&nbsp;MHz</td><td class="num">~290&nbsp;&micro;s</td>
+                <td>Full duplex, so outputs go out while inputs come back in the same 32 clocks. 8 &times; (30.5&nbsp;&micro;s of frame + ~6&nbsp;&micro;s of chip-select and DMA arming).</td>
+                <td><span class="pill g">Chosen</span></td>
+              </tr>
+              <tr>
+                <td>CAN 2.0B</td><td class="m">1&nbsp;Mbit/s</td><td class="num">~2.2&nbsp;ms</td>
+                <td>The 8-byte payload cap forces 4 frames per module per cycle, ~135&nbsp;&micro;s each once stuffing and interframe space are counted. That is close to 100&nbsp;% bus load for I/O alone.</td>
+                <td><span class="pill w">Only if remote</span></td>
+              </tr>
+              <tr>
+                <td>RS-485 + Modbus RTU</td><td class="m">1&nbsp;Mbaud</td><td class="num">~5.8&nbsp;ms</td>
+                <td>Half duplex, so a read and a write are two separate transactions; each pays request, response and two 3.5-character silent gaps. Addressing means a DIP switch on every card.</td>
+                <td><span class="pill b">No</span></td>
+              </tr>
+              <tr>
+                <td>UART multidrop, 9-bit</td><td class="m">2&nbsp;Mbaud</td><td class="num">~3.0&nbsp;ms</td>
+                <td>Cheaper than Modbus, still half duplex, still one shared shift register for the whole rack. Hardware address-match wake-up is the only thing it genuinely wins on.</td>
+                <td><span class="pill b">No</span></td>
+              </tr>
+              <tr>
+                <td>Ethernet per module</td><td class="m">100&nbsp;Mbit/s</td><td class="num">~0.4&nbsp;ms</td>
+                <td>Fast, but the F407 MAC is single-port: no daisy chain, so the rack needs a switch. Adds a PHY, magnetics and roughly $6 to <em>every</em> module to move 32 bytes across 20&nbsp;mm.</td>
+                <td><span class="pill b">Absurd here</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cmp">
+          <div><h5>SPI rack refresh</h5><span class="big">290 &micro;s</span><span class="sub">of a 1&nbsp;ms cycle &mdash; 29&nbsp;%, and nearly all of it is DMA, not core time.</span></div>
+          <div><h5>CPU cost per cycle</h5><span class="big">~12 &micro;s</span><span class="sub">Eight CRC checks and eight image copies. The transfers themselves cost the core nothing.</span></div>
+          <div><h5>Headroom</h5><span class="big">16 slots</span><span class="sub">at 64 B each still fits inside 1.1&nbsp;ms. The bus is not the limit; the connector is.</span></div>
+        </div>
+
+        <div class="note">
+          <span class="lbl">The one case that flips this</span>
+          <p>If your expansion modules are <strong>not in the same rack</strong> &mdash; if they sit in another enclosure, connect by cable, or need to be metres away &mdash; then SPI is the wrong answer and <strong>CAN is the right one</strong>. SPI is single-ended and unterminated by nature: it survives a backplane connector and dies on a cable run. That is the only question in this document whose answer changes the protocol itself, which is why it is the first one asked in &sect;12.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ 03 TOPOLOGY ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>03</i> Topology</div>
+      <div class="sec-body">
+        <h2>Three shared wires, one private wire per slot</h2>
+        <p>Clock, MOSI and MISO run the length of the backplane and every module taps all three. Only the chip select is private, and that single private wire does all the work that a field bus needs an address field, an arbitration scheme and a collision-recovery timer to do. There is never more than one talker because the master physically enables one.</p>
+
+        <figure>
+          <svg viewBox="0 0 980 372" role="img" aria-label="Rack topology: one head CPU driving four expansion slots over shared SCK, MOSI and MISO rails, with a private chip select per slot and a shared open-drain attention line.">
+            <!-- chip selects, fanned above -->
+            <path class="dgm-line-acc" d="M104 48 L104 34 L343 34 L343 44"/>
+            <path class="dgm-line-acc" d="M112 48 L112 26 L511 26 L511 44"/>
+            <path class="dgm-line-acc" d="M120 48 L120 18 L679 18 L679 44"/>
+            <path class="dgm-line-acc" d="M128 48 L128 10 L847 10 L847 44"/>
+            <polygon class="dgm-arrow-acc" points="343,48 339,42 347,42"/>
+            <polygon class="dgm-arrow-acc" points="511,48 507,42 515,42"/>
+            <polygon class="dgm-arrow-acc" points="679,48 675,42 683,42"/>
+            <polygon class="dgm-arrow-acc" points="847,48 843,42 851,42"/>
+            <text class="dgm-t-acc" x="150" y="31">CS0..CS3 &mdash; one per slot, PE0..PE7</text>
+
+            <!-- head CPU -->
+            <rect class="dgm-band" x="24" y="48" width="168" height="180"/>
+            <text class="dgm-t-lbl" x="38" y="70">Head CPU</text>
+            <text class="dgm-t" x="38" y="92">STM32F407ZGT6</text>
+            <text class="dgm-t-sm" x="38" y="112">SPI3 master, 10.5 MHz</text>
+            <text class="dgm-t-sm" x="38" y="128">DMA1 S2 rx / S5 tx</text>
+            <text class="dgm-t-sm" x="38" y="150">owns: RS-485, ESP32 link,</text>
+            <text class="dgm-t-sm" x="38" y="164">process image, config</text>
+            <text class="dgm-t-sm" x="38" y="192">the only master</text>
+            <text class="dgm-t-sm" x="38" y="206">on this bus</text>
+
+            <!-- slots -->
+            <g>
+              <rect class="dgm-box" x="268" y="48" width="150" height="120"/>
+              <text class="dgm-t-lbl" x="280" y="70">Slot 0</text>
+              <text class="dgm-t" x="280" y="92">F407VGT6</text>
+              <text class="dgm-t-sm" x="280" y="112">SPI1 slave + DMA</text>
+              <text class="dgm-t-sm" x="280" y="128">addr pins = 0000</text>
+              <text class="dgm-t-sm" x="280" y="150">16 DI</text>
+            </g>
+            <g>
+              <rect class="dgm-box" x="436" y="48" width="150" height="120"/>
+              <text class="dgm-t-lbl" x="448" y="70">Slot 1</text>
+              <text class="dgm-t" x="448" y="92">F407VGT6</text>
+              <text class="dgm-t-sm" x="448" y="112">SPI1 slave + DMA</text>
+              <text class="dgm-t-sm" x="448" y="128">addr pins = 0001</text>
+              <text class="dgm-t-sm" x="448" y="150">16 relay DO</text>
+            </g>
+            <g>
+              <rect class="dgm-box" x="604" y="48" width="150" height="120"/>
+              <text class="dgm-t-lbl" x="616" y="70">Slot 2</text>
+              <text class="dgm-t" x="616" y="92">F407VGT6</text>
+              <text class="dgm-t-sm" x="616" y="112">SPI1 slave + DMA</text>
+              <text class="dgm-t-sm" x="616" y="128">addr pins = 0010</text>
+              <text class="dgm-t-sm" x="616" y="150">8 AI, 16-bit</text>
+            </g>
+            <g>
+              <rect class="dgm-box-2" x="772" y="48" width="150" height="120"/>
+              <text class="dgm-t-lbl" x="784" y="70">Slot 3</text>
+              <text class="dgm-t" x="784" y="92">empty</text>
+              <text class="dgm-t-sm" x="784" y="112">no reply, CRC fails</text>
+              <text class="dgm-t-sm" x="784" y="128">addr pins = 0011</text>
+              <text class="dgm-t-sm" x="784" y="150">GW_Q_COMM_FAIL</text>
+            </g>
+
+            <!-- rails -->
+            <line class="dgm-line-acc" x1="200" y1="258" x2="946" y2="258"/>
+            <line class="dgm-line-acc" x1="200" y1="284" x2="946" y2="284"/>
+            <line class="dgm-line-acc" x1="200" y1="310" x2="946" y2="310"/>
+            <line class="dgm-line-sig" x1="200" y1="340" x2="946" y2="340"/>
+            <text class="dgm-t-sm" x="24" y="262">SCK</text>
+            <text class="dgm-t-sm" x="24" y="288">MOSI</text>
+            <text class="dgm-t-sm" x="24" y="314">MISO</text>
+            <text class="dgm-t-sm" x="24" y="344">ATTN</text>
+            <text class="dgm-t-lbl" x="200" y="250">shared by every slot</text>
+            <text class="dgm-t-lbl" x="200" y="360">open drain, pulled up at the head &mdash; any module may assert</text>
+
+            <!-- drops -->
+            <path class="dgm-line-acc" d="M108 228 L108 310"/>
+            <path class="dgm-line-sig" d="M160 228 L160 340"/>
+            <path class="dgm-line" d="M343 168 L343 310"/>
+            <path class="dgm-line-sig" d="M395 168 L395 340"/>
+            <path class="dgm-line" d="M511 168 L511 310"/>
+            <path class="dgm-line-sig" d="M563 168 L563 340"/>
+            <path class="dgm-line" d="M679 168 L679 310"/>
+            <path class="dgm-line-sig" d="M731 168 L731 340"/>
+
+            <!-- junctions -->
+            <g class="dgm-arrow-acc">
+              <circle cx="108" cy="258" r="3"/><circle cx="108" cy="284" r="3"/><circle cx="108" cy="310" r="3"/>
+              <circle cx="343" cy="258" r="3"/><circle cx="343" cy="284" r="3"/><circle cx="343" cy="310" r="3"/>
+              <circle cx="511" cy="258" r="3"/><circle cx="511" cy="284" r="3"/><circle cx="511" cy="310" r="3"/>
+              <circle cx="679" cy="258" r="3"/><circle cx="679" cy="284" r="3"/><circle cx="679" cy="310" r="3"/>
+            </g>
+            <g class="dgm-arrow-sig">
+              <circle cx="160" cy="340" r="3"/><circle cx="395" cy="340" r="3"/>
+              <circle cx="563" cy="340" r="3"/><circle cx="731" cy="340" r="3"/>
+            </g>
+          </svg>
+          <figcaption>Slot 3 is drawn empty on purpose. An absent module cannot corrupt the bus: nothing drives MISO, the head reads a constant level, the CRC fails, and the slot's slots in the process image go to <code>GW_Q_COMM_FAIL</code>. That is the whole hot-swap story.</figcaption>
+        </figure>
+
+        <div class="scroller">
+          <table>
+            <caption>Backplane connector &mdash; signal list</caption>
+            <thead>
+              <tr><th>Signal</th><th class="m">Count</th><th>Direction</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="m">SCK</td><td class="num">1</td><td>head &rarr; all</td><td>Series 22&ndash;33&nbsp;&Omega; at the head only. Keep it the shortest, straightest trace on the backplane.</td></tr>
+              <tr><td class="m">MOSI</td><td class="num">1</td><td>head &rarr; all</td><td>Series 22&ndash;33&nbsp;&Omega; at the head.</td></tr>
+              <tr><td class="m">MISO</td><td class="num">1</td><td>selected slot &rarr; head</td><td>Shared, tri-stated by everyone except the selected slot. 10&nbsp;k&Omega; pull-down at the head so an empty rack reads a defined level.</td></tr>
+              <tr><td class="m">CSn</td><td class="num">1 per slot</td><td>head &rarr; one slot</td><td>Active low, with a 10&nbsp;k&Omega; pull-up <em>at the head</em>. During head reset PE0..PE7 are high-impedance inputs, and the pull-up is what guarantees no slot is selected while they float.</td></tr>
+              <tr><td class="m">ATTN</td><td class="num">1</td><td>any module &rarr; head</td><td>Open drain, one pull-up at the head, EXTI falling edge. Means &ldquo;someone has a diagnostic&rdquo;, nothing more.</td></tr>
+              <tr><td class="m">SYNC</td><td class="num">1</td><td>head &rarr; all</td><td><em>Optional.</em> One broadcast edge that latches all outputs across the rack in the same microsecond. Skip it in v1; leave the pin on the connector.</td></tr>
+              <tr><td class="m">ADDR0..3</td><td class="num">4 per slot</td><td>backplane &rarr; module</td><td>Not a bus. Each slot ties these to the rails through resistors so the pattern <em>is</em> the slot number.</td></tr>
+              <tr><td class="m">+24V, +5V, GND</td><td class="num">&mdash;</td><td>&mdash;</td><td>Several ground pins, spread across the connector, longer than the signal pins.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 ADDRESSING ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>04</i> Addressing</div>
+      <div class="sec-body">
+        <h2>The slot knows who it is, the module does not</h2>
+        <p>Give every module four input pins &mdash; <code>PC0..PC3</code> is a convenient free group on the VG &mdash; and tie them on the <em>backplane</em>, per slot, to ground or to 3V3. The module reads them once at boot and that is its address. Sixteen slots, no DIP switches, no address collisions, no commissioning step.</p>
+
+        <p>The payoff is the one that matters in the field: a technician swaps a failed analog card for a spare from the shelf, and it comes up as the right slot with the right parameters, because <em>the rack</em> holds the identity and <em>the head</em> holds the configuration. The module holds neither.</p>
+
+        <h3>Enumeration, once at boot</h3>
+        <p>After reset the head walks slots 0..N and sends an <code>IDENT</code> mailbox request to each. A module that answers returns its type, hardware revision, firmware version, serial number, and its cyclic input and output sizes. From those replies alone the head builds the whole <code>GW_REGION_EXP</code> map &mdash; no configuration file is needed to know what is in the rack.</p>
+
+        <p>Configuration still matters, but only for things the module cannot know about itself: which AI channel is 4&ndash;20&nbsp;mA and which is 0&ndash;10&nbsp;V, what an input filter time should be, what a safe-state output pattern is. Those are pushed down as <code>SET_PARAM</code> mailbox writes after enumeration, from the same config blob the rest of the gateway already uses.</p>
+
+        <div class="note">
+          <span class="lbl">Check this, it catches real wiring faults</span>
+          <p>The head puts the slot number it <em>believes</em> it is addressing into every downstream frame, and the module puts the slot number it <em>read from its address pins</em> into every reply. If those two ever disagree, something is wrong that no CRC would catch &mdash; a swapped chip select on the backplane, a cracked address resistor, two cards in one slot on a bench harness. Treat a mismatch as <code>GW_Q_CONFIG_ERR</code> and refuse to run that slot.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ 05 FRAME ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>05</i> The frame</div>
+      <div class="sec-body">
+        <h2>One shape, both directions, every cycle</h2>
+        <p>SPI is full duplex, so the two frames below are not a request and a response. They are the same 32 clock periods seen from the two ends of the wire. The head shifts its frame out while the module shifts its frame in, simultaneously. Field offsets are deliberately identical in both directions, so there is one parser and one length.</p>
+
+        <h4>Head &rarr; module &nbsp;&middot;&nbsp; 32 bytes</h4>
+        <div class="scroller">
+          <div class="bytes b32">
+            <div class="cell"><span class="off">0</span><span class="nm">SOF</span><span class="ds">0xE5, downstream</span></div>
+            <div class="cell"><span class="off">1</span><span class="nm">SLOT</span><span class="ds">who I think you are</span></div>
+            <div class="cell"><span class="off">2</span><span class="nm">CTRL</span><span class="ds">RUN / SAFE / LATCH</span></div>
+            <div class="cell"><span class="off">3</span><span class="nm">SEQ</span><span class="ds">cycle counter</span></div>
+            <div class="cell mbx"><span class="off">4</span><span class="nm">MBX_OP</span><span class="ds">0 = none</span></div>
+            <div class="cell mbx"><span class="off">5</span><span class="nm">MBX_LEN</span><span class="ds">valid payload bytes</span></div>
+            <div class="cell mbx wide2"><span class="off">6&ndash;7</span><span class="nm">MBX_ARG</span><span class="ds">u16 opcode argument, little endian</span></div>
+            <div class="cell cyc wide8"><span class="off">8&ndash;15</span><span class="nm">OUT_DATA[0..7]</span><span class="ds">cyclic output image &mdash; coil states, DAC counts, whatever this module type drives</span></div>
+            <div class="cell cyc wide8"><span class="off">16&ndash;23</span><span class="nm">OUT_DATA[8..15]</span><span class="ds">length is fixed per slot at enumeration: 8, 16, 32 or 64 bytes</span></div>
+            <div class="cell mbx wide6"><span class="off">24&ndash;29</span><span class="nm">MBX_DATA</span><span class="ds">acyclic payload &mdash; 6 bytes per cycle, chunked across cycles when longer</span></div>
+            <div class="cell crc wide2"><span class="off">30&ndash;31</span><span class="nm">CRC16</span><span class="ds">over 0..29, low byte first</span></div>
+          </div>
+        </div>
+
+        <h4>Module &rarr; head &nbsp;&middot;&nbsp; same 32 clocks</h4>
+        <div class="scroller">
+          <div class="bytes b32">
+            <div class="cell"><span class="off">0</span><span class="nm">SOF</span><span class="ds">0xE6, upstream</span></div>
+            <div class="cell"><span class="off">1</span><span class="nm">SLOT</span><span class="ds">read from my address pins</span></div>
+            <div class="cell"><span class="off">2</span><span class="nm">STAT</span><span class="ds">READY / ATTN / faults</span></div>
+            <div class="cell"><span class="off">3</span><span class="nm">SEQ_ECHO</span><span class="ds">the SEQ I saw last</span></div>
+            <div class="cell mbx"><span class="off">4</span><span class="nm">MBX_ST</span><span class="ds">GW_ST_* result</span></div>
+            <div class="cell mbx"><span class="off">5</span><span class="nm">MBX_LEN</span><span class="ds">valid payload bytes</span></div>
+            <div class="cell mbx wide2"><span class="off">6&ndash;7</span><span class="nm">MBX_ARG</span><span class="ds">u16 echo or result value</span></div>
+            <div class="cell cyc wide8"><span class="off">8&ndash;15</span><span class="nm">IN_DATA[0..7]</span><span class="ds">cyclic input image &mdash; contact states, ADC counts, counters</span></div>
+            <div class="cell cyc wide8"><span class="off">16&ndash;23</span><span class="nm">IN_DATA[8..15]</span><span class="ds">same fixed length as the downstream cyclic field</span></div>
+            <div class="cell mbx wide6"><span class="off">24&ndash;29</span><span class="nm">MBX_DATA</span><span class="ds">acyclic reply payload</span></div>
+            <div class="cell crc wide2"><span class="off">30&ndash;31</span><span class="nm">CRC16</span><span class="ds">over 0..29, low byte first</span></div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span><i style="background:var(--surface)"></i>header &amp; framing</span>
+          <span><i style="background:var(--accent-soft)"></i>cyclic process data &mdash; every cycle, never skipped</span>
+          <span><i style="background:var(--signal-soft)"></i>acyclic mailbox &mdash; idle most cycles</span>
+        </div>
+
+        <h3>Why the CRC is not enough, and SEQ is</h3>
+        <p>A module whose firmware has hung is the nastiest failure on a bus like this, because its DMA controller does not care. It keeps shifting the last buffer it was given, cycle after cycle, with a perfectly valid CRC. The head sees fresh-looking, correctly checksummed, completely stale inputs &mdash; which is exactly the class of bug <code>gw_model.h</code> was written to eliminate on the ESP32 link.</p>
+        <p><code>SEQ</code> closes it. The head increments <code>SEQ</code> every cycle. The module copies the <code>SEQ</code> it received into the reply it prepares <em>for the next cycle</em>, so in cycle <em>N</em> the head receives the value it sent in cycle <em>N&minus;1</em>. That relationship is exact and checkable, and it breaks the moment the module stops executing code. Two consecutive cycles with a repeated or wrong <code>SEQ_ECHO</code> is <code>GW_Q_COMM_FAIL</code>, regardless of CRC.</p>
+
+        <div class="note">
+          <span class="lbl">Accept the one-cycle latency, do not fight it</span>
+          <p>An SPI slave must have its reply already in the transmit buffer before the master starts clocking &mdash; there is no time to compute one. So the module answers with the image it prepared at the end of the previous cycle. Inputs the head reads in cycle <em>N</em> were sampled in cycle <em>N&minus;1</em>; outputs it writes in cycle <em>N</em> take effect in cycle <em>N</em>. That is precisely how a PLC process image already behaves, it is deterministic, and every attempt to shave it off ends in a race against the master's clock.</p>
+        </div>
+
+        <h3>The shared header, in C</h3>
+        <pre><code>/* shared/exp_model.h - compiled by the head AND by every module.
+ * Same one-copy rule as shared/gw_model.h: never edit for one side only. */
+
+#define EXP_SOF_DOWN      0xE5u
+#define EXP_SOF_UP        0xE6u
+#define EXP_HDR_BYTES     8u
+#define EXP_MBX_BYTES     6u
+#define EXP_CRC_BYTES     2u
+#define EXP_CYCLIC_BYTES  16u     /* per-slot; 8 / 16 / 32 / 64 at enumeration */
+#define EXP_FRAME_BYTES   (EXP_HDR_BYTES + EXP_CYCLIC_BYTES \
+                           + EXP_MBX_BYTES + EXP_CRC_BYTES)   /* 32 */
+
+/* CTRL bits, head -> module */
+#define EXP_CTRL_RUN      0x01u   /* drive outputs; clear = go to safe state  */
+#define EXP_CTRL_SAFE     0x02u   /* go safe now, a fault exists elsewhere    */
+#define EXP_CTRL_LATCH    0x04u   /* apply outputs at end of this frame       */
+#define EXP_CTRL_CLRDIAG  0x08u   /* clear latched diagnostics                */
+
+/* STAT bits, module -> head */
+#define EXP_ST_READY      0x01u   /* enumerated and parameterised             */
+#define EXP_ST_ATTN       0x02u   /* mirrors the ATTN wire                    */
+#define EXP_ST_SAFE_ON    0x04u   /* outputs are currently in safe state      */
+#define EXP_ST_CFG_ERR    0x08u   /* a parameter was rejected                 */
+#define EXP_ST_OUT_FAULT  0x10u   /* short or overload on an output channel   */
+#define EXP_ST_IN_FAULT   0x20u   /* broken wire or over-range on an input    */
+#define EXP_ST_OVERTEMP   0x40u
+#define EXP_ST_FW_BAD     0x80u   /* running a firmware the head refuses      */
+
+/* Every 16-bit field sits on an even offset, so packed costs nothing on
+ * either Cortex-M4 and both sides are little endian: no byte swapping. */
+typedef struct __attribute__((packed)) {
+    uint8_t  sof;                       /* EXP_SOF_DOWN                       */
+    uint8_t  slot;                      /* who the head believes this is      */
+    uint8_t  ctrl;                      /* EXP_CTRL_*                         */
+    uint8_t  seq;                       /* free-running cycle counter         */
+    uint8_t  mbxOp;                     /* EXP_MBX_*, 0 = nothing this cycle  */
+    uint8_t  mbxLen;
+    uint16_t mbxArg;
+    uint8_t  out[EXP_CYCLIC_BYTES];     /* cyclic output image                */
+    uint8_t  mbxData[EXP_MBX_BYTES];
+    uint16_t crc;                       /* crc16() over the first 30 bytes    */
+} exp_down_t;
+
+typedef struct __attribute__((packed)) {
+    uint8_t  sof;                       /* EXP_SOF_UP                         */
+    uint8_t  slot;                      /* read from this module's addr pins  */
+    uint8_t  stat;                      /* EXP_ST_*                           */
+    uint8_t  seqEcho;                   /* the SEQ seen in the PREVIOUS cycle */
+    uint8_t  mbxSt;                     /* GW_ST_*, reused unchanged          */
+    uint8_t  mbxLen;
+    uint16_t mbxArg;
+    uint8_t  in[EXP_CYCLIC_BYTES];      /* cyclic input image                 */
+    uint8_t  mbxData[EXP_MBX_BYTES];
+    uint16_t crc;
+} exp_up_t;
+
+_Static_assert(sizeof(exp_down_t) == EXP_FRAME_BYTES, "down frame size");
+_Static_assert(sizeof(exp_up_t)   == EXP_FRAME_BYTES, "up frame size");</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 MAILBOX ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>06</i> Mailbox</div>
+      <div class="sec-body">
+        <h2>Everything rare, in six bytes a cycle</h2>
+        <p>The mailbox is idle in almost every cycle. When it is not, it moves six bytes &mdash; which at a 1&nbsp;ms cycle is 6&nbsp;kB/s per slot, enough for identity, parameters, diagnostics and even a module firmware image, without ever stealing a byte from the cyclic data or adding a microsecond to the scan.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Mailbox opcodes</caption>
+            <thead><tr><th class="m">Op</th><th>Name</th><th>Argument</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td class="m">0x00</td><td>NONE</td><td>&mdash;</td><td>The normal case. Module leaves <code>MBX_ST</code> at <code>GW_ST_OK</code> and the payload untouched.</td></tr>
+              <tr><td class="m">0x01</td><td>IDENT</td><td>chunk index</td><td>Module type, hardware revision, firmware version, 32-bit serial, cyclic in/out sizes. The head builds the rack map from these replies alone.</td></tr>
+              <tr><td class="m">0x02</td><td>GET_DIAG</td><td>&mdash;</td><td>Latched fault word plus the per-channel detail behind whichever <code>EXP_ST_*</code> bit is set. Sent only when <code>ATTN</code> or a status bit asks for it.</td></tr>
+              <tr><td class="m">0x03</td><td>SET_PARAM</td><td>param index</td><td>Channel range (4&ndash;20&nbsp;mA vs 0&ndash;10&nbsp;V), input filter time, counter mode, scaling. Pushed down once after enumeration.</td></tr>
+              <tr><td class="m">0x04</td><td>GET_PARAM</td><td>param index</td><td>Read back. Use it after every download and compare &mdash; it is the cheapest way to prove the rack matches the config.</td></tr>
+              <tr><td class="m">0x05</td><td>SET_SAFE</td><td>&mdash;</td><td>The output pattern this module drives when it stops hearing valid frames. Stored in the module, because that is the one moment the head cannot help.</td></tr>
+              <tr><td class="m">0x06</td><td>CLEAR_FAULT</td><td>fault mask</td><td>Acknowledge and clear latched diagnostics.</td></tr>
+              <tr><td class="m">0x10&ndash;0x12</td><td>FW_BEGIN / CHUNK / COMMIT</td><td>offset</td><td>Module firmware update through the head, six bytes a cycle, while the rack keeps running. A 96&nbsp;kB image takes about 16&nbsp;s at 1&nbsp;kHz. Mirrors <code>GW_OP_CFG_*</code>.</td></tr>
+              <tr><td class="m">0x7F</td><td>ECHO</td><td>&mdash;</td><td>Returns the payload verbatim. Bring-up only, same role as <code>GW_OP_ECHO</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Result codes are the <code>GW_ST_*</code> set already in <code>gw_model.h</code>, unchanged: <code>GW_ST_BAD_CMD</code> for an unknown opcode, <code>GW_ST_RANGE</code> for a parameter index that does not exist, <code>GW_ST_BUSY</code> when the module wants the head to ask again next cycle, <code>GW_ST_NOT_IMPL</code> for anything reserved but not built. Reusing them means the PC tool and the ESP32 already know how to print every error this bus can produce.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ============ 07 PROCESS IMAGE ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>07</i> Process image</div>
+      <div class="sec-body">
+        <h2>The rack is one more region, and nothing above it changes</h2>
+        <p>This is the reason the process-image refactor was worth doing before the expansion bus existed. The ESP32 asks for bytes out of a region; it does not know or care whether those bytes came from an RS-485 slave, a CAN frame or a card three slots down the backplane. Adding a rack therefore touches exactly one layer.</p>
+
+        <pre><code>#define GW_REGION_EXP   0x08u   /* expansion rack IO, one sub-map per slot */
+#define GW_REGION_COUNT 9u      /* was 8 */
+/* additive change -> bump GW_PROTO_VERSION_MINOR, not MAJOR */</code></pre>
+
+        <h3>A fixed sub-map, like LOCAL_IO &mdash; not a configured one</h3>
+        <p>Region <code>0x02</code> (Modbus RTU) gets its slot assignment from configuration, because which register lives where is a property of somebody else's device. Region <code>0x01</code> (<code>LOCAL_IO</code>) is fixed in the contract, because those slots are wired to pins and a disagreement would close the wrong contactor. <strong>Expansion IO is the second kind.</strong> Slot 3 channel 6 is a physical terminal on a physical card, so its image address belongs in the header, not in a config blob.</p>
+
+        <p>Give each rack slot a fixed stride of 64 image slots. Rack slot <em>s</em> owns image slots <code>s * 64</code> through <code>s * 64 + 63</code>, whether or not a card is plugged in. Eight rack slots is 512 image slots &mdash; 4,608 bytes at the 9-byte value/stamp/quality layout, on a part with 192&nbsp;KB.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Sub-map inside one rack slot &mdash; offsets from <code>s * 64</code></caption>
+            <thead><tr><th class="m">Slot</th><th>Meaning</th><th>Written by</th><th>Writable from the cloud</th></tr></thead>
+            <tbody>
+              <tr><td class="m">+0</td><td>Module status &mdash; the <code>STAT</code> byte, plus the CRC-error and missed-cycle counters</td><td>head, every cycle</td><td>no</td></tr>
+              <tr><td class="m">+1</td><td>Module type, as reported by <code>IDENT</code>. Zero means the slot is empty.</td><td>head, at enumeration</td><td>no</td></tr>
+              <tr><td class="m">+2</td><td>Latched diagnostic word from the last <code>GET_DIAG</code></td><td>head, on ATTN</td><td>no</td></tr>
+              <tr><td class="m">+3&ndash;+7</td><td>Reserved. Leave the gap; deployed tag maps are expensive to renumber.</td><td>&mdash;</td><td>&mdash;</td></tr>
+              <tr><td class="m">+8&ndash;+39</td><td>Up to 32 channels, one image slot per channel, type decided by the module type</td><td>head, every cycle</td><td>output channels only</td></tr>
+              <tr><td class="m">+48</td><td>Packed input word &mdash; all discrete inputs of this card as one bitmask</td><td>head, every cycle</td><td>no</td></tr>
+              <tr><td class="m">+49</td><td>Packed output word &mdash; all discrete outputs as one bitmask</td><td>head, every cycle</td><td>yes</td></tr>
+              <tr><td class="m">+50&ndash;+63</td><td>Reserved for wider cards</td><td>&mdash;</td><td>&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Quality comes out of the bus for free</h3>
+        <p>Every failure this bus can have already has a code in <code>gw_model.h</code>, which is a good sign the abstraction was drawn in the right place:</p>
+        <ul>
+          <li>Slot empty, or three consecutive bad CRCs &rarr; <code>GW_Q_COMM_FAIL</code> on every channel of that slot.</li>
+          <li><code>SEQ_ECHO</code> frozen &rarr; <code>GW_Q_COMM_FAIL</code>, even though the CRC is fine.</li>
+          <li><code>EXP_ST_IN_FAULT</code> set &rarr; <code>GW_Q_EXCEPTION</code> on the affected channels.</li>
+          <li>Reported slot number &ne; addressed slot number &rarr; <code>GW_Q_CONFIG_ERR</code>, and the head stops driving that slot.</li>
+          <li>Analog channel outside its configured limits &rarr; <code>GW_Q_OVERRANGE</code>.</li>
+          <li>Module present but not yet parameterised &rarr; <code>GW_Q_UNKNOWN</code> until <code>EXP_ST_READY</code> is set.</li>
+        </ul>
+
+        <p>Writes use the machinery that is already specified: <code>GW_OP_WR_CHANNEL</code> queues a value and returns a token, the exp master folds it into the next downstream frame for that slot, and <code>GW_OP_RD_ACK</code> reports the result one cycle later. No cloud write ever runs inline with a bus transaction &mdash; which is the rule the v1 link broke and this whole architecture exists to keep.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 08 HEAD ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>08</i> Head firmware</div>
+      <div class="sec-body">
+        <h2>Which SPI, and the DMA collision waiting on SPI2</h2>
+        <p><code>ModbusRTU_AWS.ioc</code> already carries SPI2 on PB13/14/15, initialised and unused, and it is the obvious place to put the backplane. Do not. It cannot be given DMA on this part while USART3 also has DMA, and USART3 is the ESP32 link.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>DMA request mapping on STM32F407 &mdash; why SPI2 does not fit</caption>
+            <thead><tr><th>Request</th><th class="m">Stream options</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="m">USART3_RX</td><td class="m">DMA1 S1 C4</td><td>In the <code>.ioc</code> today</td></tr>
+              <tr><td class="m">USART3_TX</td><td class="m">DMA1 S3 C4 &nbsp;<em>or</em>&nbsp; S4 C7</td><td>In the <code>.ioc</code> today on S3</td></tr>
+              <tr><td class="m">SPI2_RX</td><td class="m">DMA1 S3 C0 &nbsp;<em>only</em></td><td><span class="pill b">Collides</span> with USART3_TX on S3</td></tr>
+              <tr><td class="m">SPI2_TX</td><td class="m">DMA1 S4 C0 &nbsp;<em>only</em></td><td><span class="pill b">Collides</span> with USART3_TX's other option on S4</td></tr>
+              <tr><td class="m">SPI3_RX</td><td class="m">DMA1 S0 C0 &nbsp;<em>or</em>&nbsp; S2 C0</td><td><span class="pill g">Free</span></td></tr>
+              <tr><td class="m">SPI3_TX</td><td class="m">DMA1 S5 C0 &nbsp;<em>or</em>&nbsp; S7 C0</td><td><span class="pill g">Free</span></td></tr>
+              <tr><td class="m">USART1_RX / TX</td><td class="m">DMA2 S2 C4 / S7 C4</td><td>RS-485, different controller &mdash; irrelevant here</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>A stream serves one channel at a time, so there is no arrangement in which SPI2 and USART3 both get DMA. Moving USART3_TX to S4 C7 does not help: SPI2_TX wants S4 too. <strong>Put the backplane on SPI3</strong>, take <code>DMA1 Stream2 Channel0</code> for RX and <code>Stream5 Channel0</code> for TX, and every DMA user in the system coexists.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Head pin assignment &mdash; all free in the current <code>.ioc</code></caption>
+            <thead><tr><th class="m">Pin</th><th>Function</th><th>Why this one</th></tr></thead>
+            <tbody>
+              <tr><td class="m">PC10</td><td>SPI3_SCK (AF6)</td><td rowspan="3">Clear of the RMII pin set (PA1, PA2, PA7, PC1, PC4, PC5, PG11, PG13, PG14), so a future native Ethernet port costs nothing here. Avoid the SPI3 alternate mapping on PB3/PB4/PB5 &mdash; those are JTAG and SWO.</td></tr>
+              <tr><td class="m">PC11</td><td>SPI3_MISO (AF6)</td></tr>
+              <tr><td class="m">PC12</td><td>SPI3_MOSI (AF6)</td></tr>
+              <tr><td class="m">PE0..PE7</td><td>CS0..CS7, push-pull outputs, idle high</td><td>Port E is entirely unassigned today. Eight slots with no pin pressure at all.</td></tr>
+              <tr><td class="m">PE8</td><td>ATTN input, pull-up, EXTI falling</td><td>EXTI9_5 vector, shared with nothing else in this design.</td></tr>
+              <tr><td class="m">PE9</td><td>SYNC output <span class="pill a">optional</span></td><td>Reserve the pin on the connector even if v1 never drives it.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Clock and cycle</h3>
+        <p>SPI3 sits on APB1 at 42&nbsp;MHz, so the prescaler gives 21&nbsp;MHz at <code>/2</code> and 10.5&nbsp;MHz at <code>/4</code>. <strong>Start at 10.5&nbsp;MHz.</strong> Signal integrity on an unterminated single-ended backplane, not the peripheral, is what caps this &mdash; bring the rack up at 5.25&nbsp;MHz, prove zero CRC errors over an hour, then step up and watch the error counters. Raising the clock later is a one-line change; a board respin is not.</p>
+
+        <p>Drive the cycle from a timer, not from the main loop. A rack scan started by <code>TIM6</code> at 1&nbsp;kHz has bounded jitter; one started whenever the main loop comes around inherits every stall in the Modbus scanner. The scan itself is a small state machine that never blocks:</p>
+
+        <pre><code>/* exp_master.c - one slot per DMA completion, no blocking anywhere. */
+
+static void exp_start_slot(uint8_t s)
+{
+    exp_build_down(&amp;g_down[s], s);                 /* image -> frame, + CRC   */
+    HAL_GPIO_WritePin(EXP_CS_PORT, exp_cs_pin[s], GPIO_PIN_RESET);
+    HAL_SPI_TransmitReceive_DMA(&amp;hspi3,
+                                (uint8_t *)&amp;g_down[s],
+                                (uint8_t *)&amp;g_up[s],
+                                exp_frame_len[s]);
+}
+
+/* HAL calls this from the DMA1 Stream2 IRQ when the slot's frame is done. */
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if (hspi != &amp;hspi3) return;
+
+    HAL_GPIO_WritePin(EXP_CS_PORT, exp_cs_pin[g_slot], GPIO_PIN_SET);
+    exp_consume_up(&amp;g_up[g_slot], g_slot);          /* CRC, SEQ, -> image     */
+
+    if (++g_slot &lt; g_slotCount) exp_start_slot(g_slot);
+    else                        g_scanBusy = 0;     /* rack refreshed         */
+}
+
+/* TIM6 period elapsed, 1 kHz. */
+void exp_tick(void)
+{
+    if (g_scanBusy) { g_overrun++; return; }        /* never stack two scans  */
+    g_scanBusy = 1; g_slot = 0; g_seq++;
+    exp_start_slot(0);
+}</code></pre>
+
+        <p>Everything expensive &mdash; enumeration, parameter download, diagnostics, firmware chunks &mdash; happens by setting <code>mbxOp</code> in one slot's frame and reading the answer next cycle. There is no separate code path, no second transport, and no place where a slow operation can hold the bus.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 09 MODULE ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>09</i> Module firmware</div>
+      <div class="sec-body">
+        <h2>The slave side, and the two things that will bite</h2>
+        <p>Put the module's SPI1 in slave mode on PA4&ndash;PA7 (AF5) with DMA2 Stream0 Channel3 for RX and Stream3 Channel3 for TX. The entire module firmware is one interrupt and one background loop.</p>
+
+        <h4>Use hardware NSS, not software NSS</h4>
+        <p>This is not a style preference; the shared MISO rail depends on it. With hardware NSS management the STM32 slave releases MISO to high impedance whenever NSS is high, so seven unselected modules sit silently on the same wire. With software NSS the pin is driven whenever SPI is enabled, and the second card you plug in fights the first. Confirm it on a scope during bring-up, and if you want the question settled in hardware rather than in an errata, put a <code>74LVC1G125</code> on each module's MISO with its output enable tied to that slot's chip select. It costs about four cents and it makes bus contention structurally impossible.</p>
+
+        <h4>End of frame comes from EXTI on NSS, not from the byte count</h4>
+        <p>A slave cannot tell &ldquo;frame complete&rdquo; from &ldquo;frame aborted after 19 bytes&rdquo; by watching DMA alone. Configure EXTI4 on PA4 for the rising edge &mdash; EXTI samples the pin regardless of it being in alternate-function mode &mdash; and treat that edge as the frame boundary. In that handler, read <code>NDTR</code>: if the remaining count is not zero, the transaction was truncated by noise or a hot-plug, so discard it, clear the SPI overrun flag by reading <code>DR</code> then <code>SR</code>, and re-arm. Silence is always safer than a half-parsed output image.</p>
+
+        <pre><code>/* exp_slave.c - the whole module data path. */
+
+void EXTI4_IRQHandler(void)              /* NSS rising edge = frame boundary */
+{
+    __HAL_GPIO_EXTI_CLEAR_IT(EXP_NSS_PIN);
+
+    uint16_t left = __HAL_DMA_GET_COUNTER(hspi1.hdmarx);
+    HAL_SPI_DMAStop(&amp;hspi1);
+
+    if (left == 0 &amp;&amp; exp_frame_ok(&amp;g_rx)) {      /* SOF, slot, CRC          */
+        g_lastGoodMs = HAL_GetTick();
+        exp_apply_outputs(&amp;g_rx);                /* drive terminals now     */
+        exp_service_mailbox(&amp;g_rx, &amp;g_tx);       /* may take a few hundred us */
+    } else {
+        g_crcErrors++;
+    }
+
+    exp_sample_inputs(&amp;g_tx);                    /* for the NEXT cycle      */
+    g_tx.seqEcho = g_rx.seq;                     /* liveness proof          */
+    exp_seal(&amp;g_tx);                             /* CRC over 0..29          */
+
+    HAL_SPI_TransmitReceive_DMA(&amp;hspi1, (uint8_t *)&amp;g_tx,
+                                (uint8_t *)&amp;g_rx, EXP_FRAME_BYTES);
+}
+
+/* Background loop. The head cannot save a module that has lost the head. */
+void exp_slave_poll(void)
+{
+    if (HAL_GetTick() - g_lastGoodMs &gt; EXP_SAFE_TIMEOUT_MS) {   /* 100 ms */
+        exp_drive_safe_state();
+        g_tx.stat |= EXP_ST_SAFE_ON;
+    }
+}</code></pre>
+
+        <h3>Safe state belongs to the module</h3>
+        <p>Give every module a configurable safe-state output pattern, pushed down once with <code>SET_SAFE</code> and stored in its flash. If the module stops receiving valid frames for <code>EXP_SAFE_TIMEOUT_MS</code>, it drives that pattern on its own initiative and sets <code>EXP_ST_SAFE_ON</code> so the head learns about it the moment the bus recovers. Back it with the independent watchdog, which is the one thing that still works when the application has hung.</p>
+        <p>Default the timeout to about 100 cycles. Too short and a single burst of electrical noise trips a plant; too long and a cut backplane leaves a valve open. There is no universal right answer, which is why it is a parameter and not a constant.</p>
+
+        <h3>One firmware, many module types</h3>
+        <p>Build a single binary for every card and let it discover what it is: four more strapping pins on the module PCB, or a resistor divider into <code>ADC1</code>, read once at boot. The module type selects the IO driver table and the cyclic length it reports in <code>IDENT</code>. One build, one flash image, one thing to version &mdash; and the head learns the rack contents from the bus rather than from a spreadsheet.</p>
+
+        <div class="note">
+          <span class="lbl">On the F407VG choice</span>
+          <p>An F407VG for a card that reads sixteen contacts is roughly ten times the microcontroller the job needs, and at volume the difference against an STM32G0B1 or G431 is several dollars a card. It is still a defensible decision for the first generation, and for a reason worth naming: one part number, one HAL, one toolchain, one debug setup, one firmware base shared with the head. That is real engineering time saved and real inventory risk avoided. Just make it a <em>decision</em> rather than a default &mdash; keep the module firmware free of F4-only assumptions (no FPU maths in the IO path, no assumption of 192&nbsp;KB of RAM), and the day the analog card needs a cheaper BOM, the port is a week rather than a rewrite. Nothing in this protocol requires a Cortex-M4 at either end.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ 10 FAILURE MODES ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>10</i> Failure modes</div>
+      <div class="sec-body">
+        <h2>What breaks, what notices, what the operator sees</h2>
+        <p>The test of this design is not the happy path. It is whether every plausible fault produces a distinguishable, reported symptom rather than a plausible-looking wrong number.</p>
+
+        <div class="scroller">
+          <table>
+            <caption>Fault &rarr; detection &rarr; reaction</caption>
+            <thead><tr><th>Fault</th><th>What detects it</th><th>Reaction</th><th class="m">Quality</th></tr></thead>
+            <tbody>
+              <tr><td>Slot empty</td><td>MISO reads the pull-down level, SOF and CRC both wrong</td><td>Slot marked absent at enumeration, never scanned again until a re-enumerate</td><td class="m">COMM_FAIL</td></tr>
+              <tr><td>Module pulled while running</td><td>CRC fails from the next cycle on</td><td>After 3 consecutive failures the head stops driving that slot and raises an event</td><td class="m">COMM_FAIL</td></tr>
+              <tr><td>Module firmware hung, DMA still shifting</td><td><code>SEQ_ECHO</code> stops advancing &mdash; the CRC stays valid, so nothing else would catch this</td><td>Same as above. This is the failure the SEQ field exists for.</td><td class="m">COMM_FAIL</td></tr>
+              <tr><td>Head hung or reset</td><td>The module stops seeing valid frames</td><td>Module drives its own safe-state pattern after <code>EXP_SAFE_TIMEOUT_MS</code>, independently of the head</td><td class="m">&mdash;</td></tr>
+              <tr><td>Noise burst on the backplane</td><td>Occasional CRC failure, isolated cycles</td><td>Per-slot error counter increments; data from that cycle is discarded, previous values keep their old stamps. Counter is published, so degradation is visible before it becomes an outage.</td><td class="m">STALE</td></tr>
+              <tr><td>Truncated transaction (hot-plug glitch)</td><td><code>NDTR</code> non-zero at the NSS rising edge</td><td>Module discards the frame, clears the SPI overrun flag, re-arms. Never applies a partial output image.</td><td class="m">STALE</td></tr>
+              <tr><td>Chip selects swapped on the backplane</td><td>Reported slot &ne; addressed slot</td><td>Head refuses to run that slot. This is a wiring fault no CRC can see, and it is why the slot number is in both frames.</td><td class="m">CONFIG_ERR</td></tr>
+              <tr><td>Wrong card type in a slot</td><td><code>IDENT</code> module type does not match the configuration</td><td>Slot held in a non-running state; outputs never driven. A relay card must never inherit an analog card's output image.</td><td class="m">CONFIG_ERR</td></tr>
+              <tr><td>Two heads on one bus</td><td>Cannot happen &mdash; there is exactly one chip-select driver</td><td>&mdash;</td><td class="m">&mdash;</td></tr>
+              <tr><td>Broken field wire on an input</td><td>Module's own channel diagnostics, reported via <code>EXP_ST_IN_FAULT</code> and ATTN</td><td>Head pulls <code>GET_DIAG</code>, marks the affected channels only &mdash; the rest of the card keeps working</td><td class="m">EXCEPTION</td></tr>
+              <tr><td>Shorted output</td><td>Module's driver fault pin, <code>EXP_ST_OUT_FAULT</code></td><td>Module latches that channel off, reports; head raises an event. Clearing needs <code>CLEAR_FAULT</code>, so a short cannot silently self-reset in a loop.</td><td class="m">EXCEPTION</td></tr>
+              <tr><td>Scan overrun (rack slower than the tick)</td><td><code>g_scanBusy</code> still set when TIM6 fires</td><td>Tick skipped, overrun counter published in the SYS region. Two scans are never stacked.</td><td class="m">&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11 ELECTRICAL ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>11</i> Electrical</div>
+      <div class="sec-body">
+        <h2>The rules that decide whether 10 MHz works</h2>
+        <p>SPI is chosen here precisely because the distance is short and controlled. That advantage is only real if the backplane is designed to keep it.</p>
+
+        <ul>
+          <li><strong>Source-terminate SCK and MOSI at the head</strong>, 22&ndash;33&nbsp;&Omega; in series, one resistor each, placed at the driver. On an unterminated multi-drop bus this is what damps the reflections that otherwise show up as CRC errors at exactly the clock rate you wanted to use.</li>
+          <li><strong>Daisy-chain the clock, do not star it.</strong> One trace that visits each slot in order, with the shortest possible stub into each connector. A star topology on SCK is the single most common reason a backplane tops out at 2&nbsp;MHz.</li>
+          <li><strong>Interleave grounds in the connector</strong> &mdash; several ground pins spread across the row, not one at the end. The return current for SCK has to have somewhere short to go.</li>
+          <li><strong>10&nbsp;k&Omega; pull-down on MISO at the head</strong>, so an empty rack reads a defined constant rather than picking up whatever is nearby.</li>
+          <li><strong>Keep the backplane inside one isolation domain.</strong> Isolate at the field terminals, per channel or per group, using the module's own optocouplers or digital isolators. Do not try to isolate the backplane itself: eight isolated SPI channels is expensive, slow, and solves a problem you do not have inside a single enclosure with one ground.</li>
+          <li><strong>ESD protection on the connector</strong> for every signal that leaves a board, even inside the enclosure &mdash; a card gets handled by a person before it gets plugged in.</li>
+        </ul>
+
+        <h3>Hot swap, honestly</h3>
+        <p>The protocol tolerates a card appearing and disappearing: that is what the CRC, the enumeration step and <code>GW_Q_COMM_FAIL</code> are for. The <em>electronics</em> are a separate question, and the honest v1 answer is to design the connector for hot swap and not promise it yet:</p>
+        <ul>
+          <li>Stagger the pin lengths &mdash; ground longest, then power, signals shortest. Ground makes first and breaks last, always.</li>
+          <li>Limit inrush into the module's bulk capacitance, with an NTC or a soft-start FET, so plugging a card does not brown out the rack.</li>
+          <li>The series resistors on SCK and MOSI already limit the current a hot-plugging card can inject into a driver pin.</li>
+          <li>Then <strong>test it a thousand times</strong> before it goes in a datasheet. Hot swap is a claim that gets audited in the field, by an electrician, at the worst possible moment.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 12 ORDER OF WORK ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>12</i> Order of work</div>
+      <div class="sec-body">
+        <h2>Seven steps, each one testable on its own</h2>
+        <p>The ordering rule is the same one that shaped link v2: never build the board before the protocol runs on a bench wire, and never add a second module until one is boring.</p>
+
+        <div class="phases">
+          <div class="phase">
+            <div class="n">1</div>
+            <div class="c">
+              <div class="h">Two boards, one wire, ECHO only</div>
+              <div class="d">A Nucleo or your existing head board plus one F407VG on flying leads, 100&nbsp;mm maximum. Fixed 32-byte frame, <code>MBX_ECHO</code>, nothing else. Run it for an hour at 5.25&nbsp;MHz and log CRC errors. Zero is the only acceptable number. Then step to 10.5 and 21&nbsp;MHz and find where it stops being zero &mdash; that number is your real design margin, and you want it before the PCB.</div>
+              <div class="tags"><span class="pill a">exp_model.h</span><span class="pill a">exp_master.c</span><span class="pill a">exp_slave.c</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">2</div>
+            <div class="c">
+              <div class="h">Cyclic exchange with one DI/DO card</div>
+              <div class="d">Add <code>SEQ</code>, <code>CTRL</code>, <code>STAT</code>, the safe-state timeout and the independent watchdog. Test it by pulling the SPI cable with outputs energised and timing how long the relays take to drop. This is the step where the product either behaves like a PLC or does not.</div>
+              <div class="tags"><span class="pill s">safe state</span><span class="pill s">watchdog</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">3</div>
+            <div class="c">
+              <div class="h">Region 0x08 in the process image</div>
+              <div class="d">Map the cyclic data into <code>GW_REGION_EXP</code> with the fixed sub-map, wire up the quality codes, bump <code>GW_REGION_COUNT</code> and the protocol minor version. The ESP32 change is one region entry. Publishing a rack input to the cloud should require no new ESP32 code at all &mdash; if it does, the abstraction leaked and it is cheaper to fix now.</div>
+              <div class="tags"><span class="pill a">gw_model.h</span><span class="pill a">gw_image.c</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">4</div>
+            <div class="c">
+              <div class="h">IDENT and boot enumeration</div>
+              <div class="d">The head walks the slots, builds the rack map from the replies, and logs it. Success looks like moving a card between two slots and having everything come back correct with no configuration change anywhere.</div>
+              <div class="tags"><span class="pill a">mailbox</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">5</div>
+            <div class="c">
+              <div class="h">Parameters, diagnostics, ATTN</div>
+              <div class="d"><code>SET_PARAM</code>, <code>GET_PARAM</code>, <code>GET_DIAG</code>, <code>CLEAR_FAULT</code>, and the ATTN interrupt. Read every parameter back after writing it and compare &mdash; this is the cheapest possible proof that the rack matches the configuration, and it costs a few cycles once at startup.</div>
+              <div class="tags"><span class="pill a">config blob</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">6</div>
+            <div class="c">
+              <div class="h">The backplane PCB</div>
+              <div class="d">Eight slots, geographic address resistors, staggered connector, source termination, interleaved grounds. Only now, with the protocol proven and the real maximum clock measured on wire.</div>
+              <div class="tags"><span class="pill w">hardware</span></div>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="n">7</div>
+            <div class="c">
+              <div class="h">Writes from the cloud, and module firmware over the bus</div>
+              <div class="d"><code>GW_OP_WR_CHANNEL</code> down to a rack output, with the token and <code>RD_ACK</code> path already specified. Then <code>FW_BEGIN/CHUNK/COMMIT</code> so a card can be updated through the head, six bytes a cycle, with the rack still running. Both reuse machinery that already exists.</div>
+              <div class="tags"><span class="pill a">GW_OP_WR_CHANNEL</span><span class="pill a">FW_*</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 13 DECISIONS ============ -->
+  <section>
+    <div class="sec-grid">
+      <div class="sec-mark"><i>13</i> Decisions</div>
+      <div class="sec-body">
+        <h2>Eight answers needed, one of them urgent</h2>
+        <p>Only the first can change the protocol. The rest change sizes, pin counts and schedule.</p>
+
+        <details open>
+          <summary>1 &nbsp;&middot;&nbsp; Are the modules always in the same rack as the head?</summary>
+          <div class="inner">
+            <p>This is the only question here that decides SPI versus CAN, and everything downstream of it is wasted work if it is answered late. Same rack, backplane connector, under 300&nbsp;mm total: SPI, as described. Separate enclosure, cable, or any distance you would describe in metres: CAN at 1&nbsp;Mbit/s with the same frame contents split across multiple IDs, accepting a 2&ndash;5&nbsp;ms cycle.</p>
+            <p class="rec"><b>Recommendation</b> Answer &ldquo;same rack&rdquo; and build SPI. If remote I/O is also a product requirement, serve it over the RS-485 port you already have &mdash; as a Modbus field device, not as an expansion module. Two mechanisms, each honest about what it is, beats one that is bad at both.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>2 &nbsp;&middot;&nbsp; How many slots, maximum?</summary>
+          <div class="inner">
+            <p>Eight fits on PE0..PE7 with no decoder and no pin pressure. Sixteen needs either a 4-to-16 decoder on the head or eight more GPIOs, both cheap, but it doubles the backplane length and so cuts the maximum clock.</p>
+            <p class="rec"><b>Recommendation</b> Eight slots, four address bits. The address field already reaches sixteen, so a second rack generation costs no protocol change.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>3 &nbsp;&middot;&nbsp; What cycle time are you selling?</summary>
+          <div class="inner">
+            <p>The bus does 290&nbsp;&micro;s for eight slots, so 1&nbsp;ms is comfortable, 500&nbsp;&micro;s is reachable, and 10&nbsp;ms would waste the design. But the number that matters is not the bus &mdash; it is the total loop through the Modbus scanner and the application logic.</p>
+            <p class="rec"><b>Recommendation</b> Specify 1&nbsp;ms for the rack and publish the real measured jitter. A PLC that honestly states 1&nbsp;ms &plusmn;50&nbsp;&micro;s is worth more than one that claims 200&nbsp;&micro;s and occasionally takes 4&nbsp;ms.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4 &nbsp;&middot;&nbsp; Is hot swap under power a product requirement?</summary>
+          <div class="inner">
+            <p>It changes the connector, the inrush design and roughly a month of testing. The protocol already supports it either way.</p>
+            <p class="rec"><b>Recommendation</b> Design the connector for it now &mdash; staggered pins cost nothing at layout time and cannot be retrofitted &mdash; and document v1 as power-down insertion. Promote the claim after the thousand-cycle test, not before.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>5 &nbsp;&middot;&nbsp; Which module types ship first?</summary>
+          <div class="inner">
+            <p>Each type is an IO driver table plus an entry in the type list, but the analog ones also drag in calibration, storage for calibration constants, and a production test fixture.</p>
+            <p class="rec"><b>Recommendation</b> 16&nbsp;DI and 16&nbsp;relay&nbsp;DO first, because they prove the bus without the calibration problem. 8&nbsp;AI third. High-speed counters last &mdash; they are the one card that may genuinely want a faster cyclic rate than the rest of the rack.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>6 &nbsp;&middot;&nbsp; Fixed 16-byte cyclic data for every card, or per-type sizes?</summary>
+          <div class="inner">
+            <p>Fixed is simpler: one constant, one DMA length, one buffer. Per-type saves bus time on small cards and allows a 32-channel analog card later without a protocol change.</p>
+            <p class="rec"><b>Recommendation</b> Put the size in <code>IDENT</code> from day one and hard-code 16 bytes for the first two card types. The field exists, costs nothing, and cannot be added later without breaking every deployed rack.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>7 &nbsp;&middot;&nbsp; Does SPI2 stay in the <code>.ioc</code>?</summary>
+          <div class="inner">
+            <p>It is initialised, unused, and its pins (PB13/14/15) collide with RMII_TXD1 if native Ethernet ever lands.</p>
+            <p class="rec"><b>Recommendation</b> Remove SPI2 from the <code>.ioc</code> when you add SPI3. Regeneration rewrites <code>main.c</code> either way, so the cost is one CubeMX pass, and it frees the pins for Ethernet while leaving <code>MX_SPI3_Init</code> as the only SPI in the project.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>8 &nbsp;&middot;&nbsp; Module firmware update over the bus, or SWD per card?</summary>
+          <div class="inner">
+            <p>SWD is free and needs a technician with a probe and the enclosure open. Over-the-bus needs a bootloader, two flash slots per module, and a rollback story.</p>
+            <p class="rec"><b>Recommendation</b> SWD for v1, but reserve <code>0x10&ndash;0x12</code> in the mailbox and lay out the module's flash as two slots from the first board. Reserving is nearly free; repartitioning a deployed fleet is not.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <p><strong>Status</strong> &mdash; proposal. Nothing here is implemented; no file in the repository is changed by this document. It assumes the process image and link v2 (<code>shared/gw_model.h</code>, <code>gw_image.c</code>, <code>gw_link.c</code>) as they stand today, and it extends them rather than revising them.</p>
+    <p><strong>Read alongside</strong> &mdash; <code>docs/UNIVERSAL_PROCESS_IMAGE.html</code> for the region model this bus plugs into, <code>docs/point-bus-protocol.html</code> for the head-to-ESP32 link and the pin conflicts already mapped against the <code>.ioc</code>, and <code>docs/GATEWAY_ARCHITECTURE.md</code> for why the two-chip split is shaped the way it is.</p>
+    <p><strong>Verify before the board spin</strong> &mdash; the DMA stream mapping in &sect;08 and the alternate-function assignments in &sect;08 and &sect;09 against the STM32F407 reference manual and datasheet for your exact package. They are stated from the F407 request-mapping and AF tables and match the current <code>.ioc</code>, but a backplane is expensive to re-lay out and a datasheet check is free.</p>
+  </footer>
+
+</main>
+</body>
+</html>

@@ -350,12 +350,65 @@ void TbClient::publishTelemetry() {
 }
 
 /**
+ * Matches "<prefix>N" with N in 1..4 and nothing after it, yielding N-1.
+ *
+ * The trailing-NUL check is what keeps "getRelays" out of the per-relay branch:
+ * it shares the first eight characters with "getRelay1" and differs only in
+ * what follows, and the two answer in different shapes.
+ */
+static bool isRelayIndexMethod(const char* method, const char* prefix, uint8_t* indexOut) {
+    size_t n = strlen(prefix);
+    if (strncmp(method, prefix, n) != 0) return false;
+    if (method[n] < '1' || method[n] > '4' || method[n + 1] != '\0') return false;
+    *indexOut = (uint8_t)(method[n] - '1');
+    return true;
+}
+
+/**
+ * Makes sure the cached LOCAL_IO snapshot is younger than `maxAgeMs`.
+ *
+ * Returns false when there is nothing trustworthy to answer from, which the
+ * callers turn into the de-energized reading rather than into an error object.
+ */
+bool TbClient::ensureFresh(uint32_t maxAgeMs) {
+    if (_io == nullptr || !_io->isReady()) return false;
+
+    LocalIoState s = _io->state();
+    if (s.valid && (uint32_t)(millis() - s.sampledMs) <= maxAgeMs) return true;
+
+    return _io->refresh();
+}
+
+bool TbClient::relayStateOrFalse(uint8_t index) const {
+    if (_io == nullptr || !_io->isReady()) return false;
+    if (!_io->state().valid) return false;
+    return _io->relay(index);
+}
+
+uint8_t TbClient::relayMaskOrZero() const {
+    if (_io == nullptr || !_io->isReady()) return 0u;
+    LocalIoState s = _io->state();
+    return s.valid ? s.relayMask : 0u;
+}
+
+/**
  * Answers one RPC.
  *
- * Every `set` re-reads the pins before replying, and reports what it found
- * rather than what it asked for. Confirming a command by echoing it back is
- * the single easiest way to build a dashboard that looks healthy while the
- * plant is not.
+ * TWO RULES, AND THE SECOND ONE IS EASY TO GET WRONG
+ *
+ * 1. Every `set` re-reads the pins before replying, and reports what it found
+ *    rather than what it asked for. Confirming a command by echoing it back is
+ *    the single easiest way to build a dashboard that looks healthy while the
+ *    plant is not.
+ *
+ * 2. Anything a control widget reads answers with a BARE JSON value - `true`,
+ *    `false`, `7` - never wrapped in an object. ThingsBoard's switch widget
+ *    coerces the whole response body to a boolean, and every object is truthy,
+ *    so `{"result": false}` renders as ON. See the block comment in
+ *    tb_client.h for why that only ever showed up on a page refresh.
+ *
+ *    The failure paths obey the same rule: they answer `false` / `0`, not an
+ *    error object, and put the reason in the log.
  */
 void TbClient::handleRpc(const char* requestId, const uint8_t* payload, unsigned int len) {
     JsonDocument req;
@@ -376,13 +429,28 @@ void TbClient::handleRpc(const char* requestId, const uint8_t* payload, unsigned
 
         LOGI(TAG, "RPC %s method=%s", requestId, method);
 
+        /* The method is classified before any work is attempted, because the
+         * failure paths have to answer in the same shape as the success paths.
+         * A widget that asked for a boolean and got an object does not report
+         * an error - it renders ON. */
+        uint8_t index = 0;
+        bool isSetRelayN = isRelayIndexMethod(method, "setRelay", &index);
+        bool isGetRelayN = !isSetRelayN && isRelayIndexMethod(method, "getRelay", &index);
+        bool wantsBool = isSetRelayN || isGetRelayN;
+        bool wantsNumber = (strcmp(method, "setRelays") == 0 || strcmp(method, "getRelays") == 0 ||
+                            strcmp(method, "getInputs") == 0);
+
         if (_io == nullptr || !_io->isReady()) {
-            rsp["error"] = "local IO not available";
+            LOGW(TAG, "RPC %s: local IO not available", method);
+            if (wantsBool) {
+                rsp.set(false);
+            } else if (wantsNumber) {
+                rsp.set(0);
+            } else {
+                rsp["error"] = "local IO not available";
+            }
 
-        } else if (strncmp(method, "setRelay", 8) == 0 && method[8] >= '1' && method[8] <= '4' &&
-                   method[9] == '\0') {
-            uint8_t index = (uint8_t)(method[8] - '1');
-
+        } else if (isSetRelayN) {
             /* A ThingsBoard switch widget sends a bare boolean; a button may
              * send a number or a string. Accepting all three costs three lines
              * and removes a class of "the widget does nothing" reports that are
@@ -403,40 +471,47 @@ void TbClient::handleRpc(const char* requestId, const uint8_t* payload, unsigned
 
             StmV2Status st = _io->setRelay(index, on);
             if (st != V2_OK) {
-                rsp["error"] = stmV2StatusName(st);
-                rsp["deviceStatus"] = gwStatusName(_io->lastDeviceStatus());
-            } else {
-                _io->refresh();
-                rsp["result"] = _io->relay(index);
+                LOGW(TAG, "RPC %s refused: %s (dev %s)", method, stmV2StatusName(st),
+                     gwStatusName(_io->lastDeviceStatus()));
             }
 
-        } else if (strncmp(method, "getRelay", 8) == 0 && method[8] >= '1' && method[8] <= '4' &&
-                   method[9] == '\0') {
-            uint8_t index = (uint8_t)(method[8] - '1');
-            rsp["result"] = _io->relay(index);
+            /* Refused or accepted, the answer is what the pins say. A refused
+             * command must leave the switch sitting where the relay really is,
+             * not bounce back to where the operator dragged it. */
+            _io->refresh();
+            rsp.set(relayStateOrFalse(index));
+
+        } else if (isGetRelayN) {
+            /* This is the branch a page refresh lands in: the widget has no
+             * memory of its position and asks the device for it. */
+            ensureFresh(RPC_MAX_AGE_MS);
+            rsp.set(relayStateOrFalse(index));
 
         } else if (strcmp(method, "setRelays") == 0) {
             long mask = params.is<int>() ? params.as<long>() : -1;
             if (mask < 0 || mask > 0x0F) {
-                rsp["error"] = "params must be 0..15";
+                LOGW(TAG, "RPC setRelays: params must be 0..15");
             } else {
                 StmV2Status st = _io->setRelayMask((uint8_t)mask);
                 if (st != V2_OK) {
-                    rsp["error"] = stmV2StatusName(st);
-                    rsp["deviceStatus"] = gwStatusName(_io->lastDeviceStatus());
-                } else {
-                    _io->refresh();
-                    rsp["result"] = _io->state().relayMask;
+                    LOGW(TAG, "RPC setRelays refused: %s (dev %s)", stmV2StatusName(st),
+                         gwStatusName(_io->lastDeviceStatus()));
                 }
+                _io->refresh();
             }
+            rsp.set(relayMaskOrZero());
 
         } else if (strcmp(method, "getRelays") == 0) {
-            rsp["result"] = _io->state().relayMask;
+            ensureFresh(RPC_MAX_AGE_MS);
+            rsp.set(relayMaskOrZero());
 
         } else if (strcmp(method, "getInputs") == 0) {
-            rsp["result"] = _io->state().inputMask;
+            ensureFresh(RPC_MAX_AGE_MS);
+            LocalIoState s = _io->state();
+            rsp.set(s.valid ? s.inputMask : 0u);
 
         } else if (strcmp(method, "getStatus") == 0) {
+            ensureFresh(RPC_MAX_AGE_MS);
             LocalIoState s = _io->state();
             StmV2Stats ls = stmLinkV2.stats();
             JsonObject r = rsp["result"].to<JsonObject>();

@@ -23,16 +23,36 @@
  *   v1/devices/me/rpc/response/{id}    pub   our answer to one RPC
  *
  * THE RPC METHODS THE DASHBOARD CALLS
- *   setRelay1..setRelay4   params: true / false / 0 / 1
- *   getRelay1..getRelay4   returns the relay's ACTUAL state
- *   setRelays / getRelays  all four as a 0..15 bitmask
- *   getInputs              the four inputs as a 0..15 bitmask
- *   getStatus              a small object of link and IO diagnostics
+ *   setRelay1..setRelay4   params: true / false / 0 / 1   -> bare true / false
+ *   getRelay1..getRelay4   the relay's ACTUAL state       -> bare true / false
+ *   setRelays / getRelays  all four as a 0..15 bitmask    -> bare number
+ *   getInputs              the four inputs as a bitmask   -> bare number
+ *   getStatus              link and IO diagnostics        -> object
  *
- *   Every get answers from the last poll of the STM32, and every set is
- *   confirmed by re-reading the pins before it replies. A control dashboard
- *   that echoes the command back as if it were the state is lying to the
- *   operator at exactly the moment the wire has come loose.
+ *   Every get re-reads the STM32 if the cached snapshot is older than
+ *   RPC_MAX_AGE_MS, and every set is confirmed by re-reading the pins before
+ *   it replies. A control dashboard that echoes the command back as if it were
+ *   the state is lying to the operator at exactly the moment the wire has come
+ *   loose.
+ *
+ * WHY THE ANSWERS ARE BARE VALUES AND NOT {"result": ...}
+ *   ThingsBoard's switch widget (system.control_widgets.switch_control) has no
+ *   parse function among its settings - getValueMethod's response body is
+ *   coerced straight to a boolean. Every JSON object is truthy, so answering
+ *   `{"result": false}` makes the switch render ON however the relay is
+ *   actually sitting. That is only visible on a page refresh, which is the one
+ *   moment the widget asks instead of remembering, and it is why these methods
+ *   answer with a bare `true`, `false` or number.
+ *
+ *   The same trap covers the failure paths, so they do NOT answer with an
+ *   error object either: `{"error": "..."}` is truthy too, and a dead link
+ *   showing every relay ON is the worst reading this dashboard could give. A
+ *   value that cannot be read answers `false` / `0` - matching the widget's
+ *   own initialValue - and the reason goes to the log and to the ioValid and
+ *   linkQuality telemetry the rest of the dashboard already shows.
+ *
+ *   getStatus is the exception and stays an object: nothing coerces it, it is
+ *   read by a debug terminal rather than by a control widget.
  *
  * PUBLISH POLICY
  *   A full snapshot every telemetryMs, plus an immediate publish whenever a
@@ -80,6 +100,16 @@ class TbClient {
     bool ensureMqtt();
     void publishAttributes();
     void handleRpc(const char* requestId, const uint8_t* payload, unsigned int len);
+
+    /** Re-reads LOCAL_IO if the cached snapshot is older than maxAgeMs. */
+    bool ensureFresh(uint32_t maxAgeMs);
+
+    /** One relay's real state, or false when the snapshot cannot be trusted. */
+    bool relayStateOrFalse(uint8_t index) const;
+
+    /** All four relays, or 0 when the snapshot cannot be trusted. */
+    uint8_t relayMaskOrZero() const;
+
     void onMessage(const char* topic, const uint8_t* payload, unsigned int len);
 
     static void trampoline(char* topic, uint8_t* payload, unsigned int len);

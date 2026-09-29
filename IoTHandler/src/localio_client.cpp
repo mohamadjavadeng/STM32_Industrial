@@ -84,6 +84,23 @@ bool LocalIoClient::begin(StmLinkV2& link) {
     return true;
 }
 
+/**
+ * The worse of two quality codes.
+ *
+ * Deliberately not max(). GW_Q_UNKNOWN is 0 - numerically the smallest code and
+ * semantically the worst one there is, because it means nothing has ever
+ * written that slot. A plain `q > worst` therefore ranks a never-written slot
+ * ABOVE GW_Q_GOOD, and a LOCAL_IO region that nobody is filling then gets
+ * published as trustworthy: every input reads false, every relay reads false,
+ * ioQuality says "good", and nothing anywhere says the driver on the other chip
+ * is not running. That is the exact shape of failure the quality byte exists to
+ * make impossible.
+ */
+static uint8_t worseQuality(uint8_t a, uint8_t b) {
+    if (a == GW_Q_UNKNOWN || b == GW_Q_UNKNOWN) return GW_Q_UNKNOWN;
+    return (a > b) ? a : b;
+}
+
 bool LocalIoClient::refresh() {
     if (!_ready || _link == nullptr) return false;
 
@@ -111,12 +128,10 @@ bool LocalIoClient::refresh() {
      * the blocks are skipped - they are UNKNOWN forever by design and would
      * drag every snapshot down to UNKNOWN. */
     for (uint8_t i = 0; i < GW_LIO_DO_COUNT; ++i) {
-        uint8_t q = slots[GW_LIO_DO_BASE + i].quality;
-        if (q > worst) worst = q;
+        worst = worseQuality(worst, slots[GW_LIO_DO_BASE + i].quality);
     }
     for (uint8_t i = 0; i < GW_LIO_DI_COUNT; ++i) {
-        uint8_t q = slots[GW_LIO_DI_BASE + i].quality;
-        if (q > worst) worst = q;
+        worst = worseQuality(worst, slots[GW_LIO_DI_BASE + i].quality);
     }
 
     uint8_t newRelays = (uint8_t)(slots[GW_LIO_DO_WORD].raw & 0x0Fu);

@@ -117,6 +117,17 @@
 // input look sluggish.
 #define LOCALIO_POLL_MS 250
 
+// How old the cached LOCAL_IO snapshot may be when an RPC asks for it.
+//
+// A browser refresh fires getRelay1..getRelay4 within a few milliseconds of
+// each other. Without a gate that is four link transactions to answer four
+// questions about the same 4-bit word; with it, the first RPC pays for one
+// read and the other three answer from it. Still short enough that a control
+// widget never renders a value left over from the previous poll interval.
+//
+// Set to 0 to force a live read on every get.
+#define RPC_MAX_AGE_MS 100
+
 // ---------------------------------------------------------------------------
 // Cloud
 // ---------------------------------------------------------------------------

@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ethernet Upgrade</title>
+<style>
+  /* ---- tokens: light is the base, both themes defined at token level ---- */
+  :root {
+    --ground: #f5f6f3;
+    --surface: #ffffff;
+    --surface-2: #ecefea;
+    --surface-3: #e3e7e0;
+    --ink: #171b19;
+    --ink-2: #495350;
+    --ink-3: #78837d;
+    --rule: #d6dad3;
+    --rule-strong: #b3b9b1;
+    --accent: #0e5b54;
+    --accent-ink: #0a4a44;
+    --accent-soft: #dcebe8;
+    --signal: #a5511a;
+    --signal-soft: #f5e6d9;
+    --good: #2c6b39;
+    --warn: #86620f;
+    --bad: #973031;
+    --shadow: 0 1px 2px rgba(23, 27, 25, .06), 0 8px 24px -16px rgba(23, 27, 25, .18);
+
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+
+    --measure: 68ch;
+    --gutter: 7.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1211;
+      --surface: #161b19;
+      --surface-2: #1c2321;
+      --surface-3: #232b28;
+      --ink: #e6ebe7;
+      --ink-2: #a8b2ac;
+      --ink-3: #7b8680;
+      --rule: #2a3230;
+      --rule-strong: #3d4743;
+      --accent: #58b9ad;
+      --accent-ink: #7fcdc3;
+      --accent-soft: #133330;
+      --signal: #dc8b50;
+      --signal-soft: #33210f;
+      --good: #6bba7c;
+      --warn: #cca43e;
+      --bad: #d67571;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0e1211;
+    --surface: #161b19;
+    --surface-2: #1c2321;
+    --surface-3: #232b28;
+    --ink: #e6ebe7;
+    --ink-2: #a8b2ac;
+    --ink-3: #7b8680;
+    --rule: #2a3230;
+    --rule-strong: #3d4743;
+    --accent: #58b9ad;
+    --accent-ink: #7fcdc3;
+    --accent-soft: #133330;
+    --signal: #dc8b50;
+    --signal-soft: #33210f;
+    --good: #6bba7c;
+    --warn: #cca43e;
+    --bad: #d67571;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 clamp(1.1rem, 4vw, 3rem); }
+
+  /* ---- masthead ---- */
+  header.mast { border-bottom: 1px solid var(--rule-strong); background: var(--surface); }
+  .mast-inner { display: flex; flex-direction: column; gap: 1.5rem; padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 4vw, 3rem); }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-3); display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; align-items: center;
+  }
+  .eyebrow b { color: var(--accent); font-weight: 600; }
+  h1 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(2.3rem, 6.2vw, 4rem);
+    line-height: 1.02; letter-spacing: -.018em; margin: 0; text-wrap: balance; max-width: 22ch;
+  }
+  .standfirst { font-size: clamp(1.05rem, 2.1vw, 1.22rem); color: var(--ink-2); max-width: 62ch; margin: 0; }
+  .mast-meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; font-family: var(--mono);
+    font-size: .76rem; color: var(--ink-3); padding-top: .6rem; border-top: 1px solid var(--rule);
+  }
+  .mast-meta span { white-space: nowrap; }
+  .mast-meta strong { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- section skeleton: mono gutter + measured body ---- */
+  section { border-bottom: 1px solid var(--rule); padding: clamp(2.6rem, 5vw, 4rem) 0; }
+  section:last-of-type { border-bottom: 0; }
+  .sec-grid { display: grid; grid-template-columns: var(--gutter) minmax(0, 1fr); gap: 0 2.5rem; }
+  .sec-mark {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); padding-top: .55rem;
+  }
+  .sec-mark i { display: block; font-style: normal; color: var(--accent); }
+  .sec-body { display: flex; flex-direction: column; gap: 1.15rem; min-width: 0; }
+  @media (max-width: 900px) {
+    .sec-grid { grid-template-columns: 1fr; gap: .85rem; }
+    .sec-mark { padding-top: 0; }
+    .sec-mark i { display: inline; }
+    .sec-mark i::after { content: " ·"; color: var(--ink-3); }
+  }
+
+  h2 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+    line-height: 1.14; letter-spacing: -.012em; margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 600; font-size: 1.02rem; letter-spacing: -.005em;
+    margin: 1.1rem 0 -.35rem; color: var(--ink);
+  }
+  h4 {
+    font-family: var(--mono); font-weight: 600; font-size: .74rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); margin: .9rem 0 -.5rem;
+  }
+  p { margin: 0; max-width: var(--measure); }
+  ul, ol { margin: 0; padding-left: 1.35rem; max-width: var(--measure); display: flex; flex-direction: column; gap: .5rem; }
+  li::marker { color: var(--ink-3); }
+  strong { font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: .875em; background: var(--surface-2);
+    padding: .1em .34em; border-radius: 3px; border: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  a { color: var(--accent-ink); text-underline-offset: .18em; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---- verdict callout: the thesis, set in serif ---- */
+  .verdict {
+    background: var(--surface); border: 1px solid var(--rule-strong); border-left: 3px solid var(--accent);
+    padding: 1.4rem 1.6rem; display: flex; flex-direction: column; gap: .8rem; box-shadow: var(--shadow);
+  }
+  .verdict p { font-family: var(--serif); font-size: 1.14rem; line-height: 1.5; max-width: 58ch; }
+  .verdict .kicker {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent);
+  }
+
+  /* ---- keep / change / add ledger ---- */
+  .ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .ledger > div { background: var(--surface); padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .6rem; }
+  .ledger h5 {
+    margin: 0; font-family: var(--mono); font-size: .72rem; letter-spacing: .13em; text-transform: uppercase;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .ledger .dot { width: .55rem; height: .55rem; border-radius: 50%; flex: none; }
+  .ledger ul { padding-left: 1.1rem; gap: .38rem; font-size: .92rem; color: var(--ink-2); max-width: none; }
+  .keep h5 { color: var(--good); } .keep .dot { background: var(--good); }
+  .change h5 { color: var(--signal); } .change .dot { background: var(--signal); }
+  .add h5 { color: var(--accent); } .add .dot { background: var(--accent); }
+
+  /* ---- tables ---- */
+  .scroller { overflow-x: auto; border: 1px solid var(--rule-strong); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .875rem; min-width: 34rem; }
+  caption {
+    caption-side: top; text-align: left; font-family: var(--mono); font-size: .72rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+    padding: .75rem 1rem; border-bottom: 1px solid var(--rule); background: var(--surface-2);
+  }
+  th, td { padding: .5rem .85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  thead th {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; background: var(--surface-2); white-space: nowrap;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.m, th.m { font-family: var(--mono); font-size: .8rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  tbody tr:hover { background: var(--surface-2); }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: .68rem; letter-spacing: .06em;
+    text-transform: uppercase; padding: .12rem .45rem; border-radius: 2px; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .pill.g { color: var(--good); } .pill.w { color: var(--warn); }
+  .pill.b { color: var(--bad); } .pill.a { color: var(--accent); } .pill.s { color: var(--signal); }
+
+  /* ---- byte-layout grid ---- */
+  .bytes { display: grid; gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); grid-template-columns: repeat(8, minmax(5.4rem, 1fr)); min-width: 46rem; }
+  .bytes .cell { background: var(--surface); padding: .5rem .55rem .55rem; display: flex; flex-direction: column; gap: .18rem; }
+  .bytes .cell.wide2 { grid-column: span 2; }
+  .bytes .cell.varlen { grid-column: span 4; background: var(--surface-2); }
+  .bytes .cell.crc { grid-column: span 2; background: var(--accent-soft); }
+  .bytes .off { font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; color: var(--ink-3); }
+  .bytes .nm { font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--ink); }
+  .bytes .ds { font-size: .72rem; color: var(--ink-2); line-height: 1.35; }
+
+  /* ---- topology diagram ---- */
+  figure { margin: 0; display: flex; flex-direction: column; gap: .7rem; }
+  figcaption { font-family: var(--mono); font-size: .72rem; color: var(--ink-3); letter-spacing: .04em; max-width: var(--measure); }
+  svg { display: block; width: 100%; height: auto; }
+  .dgm-box { fill: var(--surface); stroke: var(--rule-strong); stroke-width: 1; }
+  .dgm-box-2 { fill: var(--surface-2); stroke: var(--rule-strong); stroke-width: 1; }
+  .dgm-band { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
+  .dgm-t { fill: var(--ink); font-family: var(--sans); font-size: 12.5px; }
+  .dgm-t-sm { fill: var(--ink-2); font-family: var(--mono); font-size: 10px; }
+  .dgm-t-lbl { fill: var(--ink-3); font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; }
+  .dgm-t-acc { fill: var(--accent-ink); font-family: var(--mono); font-size: 10.5px; font-weight: 600; }
+  .dgm-line { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; }
+  .dgm-line-acc { stroke: var(--accent); stroke-width: 1.75; fill: none; }
+  .dgm-line-sig { stroke: var(--signal); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+  .dgm-arrow { fill: var(--rule-strong); }
+  .dgm-arrow-acc { fill: var(--accent); }
+  .dgm-arrow-sig { fill: var(--signal); }
+
+  /* ---- phase list: a real sequence, so numbered ---- */
+  .phases { display: flex; flex-direction: column; gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .phase { background: var(--surface); display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: 0 1.1rem; padding: 1rem 1.2rem; }
+  .phase .n {
+    font-family: var(--mono); font-size: 1.25rem; color: var(--accent); font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .phase .c { display: flex; flex-direction: column; gap: .35rem; }
+  .phase .h { font-weight: 600; font-size: .98rem; }
+  .phase .d { font-size: .9rem; color: var(--ink-2); max-width: 62ch; }
+  .phase .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .15rem; }
+
+  /* ---- questions ---- */
+  details {
+    border: 1px solid var(--rule-strong); background: var(--surface); padding: 0;
+  }
+  details + details { border-top: 0; }
+  summary {
+    cursor: pointer; padding: .85rem 1.15rem; font-weight: 600; font-size: .95rem;
+    display: flex; gap: .7rem; align-items: baseline; list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "+"; font-family: var(--mono); color: var(--accent); font-weight: 400; flex: none; width: 1ch;
+  }
+  details[open] summary::before { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid var(--rule); }
+  details .inner { padding: .9rem 1.15rem 1.1rem 2.85rem; display: flex; flex-direction: column; gap: .6rem; font-size: .92rem; color: var(--ink-2); }
+  details .inner p { max-width: 60ch; }
+  .rec { color: var(--ink); }
+  .rec b { font-family: var(--mono); font-size: .72rem; letter-spacing: .11em; text-transform: uppercase; color: var(--accent); }
+
+  footer { padding: 2.5rem 0 4rem; font-family: var(--mono); font-size: .76rem; color: var(--ink-3); }
+  footer p { max-width: 70ch; }
+
+  .note {
+    border-left: 2px solid var(--signal); background: var(--signal-soft); padding: .8rem 1rem;
+    font-size: .9rem; max-width: var(--measure); display: flex; flex-direction: column; gap: .45rem;
+  }
+  .note .lbl { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--signal); }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+<style>
+  .cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1px; background: var(--rule-strong); border: 1px solid var(--rule-strong); }
+  .cmp > div { background: var(--surface); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .5rem; }
+  .cmp h5 { margin: 0; font-family: var(--mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .cmp .big { font-family: var(--mono); font-size: 1.35rem; color: var(--accent); line-height: 1.1; }
+  .cmp .sub { font-size: .85rem; color: var(--ink-2); }
+  .cmp .rec { outline: 2px solid var(--accent); outline-offset: -2px; }
+  pre { margin: 0; font-family: var(--mono); font-size: .8rem; line-height: 1.5; overflow-x: auto; background: var(--surface); border: 1px solid var(--rule-strong); padding: .9rem 1.05rem; color: var(--ink); }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; white-space: pre; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap mast-inner">
+    <div class="eyebrow"><b>Design proposal</b><span>IoTPLC_CPU &nbsp;/&nbsp; STM32H750VBT6 + ESP32-S3</span><span>Ethernet roadmap</span></div>
+    <h1>Adding Ethernet to the IoT PLC</h1>
+    <p class="standfirst">The current board has no free pins for the STM32H750's native Ethernet MAC. This page shows the four ways to add Ethernet, why a W5500 on the ESP32-S3 is the right step for the next board revision, and how dual-port Ethernet arrives with the embedded-Linux head in v2.</p>
+    <div class="mast-meta">
+      <span><strong>v1.1</strong> W5500 SPI Ethernet on the ESP32-S3</span>
+      <span><strong>v2</strong> STM32MP135 Linux head, 2 &times; Ethernet</span>
+      <span><strong>Rejected for now</strong> native RMII on the LQFP100 H750</span>
+      <span><strong>Date</strong> 2026-10-03</span>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+
+<section><div class="sec-grid"><div class="sec-mark">00<i>Verdict</i></div><div class="sec-body">
+  <div class="verdict">
+    <span class="kicker">Recommendation</span>
+    <p>Put a WIZnet W5500 on the ESP32-S3's free SPI pins (IO9&ndash;IO14) with an RJ45 that has integrated magnetics. The STM32 side does not change at all, and the ESP32 gains a wired uplink next to Wi-Fi for Modbus TCP, MQTT and the web UI.</p>
+    <p>For a true industrial dual-port device (line topology, deterministic Modbus TCP, OPC UA), plan the v2 head around the STM32MP135, which has two Gigabit MACs on chip.</p>
+  </div>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">01<i>Constraint</i></div><div class="sec-body">
+  <h2>Why native Ethernet on the H750 doesn't fit this board</h2>
+  <p>The STM32H750VBT6 has an Ethernet MAC, but in the 100-pin package the RMII signals can only use one fixed set of pins (Port G is missing). All nine are already used by I/O you need.</p>
+  <div class="scroller"><table>
+    <caption>RMII signals on LQFP100 vs. current use</caption>
+    <thead><tr><th>RMII signal</th><th class="m">Pin</th><th>Used today for</th><th>Conflict</th></tr></thead>
+    <tbody>
+      <tr><td>ETH_REF_CLK</td><td class="m">PA1</td><td>EXP_SYNC (expansion bus)</td><td><span class="pill b">yes</span></td></tr>
+      <tr><td>ETH_MDIO</td><td class="m">PA2</td><td>USART2 TX (RS-232)</td><td><span class="pill b">yes</span></td></tr>
+      <tr><td>ETH_MDC</td><td class="m">PC1</td><td>STM_EVENT to ESP32</td><td><span class="pill b">yes</span></td></tr>
+      <tr><td>ETH_CRS_DV</td><td class="m">PA7</td><td>AI2_I (ADC)</td><td><span class="pill b">yes</span></td></tr>
+      <tr><td>ETH_RXD0 / RXD1</td><td class="m">PC4 / PC5</td><td>AI3_V / AI3_I (ADC)</td><td><span class="pill b">yes</span></td></tr>
+      <tr><td>ETH_TX_EN</td><td class="m">PB11</td><td>USART3 RX (ESP32 link)</td><td><span class="pill b">yes</span></td></tr>
+      <tr><td>ETH_TXD0 / TXD1</td><td class="m">PB12 / PB13</td><td>SPI2 CS / SCK (FRAM)</td><td><span class="pill b">yes</span></td></tr>
+    </tbody></table></div>
+  <p>Freeing them would mean moving RS-232, the ESP32 link, the FRAM bus and two analog channels, which is a full re-pin of the CPU page. A bigger package (STM32H750ZBT6, LQFP144) removes the conflict but is also a redesign. The ESP32-S3 has no Ethernet MAC, so SPI Ethernet is the only option on that side.</p>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">02<i>Options</i></div><div class="sec-body">
+  <h2>Four routes, compared</h2>
+  <div class="cmp">
+    <div class="rec"><h5>A &middot; W5500 on ESP32</h5><div class="big">v1.1</div><div class="sub">10/100, SPI 40&nbsp;MHz, ~US$3 extra. No STM32 change. Ethernet + Wi-Fi failover. Supported by ESP-IDF <code>esp_eth</code>.</div></div>
+    <div><h5>B &middot; SPI MAC on STM32</h5><div class="big">no pins</div><div class="sub">W5500/KSZ8851 on the H750 needs a free SPI + IRQ. None left; would also load the PLC scan with TCP.</div></div>
+    <div><h5>C &middot; H750 in LQFP144 + RMII PHY</h5><div class="big">re-pin</div><div class="sub">LAN8742A or KSZ8081 on RMII. Deterministic Modbus TCP on the MCU, but new MCU footprint and full CPU page rework.</div></div>
+    <div><h5>D &middot; Linux head (MP135)</h5><div class="big">v2</div><div class="sub">2 &times; GbE on chip, switch for daisy-chain, OPC UA, secure boot. See the SoC selection doc.</div></div>
+  </div>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">03<i>v1.1 hardware</i></div><div class="sec-body">
+  <h2>W5500 on the ESP32-S3: what to add</h2>
+  <figure>
+    <svg viewBox="0 0 760 210" role="img" aria-label="ESP32-S3 to W5500 to RJ45 with magnetics, STM32 unchanged">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="dgm-arrow"/></marker></defs>
+      <rect x="20" y="70" width="150" height="70" rx="6" class="dgm-box-2"/><text x="95" y="100" text-anchor="middle" class="dgm-t">STM32H750</text><text x="95" y="118" text-anchor="middle" class="dgm-t-sm">unchanged</text>
+      <rect x="230" y="70" width="150" height="70" rx="6" class="dgm-box"/><text x="305" y="100" text-anchor="middle" class="dgm-t">ESP32-S3</text><text x="305" y="118" text-anchor="middle" class="dgm-t-sm">Wi-Fi + Ethernet</text>
+      <rect x="440" y="70" width="120" height="70" rx="6" class="dgm-band"/><text x="500" y="100" text-anchor="middle" class="dgm-t">W5500</text><text x="500" y="118" text-anchor="middle" class="dgm-t-sm">MAC + PHY</text>
+      <rect x="620" y="70" width="120" height="70" rx="6" class="dgm-box"/><text x="680" y="100" text-anchor="middle" class="dgm-t">RJ45</text><text x="680" y="118" text-anchor="middle" class="dgm-t-sm">magnetics, ESD</text>
+      <path d="M170 105H230" class="dgm-line" marker-end="url(#ah)" marker-start="url(#ah)"/><text x="200" y="95" text-anchor="middle" class="dgm-t-lbl">USART3</text>
+      <path d="M380 105H440" class="dgm-line-acc" marker-end="url(#ah)" marker-start="url(#ah)"/><text x="410" y="95" text-anchor="middle" class="dgm-t-acc">SPI</text>
+      <path d="M560 105H620" class="dgm-line" marker-end="url(#ah)" marker-start="url(#ah)"/><text x="590" y="95" text-anchor="middle" class="dgm-t-lbl">MDI</text>
+      <path d="M680 140V175" class="dgm-line-sig"/><text x="690" y="190" class="dgm-t-sm">shield &rarr; 1nF/2kV + 1M &rarr; PE</text>
+    </svg>
+    <figcaption>Only the Connection page changes. The ESP32 exposes Modbus TCP, MQTT and the web UI on either network interface.</figcaption>
+  </figure>
+  <div class="scroller"><table>
+    <caption>ESP32-S3 pins (all currently free on U2)</caption>
+    <thead><tr><th>Signal</th><th class="m">ESP32-S3</th><th class="m">W5500</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>SCLK</td><td class="m">IO12</td><td class="m">SCLK</td><td>FSPI default, up to 40 MHz; 22&nbsp;&Omega; series at ESP32</td></tr>
+      <tr><td>MOSI</td><td class="m">IO11</td><td class="m">MOSI</td><td></td></tr>
+      <tr><td>MISO</td><td class="m">IO13</td><td class="m">MISO</td><td></td></tr>
+      <tr><td>CS</td><td class="m">IO10</td><td class="m">SCSn</td><td>10k pull-up</td></tr>
+      <tr><td>INT</td><td class="m">IO9</td><td class="m">INTn</td><td>10k pull-up, falling-edge interrupt</td></tr>
+      <tr><td>RESET</td><td class="m">IO14</td><td class="m">RSTn</td><td>10k pull-up + 100nF; also resettable from software</td></tr>
+    </tbody></table></div>
+  <h3>Bill of materials (about US$3&ndash;6)</h3>
+  <ul>
+    <li><strong>W5500</strong> (LQFP-48, &minus;40&hellip;+85&nbsp;&deg;C), 25&nbsp;MHz crystal &plusmn;30&nbsp;ppm with 2 &times; load caps, 12.4&nbsp;k&Omega; 1% on EXRES1, decoupling 10&nbsp;&micro;F + 6 &times; 100&nbsp;nF, ferrite bead to the analog 3.3&nbsp;V pins.</li>
+    <li><strong>RJ45 with integrated magnetics and LEDs</strong> (e.g. HanRun HR911105A for prototypes, a Würth or Pulse industrial jack rated &minus;40&hellip;+85&nbsp;&deg;C for production), 1500&nbsp;V<sub>rms</sub> isolation.</li>
+    <li><strong>ESD/surge</strong>: low-capacitance array on the line side (e.g. RClamp0524P or TPD4E05U06), placed at the connector.</li>
+    <li><strong>Bob Smith termination</strong>: 4 &times; 75&nbsp;&Omega; to a common node, then 1&nbsp;nF/2&nbsp;kV to chassis. Shield to PE through 1&nbsp;nF/2&nbsp;kV &#8741; 1&nbsp;M&Omega; (same pattern as the RS-485 port).</li>
+    <li><strong>Power</strong>: W5500 draws about 130&nbsp;mA at 3.3&nbsp;V at 100&nbsp;Mb/s. TPS563201 (3&nbsp;A) has margin; recheck the 3.3&nbsp;V budget with Wi-Fi TX peaks.</li>
+  </ul>
+  <h3>Layout rules</h3>
+  <ul>
+    <li>Differential pairs TX&plusmn;/RX&plusmn; 100&nbsp;&Omega;, under 25&nbsp;mm from W5500 to jack, no vias, no stubs.</li>
+    <li>Void all copper (planes included) under the magnetics/jack isolation gap; keep at least 2&nbsp;mm creepage between line side and logic ground.</li>
+    <li>Crystal within 10&nbsp;mm of the W5500, guarded by ground; SPI under 50&nbsp;mm.</li>
+  </ul>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">04<i>Firmware</i></div><div class="sec-body">
+  <h2>IoTHandler changes</h2>
+  <ul>
+    <li>Use the ESP-IDF Ethernet driver (<code>esp_eth_mac_new_w5500()</code> / <code>esp_eth_phy_new_w5500()</code>) through the Arduino-ESP32 3.x <code>ETH</code> class (PlatformIO <code>pioarduino</code> platform), so lwIP runs both <code>WIFI_STA</code> and <code>ETH</code> netifs.</li>
+    <li>Interface priority: Ethernet first, Wi-Fi as fallback; reconnect the MQTT/AWS IoT client on interface change.</li>
+    <li>Add a <strong>Modbus TCP server</strong> (port 502) on the ESP32 that maps registers to the process image already shared over <code>stm_link_v2</code>, so SCADA/HMI panels can read the PLC directly.</li>
+    <li>New pins in <code>config.h</code>: <code>PIN_ETH_SCLK 12</code>, <code>PIN_ETH_MOSI 11</code>, <code>PIN_ETH_MISO 13</code>, <code>PIN_ETH_CS 10</code>, <code>PIN_ETH_INT 9</code>, <code>PIN_ETH_RST 14</code>.</li>
+    <li>Static IP / DHCP and Modbus unit ID become fields in the provisioning config (<code>device_config.h</code>).</li>
+  </ul>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">05<i>v2</i></div><div class="sec-body">
+  <h2>Native dual-port Ethernet in v2</h2>
+  <p>Industrial customers wire PLCs in a line (cabinet to cabinet) and expect two ports with an internal switch. That needs a real MAC with RMII/RGMII, which the v2 Linux head provides.</p>
+  <ul>
+    <li><strong>STM32MP135F</strong>: two GbE MACs &rarr; two RGMII PHYs (e.g. RTL8211F-VD-CG industrial or DP83867IR), or one MAC &rarr; 3-port switch (Microchip KSZ8863RLL or LAN9353) for a daisy-chain with one MAC.</li>
+    <li>Keep the W5500 footprint out; the ESP32 becomes an optional Wi-Fi/BLE co-processor.</li>
+    <li>Protocols that become possible: Modbus TCP with deterministic timing, OPC UA server (open62541), MQTT/Sparkplug B, EtherNet/IP adapter or PROFINET device via commercial stacks.</li>
+    <li>If you instead keep an MCU-only design, the alternative is <strong>STM32H750ZBT6 (LQFP144)</strong> + <strong>LAN8742A</strong> on RMII, with the I/O re-pinned to free PA1/PA2/PC1/PA7/PC4/PC5 and using Port G for TX.</li>
+  </ul>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">06<i>Industrial</i></div><div class="sec-body">
+  <h2>Industrial-grade Ethernet checklist</h2>
+  <div class="scroller"><table>
+    <caption>Requirements to design and test against</caption>
+    <thead><tr><th>Item</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Isolation</td><td>1500&nbsp;V<sub>rms</sub> magnetics (IEEE 802.3), creepage &ge; 2&nbsp;mm</td></tr>
+      <tr><td>ESD</td><td>IEC 61000-4-2 &plusmn;8&nbsp;kV contact / &plusmn;15&nbsp;kV air at the jack</td></tr>
+      <tr><td>Fast transients</td><td>IEC 61000-4-4 &plusmn;1&nbsp;kV on signal lines</td></tr>
+      <tr><td>Surge</td><td>IEC 61000-4-5 &plusmn;1&nbsp;kV line-to-earth (shielded cable)</td></tr>
+      <tr><td>Connector</td><td>RJ45 for cabinet use; M12 D-coded option for machine-mounted versions</td></tr>
+      <tr><td>Temperature</td><td>PHY, magnetics, crystal all &minus;40&hellip;+85&nbsp;&deg;C</td></tr>
+      <tr><td>Option</td><td>PoE PD (IEEE 802.3af, e.g. TPS2378 + isolated flyback) as an alternative 24&nbsp;V-free supply</td></tr>
+    </tbody></table></div>
+</div></div></section>
+
+<section><div class="sec-grid"><div class="sec-mark">07<i>Plan</i></div><div class="sec-body">
+  <h2>Steps</h2>
+  <div class="phases">
+    <div class="phase"><div class="n">1</div><div class="c"><div class="h">Prototype on a W5500 module</div><div class="d">Wire a W5500 breakout to IO9&ndash;IO14 of the current ESP32-S3 board and bring up <code>ETH</code> + Modbus TCP in IoTHandler.</div></div></div>
+    <div class="phase"><div class="n">2</div><div class="c"><div class="h">Board revision v1.1</div><div class="d">Add W5500, crystal, RJ45 with magnetics, ESD and Bob Smith termination to the Connection page; route per the layout rules.</div></div></div>
+    <div class="phase"><div class="n">3</div><div class="c"><div class="h">EMC pre-scan</div><div class="d">ESD, EFT and surge on the Ethernet port before committing to production.</div></div></div>
+    <div class="phase"><div class="n">4</div><div class="c"><div class="h">v2 Linux head</div><div class="d">STM32MP135 with two ports; the W5500 is dropped.</div></div></div>
+  </div>
+</div></div></section>
+
+</main>
+</body>
+</html>
